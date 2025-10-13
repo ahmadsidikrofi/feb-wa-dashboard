@@ -1,0 +1,119 @@
+"use client"
+
+import { TrendingUp } from "lucide-react"
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from "recharts"
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import { useEffect, useState } from "react"
+import axios from "axios"
+
+const chartConfig = {
+    total: {
+        label: "Total Tiket",
+        color: "var(--chart-2)",
+    },
+    label: {
+        color: "var(--background)",
+    },
+}
+
+const getBarColor = (category) => {
+    switch (category) {
+        case "Sidang":
+            return "#ef4444" // biru
+        case "Keuangan":
+            return "#fbbf24" // hijau
+        case "Wisuda":
+            return "#22C55E" // ungu
+        default:
+            return "#9CA3AF" // abu
+    }
+}
+
+export function ChartBarLabelCustom() {
+    const [chartData, setChartData] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await axios.get("http://localhost:3001/api/dashboard/stats/ticket-categories")
+                setChartData(res.data)
+            } catch (error) {
+                console.error("Gagal memuat data kategori tiket:", error)
+            }
+        }
+        fetchData()
+    }, [])
+  return (
+    <Card>
+        <CardHeader>
+            <CardTitle>Tiket Berdasarkan Kategori</CardTitle>
+            <CardDescription>Distribusi jumlah tiket per kategori</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <ChartContainer config={chartConfig}>
+                <BarChart
+                    accessibilityLayer
+                    data={chartData}
+                    layout="vertical"
+                    margin={{ right: 16 }}
+                    barSize={80}
+                >
+                    <CartesianGrid horizontal={false} />
+                    <YAxis
+                        dataKey="name"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                        hide
+                    />
+                    <XAxis dataKey="total" type="number" hide />
+                    <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="line" />}
+                    />
+                    <Bar
+                        dataKey="total"
+                        layout="vertical"
+                        fill="var(--color-desktop)"
+                        radius={4}
+                    >
+                        <LabelList
+                            dataKey="name"
+                            position="insideLeft"
+                            offset={8}
+                            className="fill-(--color-label)"
+                            fontSize={12}
+                        />
+                        <LabelList
+                            dataKey="total"
+                            position="right"
+                            offset={8}
+                            className="fill-foreground"
+                            fontSize={12}
+                        />
+                        {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={getBarColor(entry.name)} />
+                        ))}
+                    </Bar>
+                </BarChart>
+            </ChartContainer>
+        </CardContent>
+    </Card>
+  )
+}
