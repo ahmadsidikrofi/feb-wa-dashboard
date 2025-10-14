@@ -9,63 +9,151 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { AlarmClock, AlarmClockIcon, CalendarIcon, Pencil, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { format } from "date-fns"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { AlarmClock, AlarmClockIcon, CalendarIcon, Loader2, LoaderCircle, MoreHorizontal, Pencil, PencilLine, Plus, Trash2, X } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { compareAsc, format, isSameDay } from "date-fns"
+import { id as localeId } from "date-fns/locale"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import axios from "axios";
 
+
+function hasEventsOnDate(schedule, date) {
+    return schedule.some((ev) => isSameDay(ev.reminderTime, date))
+}
+
+function formatHumanDate(date) {
+    return format(date, "d MMMM yyyy", { locale: localeId })
+}
+
+function formatTime(date) {
+    return format(date, "HH:mm")
+}
+
+function EventRow({ event, onViewDetail, onCancel, isLoading }) {
+    return (
+      <div className={cn("flex items-start justify-between gap-4 py-3", "first:pt-0 last:pb-0")}>
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="text-sm text-muted-foreground">Akan dikirim pada: {format(event.reminderTime, "HH:mm")}</div>
+          <div className="truncate font-medium">{event.eventTitle}</div>
+          <div className="text-pretty text-sm text-muted-foreground">{event.eventDescription}</div>
+        </div>
+  
+        <div className="flex shrink-0 items-center gap-2">
+          <Badge className="capitalize" variant={event.status === "sent" ? "default" : "secondary"}>{event.status}</Badge>
+          {event.status === "cancelled" || event.status === "sent" ? (
+            <Button variant="outline" size="icon"><Trash2 className="size-4 text-destructive" /></Button>
+          ) : (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="ghost" aria-label="Opsi">
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-40">
+                    <DropdownMenuItem><PencilLine className="size-4" /> Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onCancel(event.id)} className="text-destructive">
+                        {isLoading ? <Loader2 className="size-4" /> : <X className="text-destructive size-4" /> } Batalkan
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive"><Trash2 className="text-destructive size-4" /> Hapus</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  
 const ReminderPage = () => {
     const [open, setOpen] = useState(false)
     const [schedules, setSchedules] = useState([])
-
+    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [selectedEvent, setSelectedEvent] = useState(null)
+    const [isMounted, setIsMounted] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [recipientName, setRecipientName] = useState("")
     const [phone, setPhone] = useState("")
-    const [message, setMessage] = useState("")
-    const [date, setDate] = useState(new Date())
+    const [eventDescription, setEventDescription] = useState("")
+    const [eventTitle, setEventTitle] = useState("")
+    const [eventDate, setEventDate] = useState(new Date())
     const [time, setTime] = useState("09:00")
+    const [reminderDate, setReminderDate] = useState(new Date())
+    const [reminderTime, setReminderTime] = useState("08:00")
 
-    const canSave = useMemo(() => {
-        return recipientName.trim() && phone.trim() && message.trim() && date && time
-    }, [recipientName, phone, message, date, time])
-
-    const reminders = [
-        { id: 1, date: "2025-10-08", title: "Rapat Fakultas", description: "Rapat koordinasi mingguan bersama dosen." },
-        { id: 2, date: "2025-10-10", title: "Meeting Dekan", description: "Presentasi hasil evaluasi kinerja fakultas." },
-        { id: 3, date: "2025-10-14", title: "Evaluasi Mingguan", description: "Review progress proyek akademik." },
-    ]
-
-    // helper: cek apakah tanggal punya reminder
-    const getReminderByDate = (day) => {
-        // Ensure 'day' is a valid Date object before proceeding
-        if (!day || !(day instanceof Date) || isNaN(day.getTime())) {
-            return [];
+    const scheduleEvents = async () => {
+        const res = await axios.get('http://localhost:3001/api/schedules')
+        if (res) {
+            setSchedules(res.data)
         }
-        const d = day.toISOString().split("T")[0]
-        return reminders.filter(r => r.date === d)
-      }
-
-    function StatusBadge({ status }) {
-        const isPending = status === "pending"
-        return (
-            <Badge
-                className={cn(
-                    "capitalize",
-                    isPending
-                        ? "bg-(--color-warning) text-(--color-warning-foreground) hover:bg-(--color-warning)"
-                        : "bg-(--color-success) text-(--color-success-foreground) hover:bg-(--color-success)",
-                )}
-            >
-                {status}
-            </Badge>
-        )
     }
 
-    const handleSave = async () => {
+    const createSchedule = async () => {
+        setIsLoading(true)
+        const [eventHours, eventMinutes] = time.split(':').map(Number)
+        const combinedEventDateTime = new Date(eventDate)
+        combinedEventDateTime.setHours(eventHours, eventMinutes, 0, 0)
 
+        const [reminderHours, reminderMinutes] = reminderTime.split(':').map(Number)
+        const combinedReminderDateTime = new Date(reminderDate)
+        combinedReminderDateTime.setHours(reminderHours, reminderMinutes, 0, 0)
+
+        try {
+            const res = await axios.post('http://localhost:3001/api/schedules', {
+                targetPerson: recipientName,
+                targetPhoneNumber: `${phone}@c.us`,
+                eventTitle: eventTitle,
+                eventDescription: eventDescription,
+                eventTime: combinedEventDateTime,
+                reminderTime: combinedReminderDateTime,
+                createdBy: '6282318572605@c.us'
+            })
+            if (res.status === 201) {
+                // console.log("Jadwal berhasil dibuat:", res.data)
+                await new Promise(resolve => setTimeout(resolve, 1500))
+            }
+        } catch (error) {
+            console.error("Gagal membuat jadwal:", error)
+        } finally {
+            setIsLoading(false)
+            setOpen(false)
+            scheduleEvents()
+        }
     }
 
-      
+    const handleCancelSchedule = async (scheduleId) => {
+        setIsLoading(true)
+        try {
+            const res = await axios.put(`http://localhost:3001/api/schedules/${scheduleId}/cancel`, {
+                status: 'cancelled'
+            })
+            if (res.status === 200) {
+                await new Promise(resolve => setTimeout(resolve, 3000))
+            }
+        } catch (error) {
+            console.error("Gagal membuat jadwal:", error)
+        } finally {
+            setIsLoading(false)
+            scheduleEvents()
+        }
+    }
+
+    useEffect(() => {
+        scheduleEvents()
+        setIsMounted(true)
+    }, [])
+
+    const eventsForDay = useMemo(() => {
+        return schedules
+            .filter((ev) => isSameDay(ev.reminderTime, selectedDate))
+            .sort((a, b) => compareAsc(a.reminderTime, b.reminderTime))
+    }, [schedules, selectedDate])
+
+    function handleViewDetail(ev) {
+        setSelectedEvent(ev)
+        setIsDrawerOpen(true)
+    }
+
     return ( 
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -90,68 +178,107 @@ const ReminderPage = () => {
 
                         <div className="grid gap-4 py-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="recipient">Nama Penerima</Label>
+                                <Label htmlFor="eventTitle">Judul kegiatan</Label>
                                 <Input
-                                    id="recipient"
-                                    placeholder="Ibu Dekan"
-                                    value={recipientName}
-                                    onChange={(e) => setRecipientName(e.target.value)}
+                                    id="eventTitle"
+                                    placeholder="Kegiatan yang akan dihadiri"
+                                    value={eventTitle}
+                                    onChange={(e) => setEventTitle(e.target.value)}
                                 />
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="phone">Nomor WhatsApp Tujuan</Label>
-                                <Input
-                                    id="phone"
-                                    placeholder="628xxxxxxxxxx"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                />
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="recipient">Nama Penerima</Label>
+                                    <Input
+                                        id="recipient"
+                                        placeholder="Ibu Dekan"
+                                        value={recipientName}
+                                        onChange={(e) => setRecipientName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="phone">Nomor WhatsApp Tujuan</Label>
+                                    <Input
+                                        id="phone"
+                                        placeholder="628xxxxxxxxxx"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="message">Isi Pesan Reminder</Label>
+                                <Label htmlFor="eventDescription">Isi Pesan Reminder</Label>
                                 <Textarea
-                                    id="message"
+                                    id="eventDescription"
                                     placeholder="Tulis pesan pengingat di sini..."
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
+                                    value={eventDescription}
+                                    onChange={(e) => setEventDescription(e.target.value)}
                                     rows={4}
                                 />
                             </div>
 
-                            {/* Waktu Pengiriman */}
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                {/* Waktu Pengiriman (Date Picker) */}
-                                <div className="flex-1 grid gap-2">
-                                    <Label>Waktu Pengiriman</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {date ? format(date, "PPP") : <span>Pilih tanggal</span>}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
-                                        </PopoverContent>
-                                    </Popover>
+                            {/* --- WAKTU KEGIATAN (Event Time) --- */}
+                            <div className="grid gap-2">
+                                <Label>Waktu Kegiatan</Label>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <div className="flex-1">
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button variant="outline" className={cn("w-full justify-start text-left font-semibold", !eventDate && "text-muted-foreground")}>
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {eventDate ? format(eventDate, "PPP") : <span>Pilih tanggal kegiatan</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar mode="single" selected={eventDate} onSelect={setEventDate} initialFocus />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    {/* Time Input untuk Event */}
+                                    <div className="flex-1">
+                                        <Input
+                                            type="time"
+                                            value={time}
+                                            onChange={(e) => setTime(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Waktu Reminder */}
+                            <div className="grid gap-2">
+                                {/* Waktu Reminder (Date Picker) */}
+                                <Label>Waktu Pengiriman Reminder</Label>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <div className="flex-1">
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn("w-full justify-start text-left font-semibold", !reminderDate && "text-muted-foreground")}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {reminderDate ? format(reminderDate, "PPP") : <span>Pilih tanggal dikirim</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar mode="single" selected={reminderDate} onSelect={setReminderDate} initialFocus />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    {/* Jam (Time Input) */}
+                                    <div className="flex-1">
+                                        <Input
+                                            type="time"
+                                            value={reminderTime}
+                                            onChange={(e) => setReminderTime(e.target.value)}
+                                        />
+                                    </div>
                                 </div>
 
-                                {/* Jam (Time Input) */}
-                                <div className="flex-1 grid gap-2">
-                                    <Label htmlFor="time-picker">Jam</Label>
-                                    <Input
-                                        type="time"
-                                        id="time-picker"
-                                        step="1"
-                                        defaultValue="10:30:00"
-                                        className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                                    />
-                                </div>
                             </div>
                         </div>
 
@@ -159,194 +286,59 @@ const ReminderPage = () => {
                             <Button variant="outline" onClick={() => setOpen(false)}>
                                 Batal
                             </Button>
-                            <Button onClick={handleSave} disabled={!canSave}>
-                                Simpan Jadwal
+                            <Button onClick={createSchedule}>
+                                {isLoading ? <LoaderCircle className="size-4 animate-spin"/> : "Simpan jadwal"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 flex justify-center">
-                    <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        className="rounded-md border shadow-sm w-full max-w-lg"
-                        modifiers={{
-                            hasReminder: (day) => getReminderByDate(day).length > 0,
-                        }}
-                        components={{
-                            Day: ({ date, modifiers, ...props }) => {
-                                if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
-                                    return <span {...props} className="w-full aspect-square" />;
-                                }
-                                const remindersToday = getReminderByDate(date)
-                                const label = date.getDate()
-
-                                if (remindersToday.length === 0) {
-                                    return (
-                                        <div
-                                            {...props}
-                                            className={cn(
-                                                "relative w-full aspect-square text-sm rounded-md transition-colors flex items-center justify-center hover:bg-accent",
-                                            )}
-                                        >
-                                            {label}
-                                        </div>
-                                    );
-                                }
-
-                                return (
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <span
-                                                {...props}
-                                                role="button"
-                                                tabIndex={0}
-                                                className="relative w-full aspect-square rounded-md border border-green-300 bg-green-50 hover:bg-green-100 text-green-800 p-1 transition cursor-pointer"
-                                            >
-                                                <span className="text-xs font-semibold">{label}</span>
-                                                <span className="text-[10px] truncate leading-tight mt-1 font-medium">
-                                                    {remindersToday[0].title}
-                                                </span>
-                                                {remindersToday.length > 1 && (
-                                                    <span className="text-[10px] text-muted-foreground">
-                                                        +{remindersToday.length - 1} lagi
-                                                    </span>
-                                                )}
-                                            </span>
-                                        </PopoverTrigger>
-
-                                        <PopoverContent className="w-64" align="center">
-                                            <div className="flex flex-col gap-2">
-                                                <p className="text-sm font-semibold mb-1">
-                                                    Agenda{" "}
-                                                    {date.toLocaleDateString("id-ID", {
-                                                        day: "2-digit",
-                                                        month: "short",
-                                                        year: "numeric",
-                                                    })}
-                                                </p>
-                                                {remindersToday.map((r) => (
-                                                    <div
-                                                        key={r.id}
-                                                        className="rounded-md border p-2 flex justify-between items-start gap-2 hover:bg-muted transition"
-                                                    >
-                                                        <div>
-                                                            <p className="text-sm font-medium">{r.title}</p>
-                                                            <p className="text-xs text-muted-foreground">{r.description}</p>
-                                                        </div>
-                                                        <div className="flex flex-col gap-1">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-5 w-5"
-                                                                title="Edit Reminder"
-                                                            >
-                                                                <Pencil className="h-3 w-3" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-5 w-5 text-destructive"
-                                                                title="Hapus Reminder"
-                                                            >
-                                                                <Trash2 className="h-3 w-3" />
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                );
-                            },
-                        }}
-                    />
-                </div>
-
+            {/* Two panel Layout */}
+            <section className="flex flex-col lg:flex-row gap-6">
+                 {/* Left Panel: calender */}
+                 <div className="flex-1 flex justify-center">
+                     {isMounted ? (
+                         <Calendar
+                             mode="single"
+                             selected={selectedDate}
+                             onSelect={(d) => d && setSelectedDate(d)}
+                             className="rounded-md border shadow-sm w-full max-w-md"
+                             modifiers={{ 
+                                 busy: (date) => hasEventsOnDate(schedules, date),
+                             }}
+                             modifiersClassNames={{ 
+                                 busy: `after:content-[''] after:block after:mx-auto after:mt-1 
+                                 after:h-1.5 after:w-1.5 after:rounded-full after:bg-primary`,
+                             }}
+                         />
+                     ) : (
+                         <div className="rounded-md border shadow-sm w-full max-w-md h-[350px] flex items-center justify-center">
+                             <div className="text-muted-foreground">Loading calendar...</div>
+                         </div>
+                     )}
+                 </div>
+                
+                {/* Right Panel: Event Details */}
                 <div className="flex-1">
-                    <h3 className="text-lg font-semibold mb-2">
-                        Jadwal Mendatang
-                    </h3>
-                    <div className="space-y-2">
-                        {reminders.map((r, i) => (
-                            <div
-                                key={i}
-                                className="flex justify-between rounded-lg border p-2 hover:bg-muted"
-                            >
-                                <span>{r.title}</span>
-                                <span className="text-muted-foreground text-sm">
-                                    {new Date(r.date).toLocaleDateString("id-ID", {
-                                        weekday: "short",
-                                        day: "2-digit",
-                                        month: "short",
-                                    })}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Jadwal pengingat untuk {formatHumanDate(selectedDate)}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {eventsForDay.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">Tidak ada jadwal untuk tanggal ini.</p>
+                            ) : (
+                                <div className="divide-y">
+                                {eventsForDay.map((event) => (
+                                  <EventRow key={event.id} event={event} onViewDetail={handleViewDetail} onCancel={handleCancelSchedule} isLoading={isLoading} />
+                                ))}
+                              </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
-            </div>
-
-            <div className="overflow-x-auto rounded-lg border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="min-w-[160px]">Penerima</TableHead>
-                            <TableHead className="min-w-[260px]">Deskripsi Reminder</TableHead>
-                            <TableHead className="min-w-[200px]">Waktu Pengingat</TableHead>
-                            <TableHead className="min-w-[120px]">Status</TableHead>
-                            <TableHead className="min-w-[80px] text-right">Aksi</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {schedules.map((schedule, i) => (
-                            <TableRow key={i}>
-                                <TableCell>
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{schedule.recipientName}</span>
-                                        <span className="text-sm text-muted-foreground">+{schedule.phone}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="max-w-[420px]">
-                                    <p className="text-pretty">{schedule.message}</p>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{format(schedule.sendAt, "PPP")}</span>
-                                        <span className="text-sm text-muted-foreground">{format(schedule.sendAt, "p")}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <StatusBadge status={schedule.status} />
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <Button
-                                        variant="ghost"
-                                        className="text-destructive hover:text-destructive"
-                                        onClick={() => handleDelete(schedule.id)}
-                                        aria-label={`Hapus jadwal untuk ${schedule.recipientName}`}
-                                        title="Hapus"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                        <span className="sr-only">Hapus</span>
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                        {schedules.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                    Belum ada jadwal reminder.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+            </section>
         </div>
     );
 }
