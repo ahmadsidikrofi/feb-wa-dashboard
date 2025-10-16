@@ -57,7 +57,7 @@ export default function TicketArchivePage() {
       try {
         const token = localStorage.getItem('auth_token')
         
-        const response = await fetch('http://localhost:3001/api/tickets', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         

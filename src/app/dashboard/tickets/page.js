@@ -24,7 +24,7 @@ export default function OpenTicketPage() {
   const fetchIncomingTickets = async () => {
     try {
       const token = localStorage.getItem('auth_token')
-      const response = await fetch('http://localhost:3001/api/tickets', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       console.log(response);
@@ -45,7 +45,7 @@ export default function OpenTicketPage() {
   const handleUnresolvedTicket = async (ticketId) => {
     try {
       setUpdatingTicketId(ticketId)
-      const res = await axios.put(`http://localhost:3001/api/tickets/${ticketId}/assign`, {
+      const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets/${ticketId}/assign`, {
         adminName: 'admin_Rina'
       })
       if (res.status === 200) {

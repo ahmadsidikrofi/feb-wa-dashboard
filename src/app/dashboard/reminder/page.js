@@ -9,13 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { AlarmClock, AlarmClockIcon, CalendarIcon, Loader2, LoaderCircle, MoreHorizontal, Pencil, PencilLine, Plus, Trash2, X } from "lucide-react";
+import { AlarmClock, AlarmClockIcon, ArrowLeft, CalendarIcon, Loader2, LoaderCircle, MoreHorizontal, Pencil, PencilLine, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { compareAsc, format, isSameDay } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
+import DeleteSchedule from "@/components/Scheduler/delete-schedule";
+
 
 
 function hasEventsOnDate(schedule, date) {
@@ -26,43 +28,46 @@ function formatHumanDate(date) {
     return format(date, "d MMMM yyyy", { locale: localeId })
 }
 
-function formatTime(date) {
-    return format(date, "HH:mm")
+const handleDeleteSuccess = (deletedScheduleId) => {
+    // Hapus schedule dari state tanpa perlu reload
+    setSchedules(prevSchedules => 
+        prevSchedules.filter(schedule => schedule.id !== deletedScheduleId)
+    )
 }
 
-function EventRow({ event, onViewDetail, onCancel, isLoading }) {
+function EventRow({ event, onViewDetail, onCancel, isLoading, scheduleEvents }) {
     return (
-      <div className={cn("flex items-start justify-between gap-4 py-3", "first:pt-0 last:pb-0")}>
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="text-sm text-muted-foreground">Akan dikirim pada: {format(event.reminderTime, "HH:mm")}</div>
-          <div className="truncate font-medium">{event.eventTitle}</div>
-          <div className="text-pretty text-sm text-muted-foreground">{event.eventDescription}</div>
+        <div className={cn("flex items-start justify-between gap-4 py-3", "first:pt-0 last:pb-0")}>
+            <div className="min-w-0 flex-1 space-y-1">
+                <div className="text-sm text-muted-foreground">Akan dikirim pada: {format(event.reminderTime, "HH:mm")}</div>
+                <div className="truncate font-medium">{event.eventTitle}</div>
+                <div className="text-pretty text-sm text-muted-foreground">{event.eventDescription}</div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+                <Badge className="capitalize" variant={event.status === "sent" ? "default" : "secondary"}>{event.status}</Badge>
+                {event.status === "pending" ? (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" aria-label="Opsi">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-40">
+                            <DropdownMenuItem disabled><PencilLine className="size-4 mr-2" /> Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onCancel(event.id)} className="text-destructive">
+                                {isLoading ? <Loader2 className="size-4 mr-2 animate-spin" /> : <X className="text-destructive size-4 mr-2" />} Batalkan
+                            </DropdownMenuItem>
+                            <DeleteSchedule event={event} onDeleteSuccess={handleDeleteSuccess} scheduleEvents={scheduleEvents} />
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                    <DeleteSchedule event={event} onDeleteSuccess={handleDeleteSuccess} scheduleEvents={scheduleEvents} />
+                )}
+            </div>
         </div>
-  
-        <div className="flex shrink-0 items-center gap-2">
-          <Badge className="capitalize" variant={event.status === "sent" ? "default" : "secondary"}>{event.status}</Badge>
-          {event.status === "cancelled" || event.status === "sent" ? (
-            <Button variant="outline" size="icon"><Trash2 className="size-4 text-destructive" /></Button>
-          ) : (
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost" aria-label="Opsi">
-                        <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-40">
-                    <DropdownMenuItem><PencilLine className="size-4" /> Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onCancel(event.id)} className="text-destructive">
-                        {isLoading ? <Loader2 className="size-4" /> : <X className="text-destructive size-4" /> } Batalkan
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive"><Trash2 className="text-destructive size-4" /> Hapus</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </div>
     )
-  }
+}
 
   
 const ReminderPage = () => {
@@ -82,7 +87,7 @@ const ReminderPage = () => {
     const [reminderTime, setReminderTime] = useState("08:00")
 
     const scheduleEvents = async () => {
-        const res = await axios.get('http://localhost:3001/api/schedules')
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`)
         if (res) {
             setSchedules(res.data)
         }
@@ -99,9 +104,10 @@ const ReminderPage = () => {
         combinedReminderDateTime.setHours(reminderHours, reminderMinutes, 0, 0)
 
         try {
-            const res = await axios.post('http://localhost:3001/api/schedules', {
+            const formattedPhone = `62${phone.replace(/^0+/, '')}`
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
                 targetPerson: recipientName,
-                targetPhoneNumber: `${phone}@c.us`,
+                targetPhoneNumber: `${formattedPhone}@c.us`,
                 eventTitle: eventTitle,
                 eventDescription: eventDescription,
                 eventTime: combinedEventDateTime,
@@ -124,7 +130,7 @@ const ReminderPage = () => {
     const handleCancelSchedule = async (scheduleId) => {
         setIsLoading(true)
         try {
-            const res = await axios.put(`http://localhost:3001/api/schedules/${scheduleId}/cancel`, {
+            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules/${scheduleId}/cancel`, {
                 status: 'cancelled'
             })
             if (res.status === 200) {
@@ -200,12 +206,15 @@ const ReminderPage = () => {
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="phone">Nomor WhatsApp Tujuan</Label>
-                                    <Input
-                                        id="phone"
-                                        placeholder="628xxxxxxxxxx"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                    />
+                                    <div className="flex">
+                                        <Button disabled variant="ghost" size="icon">+62</Button>
+                                        <Input
+                                            id="phone"
+                                            placeholder="85128xxxxxxxxx"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -233,7 +242,7 @@ const ReminderPage = () => {
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar mode="single" selected={eventDate} onSelect={setEventDate} initialFocus />
+                                                <Calendar mode="single" selected={eventDate} onSelect={setEventDate} disabled={{ before: new Date() }} initialFocus />
                                             </PopoverContent>
                                         </Popover>
                                     </div>
@@ -265,7 +274,7 @@ const ReminderPage = () => {
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar mode="single" selected={reminderDate} onSelect={setReminderDate} initialFocus />
+                                                <Calendar mode="single" selected={reminderDate} onSelect={setReminderDate} disabled={{ before: new Date() }} initialFocus />
                                             </PopoverContent>
                                         </Popover>
                                     </div>
@@ -297,27 +306,27 @@ const ReminderPage = () => {
             {/* Two panel Layout */}
             <section className="flex flex-col lg:flex-row gap-6">
                  {/* Left Panel: calender */}
-                 <div className="flex-1 flex justify-center">
-                     {isMounted ? (
-                         <Calendar
-                             mode="single"
-                             selected={selectedDate}
-                             onSelect={(d) => d && setSelectedDate(d)}
-                             className="rounded-md border shadow-sm w-full max-w-md"
-                             modifiers={{ 
-                                 busy: (date) => hasEventsOnDate(schedules, date),
-                             }}
-                             modifiersClassNames={{ 
-                                 busy: `after:content-[''] after:block after:mx-auto after:mt-1 
-                                 after:h-1.5 after:w-1.5 after:rounded-full after:bg-primary`,
-                             }}
-                         />
-                     ) : (
-                         <div className="rounded-md border shadow-sm w-full max-w-md h-[350px] flex items-center justify-center">
-                             <div className="text-muted-foreground">Loading calendar...</div>
-                         </div>
-                     )}
-                 </div>
+                <div className="flex-1 flex justify-center h-[80vh]">
+                    {isMounted ? (
+                        <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(d) => d && setSelectedDate(d)}
+                            className="rounded-md border shadow-sm w-full max-w-md h-full"
+                            modifiers={{
+                                busy: (date) => hasEventsOnDate(schedules, date),
+                            }}
+                            modifiersClassNames={{
+                                busy: `after:content-[''] after:block after:mx-auto after:-mt-3
+                                 after:h-1.5 after:w-1.5 after:rounded-full after:bg-red-600`,
+                            }}
+                        />
+                    ) : (
+                        <div className="rounded-md border shadow-sm w-full max-w-md h-[350px] flex items-center justify-center">
+                            <div className="text-muted-foreground">Loading calendar...</div>
+                        </div>
+                    )}
+                </div>
                 
                 {/* Right Panel: Event Details */}
                 <div className="flex-1">
@@ -331,7 +340,7 @@ const ReminderPage = () => {
                             ) : (
                                 <div className="divide-y">
                                 {eventsForDay.map((event) => (
-                                  <EventRow key={event.id} event={event} onViewDetail={handleViewDetail} onCancel={handleCancelSchedule} isLoading={isLoading} />
+                                  <EventRow scheduleEvents={scheduleEvents} key={event.id} event={event} onViewDetail={handleViewDetail} onCancel={handleCancelSchedule} isLoading={isLoading} />
                                 ))}
                               </div>
                             )}

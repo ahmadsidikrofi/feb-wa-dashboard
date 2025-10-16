@@ -50,7 +50,7 @@ export function TicketPerCategoryChart() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get("http://localhost:3001/api/dashboard/stats/ticket-categories")
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-categories`)
                 const data = res.data
                 setChartData(data)
 

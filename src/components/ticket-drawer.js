@@ -30,7 +30,7 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
             setIsLoading(true)
             setError(null)
             try {
-                const res = await fetch(`http://localhost:3001/api/conversations/${conversationId}`)
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/conversations/${conversationId}`)
                 if (!res.ok) throw new Error(`Gagal memuat data (${res.status})`)
                 const data = await res.json()
 
@@ -68,7 +68,7 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
         
         try {
             setUpdatingTicketId(activeTicket.id)
-            const res = await axios.put(`http://localhost:3001/api/tickets/${activeTicket.id}/assign`, {
+            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets/${activeTicket.id}/assign`, {
                 adminName: 'admin_Rina'
             })
             if (res.status === 200) {
