@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { AlarmClock, AlarmClockIcon, ArrowLeft, CalendarIcon, Loader2, LoaderCircle, MoreHorizontal, Pencil, PencilLine, Plus, Trash2, X } from "lucide-react";
+import { AlarmClock, AlarmClockIcon, ArrowLeft, CalendarIcon, Loader2, LoaderCircle, MoreHorizontal, Pencil, PencilLine, Plus, PlusCircle, Trash2, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { compareAsc, format, isSameDay } from "date-fns"
 import { id as localeId } from "date-fns/locale"
@@ -17,7 +17,28 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import DeleteSchedule from "@/components/Scheduler/delete-schedule";
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useFieldArray, useForm } from "react-hook-form";
 
+export const scheduleSchema = z.object({
+    eventTitle: z.string().min(1, "Judul kegiatan wajib diisi"),
+    recepients: z.array(        
+        z.object({
+            name: z.string().min(1, "Nama penerima wajib diisi"),
+            phone: z.string()
+                .min(9, "Nomor tujuan terlalu pendek")
+                .max(15, "Nomor whatsapp terlalu panjang")
+                .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
+                .refine(value => !value.startsWith("62"), {
+                    message: "Nomor WhatsApp tidak boleh diawali dengan 62."
+                }),
+        }),
+    ).min(1, "Minimal 1 penerima."),
+    eventDescription: z.string().min(1, "Deskripsi kegiatan wajib diisi"),
+    eventDate: z.date({ required_error: "Tanggal kegiatan wajib dipilih." }),
+    reminderDate: z.date({ required_error: "Tanggal reminder wajib dipilih." }),
+})
 
 
 function hasEventsOnDate(schedule, date) {
@@ -85,6 +106,17 @@ const ReminderPage = () => {
     const [time, setTime] = useState("09:00")
     const [reminderDate, setReminderDate] = useState(new Date())
     const [reminderTime, setReminderTime] = useState("08:00")
+    const [errors, setErrors] = useState({
+        eventTitle: "",
+        recipientName: "",
+        phone: "",
+        eventDescription: "",
+        eventDate: "",
+        reminderDate: "",
+    })
+    const [recipients, setRecipients] = useState([
+        { name: "", phoneNumber: "" },
+    ])
 
     const scheduleEvents = async () => {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`)
@@ -94,7 +126,6 @@ const ReminderPage = () => {
     }
 
     const createSchedule = async () => {
-        setIsLoading(true)
         const [eventHours, eventMinutes] = time.split(':').map(Number)
         const combinedEventDateTime = new Date(eventDate)
         combinedEventDateTime.setHours(eventHours, eventMinutes, 0, 0)
@@ -103,13 +134,24 @@ const ReminderPage = () => {
         const combinedReminderDateTime = new Date(reminderDate)
         combinedReminderDateTime.setHours(reminderHours, reminderMinutes, 0, 0)
 
+        const validatedData = scheduleSchema.parse({
+            eventTitle,
+            recipientName,
+            phone,
+            eventDescription,
+            eventDate,
+            reminderDate
+        })
+        setErrors({})
+        setIsLoading(true)
+
         try {
-            const formattedPhone = `62${phone.replace(/^0+/, '')}`
+            const formattedPhone = `62${validatedData.phone.replace(/^0+/, '')}`
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
-                targetPerson: recipientName,
+                targetPerson: validatedData.recipientName,
                 targetPhoneNumber: `${formattedPhone}@c.us`,
-                eventTitle: eventTitle,
-                eventDescription: eventDescription,
+                eventTitle: validatedData.eventTitle,
+                eventDescription: validatedData.eventDescription,
                 eventTime: combinedEventDateTime,
                 reminderTime: combinedReminderDateTime,
                 createdBy: '6282318572605@c.us'
@@ -160,6 +202,19 @@ const ReminderPage = () => {
         setIsDrawerOpen(true)
     }
 
+    const { register, handleSubmit, control } = useForm({
+        resolver: zodResolver(scheduleSchema),
+        defaultValues: {
+          eventTitle: "",
+          recipients: [{ name: "", phoneNumber: "" }]
+        }
+    })
+
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: 'recipients'
+    })
+
     return ( 
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -182,7 +237,7 @@ const ReminderPage = () => {
                             <DialogTitle>Buat Reminder Baru</DialogTitle>
                         </DialogHeader>
 
-                        <div className="grid gap-4 py-2">
+                        <div className="grid gap-4 py-2 max-h-[60vh] overflow-y-auto pr-1 space-y-3">
                             <div className="grid gap-2">
                                 <Label htmlFor="eventTitle">Judul kegiatan</Label>
                                 <Input
@@ -191,31 +246,62 @@ const ReminderPage = () => {
                                     value={eventTitle}
                                     onChange={(e) => setEventTitle(e.target.value)}
                                 />
+                                {errors.eventTitle && <p className="text-xs text-red-500">{errors.eventTitle}</p>}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="recipient">Nama Penerima</Label>
-                                    <Input
-                                        id="recipient"
-                                        placeholder="Ibu Dekan"
-                                        value={recipientName}
-                                        onChange={(e) => setRecipientName(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="phone">Nomor WhatsApp Tujuan</Label>
-                                    <div className="flex">
-                                        <Button disabled variant="ghost" size="icon">+62</Button>
+                            {recipients.map((recipient, i) => (
+                                <div key={i} className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end border p-3 rounded-xl bg-muted/40">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor={`recipient-${i}`}>Nama Penerima</Label>
                                         <Input
-                                            id="phone"
-                                            placeholder="85128xxxxxxxxx"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
+                                            id={`recipient-${i}`}
+                                            placeholder="Contoh: Akbar Pasaribu"
+                                            value={recipient.name}
+                                            onChange={(e) => {
+                                                const updated = [...recipients]
+                                                updated[index].name = e.target.value
+                                                setRecipients(updated)
+                                            }}
                                         />
                                     </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor={`phone-${i}`}>Nomor WhatsApp Tujuan</Label>
+                                        <div className="flex">
+                                            <Button disabled variant="ghost" size="icon">+62</Button>
+                                            <Input
+                                                id={`phone-${i}`}
+                                                placeholder="85128xxxxxxxxx"
+                                                value={recipient.phoneNumber}
+                                                onChange={(e) => {
+                                                    const updated = [...recipients];
+                                                    updated[index].phoneNumber = e.target.value;
+                                                    setRecipients(updated);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    {recipients.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            onClick={() =>
+                                                setRecipients(recipients.filter((_, index) => index !== index))
+                                            }
+                                        >
+                                            <Trash2 className="size-4"/>
+                                        </Button>
+                                    )}
                                 </div>
+                            ))}
+
+                            <div className="flex justify-center">
+                                <Button type="button" className="text-white"
+                                    onClick={() => {
+                                        setRecipients([...recipients, { name: "", phoneNumber: "" }])
+                                    }}
+                                >Tambah penerima</Button>
                             </div>
 
                             <div className="grid gap-2">
@@ -306,7 +392,7 @@ const ReminderPage = () => {
             {/* Two panel Layout */}
             <section className="flex flex-col lg:flex-row gap-6">
                  {/* Left Panel: calender */}
-                <div className="flex-1 flex justify-center h-[80vh]">
+                <div className="flex-1 flex justify-center h-[80%]">
                     {isMounted ? (
                         <Calendar
                             mode="single"

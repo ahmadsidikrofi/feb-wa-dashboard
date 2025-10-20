@@ -35,19 +35,23 @@ export function DailyTrenChart() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-trends`)
-      const data = res.data
-      setChartData(data)
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-trends`)
+        const data = res.data
+        setChartData(data)
 
-      if (data.length >= 2) {
-        const last = data[data.length - 1].count
-        const prev = data[data.length - 2].count
-        const change = prev === 0 ? (last > 0 ? 100 : 0) : ((last - prev) / prev) * 100
-        setPercentageChange(change)
+        if (data.length >= 2) {
+          const last = data[data.length - 1].count
+          const prev = data[data.length - 2].count
+          const change = prev === 0 ? (last > 0 ? 100 : 0) : ((last - prev) / prev) * 100
+          setPercentageChange(change)
 
-        if (last > prev) setTrendStatus("up")
-        else if (last < prev) setTrendStatus("down")
-        else setTrendStatus("stable")
+          if (last > prev) setTrendStatus("up")
+          else if (last < prev) setTrendStatus("down")
+          else setTrendStatus("stable")
+        }
+      } catch (error) {
+        console.error("Gagal memuat tren tiket seminggu ini:", error)
       }
     }
     fetchData()
