@@ -32,7 +32,7 @@ export const scheduleSchema = z.object({
                 .max(15, "Nomor whatsapp terlalu panjang")
                 .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
                 .refine(value => !value.startsWith("62"), {
-                    message: "Nomor WhatsApp tidak boleh diawali dengan 62."
+                    message: "Nomor WhatsApp tidak boleh diawali dengan 62 atau 0."
                 }),
         }),
     ).min(1, "Minimal 1 penerima."),
@@ -242,7 +242,7 @@ const ReminderPage = () => {
                         </DialogHeader>
 
                         <Form {...form}>
-                            <form id="schedule-form" onSubmit={form.handleSubmit(createSchedule)} className="grid gap-4 py-2 max-h-[60vh] overflow-y-auto pr-1 space-y-3">
+                            <form id="schedule-form" onSubmit={form.handleSubmit(createSchedule)} className="grid gap-4 py-2 max-h-[60vh] overflow-y-auto pr-1 space-y-2">
                                 <FormField
                                     control={form.control}
                                     name="eventTitle"
@@ -258,7 +258,7 @@ const ReminderPage = () => {
                                 />
 
                                 {fields.map((field, i) => (
-                                    <div key={i} className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end border p-3 rounded-xl bg-muted/40">
+                                    <div key={i} className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-2 border p-3 rounded-xl bg-muted/40 items-start">
                                         <FormField
                                             control={form.control}
                                             name={`recipients.${i}.name`}
@@ -292,11 +292,11 @@ const ReminderPage = () => {
                                         {fields.length > 1 && (
                                             <Button
                                                 type="button"
-                                                variant="destructive"
+                                                variant="ghost"
                                                 size="icon"
                                                 onClick={() => remove(i)}
                                             >
-                                                <Trash2 className="size-4" />
+                                                <X className="size-4 text-destructive" />
                                             </Button>
                                         )}
                                     </div>
