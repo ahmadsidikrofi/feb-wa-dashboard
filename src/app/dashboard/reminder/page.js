@@ -101,31 +101,20 @@ const ReminderPage = () => {
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [isMounted, setIsMounted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [recipientName, setRecipientName] = useState("")
-    const [phone, setPhone] = useState("")
-    const [eventDescription, setEventDescription] = useState("")
-    const [eventTitle, setEventTitle] = useState("")
-    const [eventDate, setEventDate] = useState(new Date())
-    const [time, setTime] = useState("09:00")
-    const [reminderDate, setReminderDate] = useState(new Date())
-    const [reminderTime, setReminderTime] = useState("08:00")
-    const [errors, setErrors] = useState({
-        eventTitle: "",
-        name: "",
-        phoneNumber: "",
-        eventDescription: "",
-        eventDate: "",
-        reminderDate: "",
-    })
-    const [recipients, setRecipients] = useState([
-        { name: "", phoneNumber: "" },
-    ])
 
     const scheduleEvents = async () => {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`)
-        if (res) {
-            setSchedules(res.data)
-        }
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
+            headers: {
+                "ngrok-skip-browser-warning": true,
+            },
+        })
+        const data = res.data
+        if (Array.isArray(data)) {
+            setSchedules(data)
+          } else {
+            console.warn("Unexpected API response:", data)
+            setSchedules([])
+          }
     }
 
     const createSchedule = async (values) => {
@@ -154,6 +143,10 @@ const ReminderPage = () => {
                 reminderTime: combinedReminderDateTime,
                 createdBy: '6282318572605@c.us',
                 recipients: formattedRecipients
+            }, {
+                headers: {
+                    "ngrok-skip-browser-warning": true,
+                },
             })
             
             if (res.status === 201) {

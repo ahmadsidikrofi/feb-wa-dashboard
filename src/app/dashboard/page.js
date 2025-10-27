@@ -23,22 +23,6 @@ export default function Dashboard() {
   const [selected, setSelected] = useState(null)
   const router = useRouter()
 
-  // useEffect(() => {
-  //   fetchDashboardData()
-    
-  //   // Set up SSE for real-time updates
-  //   const eventSource = new EventSource('/api/sse/dashboard')
-    
-  //   eventSource.onmessage = function(event) {
-  //     const data = JSON.parse(event.data)
-  //     if (data.type === 'new_ticket') {
-  //       fetchDashboardData() // Refresh dashboard data
-  //     }
-  //   }
-
-  //   return () => eventSource.close()
-  // }, [])
-
   useEffect(() => {
     fetchDashboardData()
   }, [])
@@ -48,12 +32,20 @@ export default function Dashboard() {
       const token = localStorage.getItem('auth_token')
       
       // Fetch summary data
-      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats`)
+      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats`, {
+        headers: {
+          "ngrok-skip-browser-warning": true,
+        },
+      })
       const status = await statsResponse.json()
       setStatusData(status)
 
       // Fetch recent tickets
-      const ticketsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`)
+      const ticketsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
+        headers: {
+          "ngrok-skip-browser-warning": true,
+        },
+      })
       const tickets = await ticketsResponse.json()
       setRecentTickets(tickets.slice(0, 5))
       setLoading(false)

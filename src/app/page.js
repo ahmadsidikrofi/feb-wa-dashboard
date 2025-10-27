@@ -1,97 +1,66 @@
-import { Button } from "@/components/ui/button";
+'use client'
+
+import { LoginForm } from "@/components/login-form";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="items-center flex justify-center gap-2 md:justify-start">
+          <a href="#" className="lg:hidden flex items-center gap-2 font-medium">
+            <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-md">
+              <Image
+                src="/sidebar-logo.svg"
+                alt="MIRA Logo"
+                width={720}
+                height={720}
+                className="rounded-md"
+              />
+            </div>
+            MIRA - Media Informasi dan Relasi Akses
           </a>
-          <Button variant="outline" size="lg">Read our docs</Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <LoginForm />
+          </div>
+        </div>
+      </div>
+      <div className="bg-muted relative hidden lg:block">
+        <Image
+          src="/login-image.jpg"
+          alt="Login image"
+          width={1440}
+          height={1440}
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.6]"
+        />
+
+        <div className="ml-6 mt-8 relative z-20 items-center flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="bg-primary tracking-tight text-primary-foreground flex size-12 items-center justify-center rounded-md">
+              <Image
+                src="/sidebar-logo.svg"
+                alt="MIRA Logo"
+                width={720}
+                height={720}
+                className="rounded-md"
+              />
+            </div>
+            MIRA - Media Informasi dan Relasi Akses
+          </a>
+        </div>
+        <div className="absolute bottom-0 w-full z-20 p-6">
+          <blockquote className="space-y-2">
+            <p className="text-lg tracking-tight">
+              &ldquo;MIRA bukan sekadar asisten, melainkan representasi layanan cerdas FEB. 
+              Kami memanfaatkan AI untuk menyediakan akses informasi yang relevan dan 
+              responsif bagi seluruh civitas akademika.&rdquo;
+            </p>
+            <footer className="text-sm">Sekretariat</footer>
+          </blockquote>
+        </div>
+      </div>
     </div>
   );
 }

@@ -17,11 +17,11 @@ import { cn } from "@/lib/utils"
 import axios from "axios"
 
 const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
-    const [conversationData, setConversationData] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
     const [updatingTicketId, setUpdatingTicketId] = useState(null)
-
+    const [apiResponse, setApiResponse] = useState(null)
+    
     useEffect(() => {
         if (!open || !conversationId) return
 
@@ -30,14 +30,18 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
             setIsLoading(true)
             setError(null)
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/conversations/${conversationId}`)
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/conversations/${conversationId}`, {
+                    headers: {
+                        "ngrok-skip-browser-warning": true,
+                      },
+                })
                 if (!res.ok) throw new Error(`Gagal memuat data (${res.status})`)
                 const data = await res.json()
-
                 if (isCancelled) return
 
-                const mapped = mapApiToTicket(data)
-                setConversationData(mapped)
+                const segmentData = data.conversationSegment
+                const mapped = mapApiToTicket(segmentData)
+                setApiResponse(mapped)
             } catch (e) {
                 if (!isCancelled) setError(e?.message ?? "Terjadi kesalahan")
             } finally {
@@ -51,35 +55,8 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
         }
     }, [open, conversationId])
 
-    const activeTicket = useMemo(() => {
-        if (!conversationData || !Array.isArray(conversationData.conversation)) return null
-
-        for (const msg of conversationData.conversation) {
-            if (msg.unresolved && Array.isArray(msg.unresolved) && msg.unresolved.length > 0) {
-                return msg.unresolved[0];
-            }
-        }
-        return null
-    }, [conversationData])
-
-    const handleUnresolvedTicket = async () => {
-        if (!activeTicket) return
-        console.log(activeTicket)
-        
-        try {
-            setUpdatingTicketId(activeTicket.id)
-            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets/${activeTicket.id}/assign`, {
-                adminName: 'admin_Rina'
-            })
-            if (res.status === 200) {
-                onOpenChange(false)
-            }
-        } catch (error) {
-            console.error('Gagal menangani tiket:', error)
-        } finally {
-            setUpdatingTicketId(null)
-        }
-    }
+    const messagesToDisplay = apiResponse?.conversation || []
+    const activeTicket = apiResponse?.activeTicket
     
     return ( 
         <Drawer open={open} onOpenChange={onOpenChange} direction="right">
@@ -89,7 +66,7 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
                         <div className="space-y-1">
                             <div className="flex justify-between items-center gap-16">
                                 <DrawerTitle className="text-pretty">
-                                    {conversationData ? `Percakapan dengan ${conversationData.userName}` : "Percakapan"}
+                                    {apiResponse ? `Percakapan dengan ${apiResponse.userName}` : "Percakapan"}
                                 </DrawerTitle>
                                 <DrawerClose asChild className="mx-auto">
                                     <Button variant="ghost" size="icon" aria-label="Tutup">
@@ -97,7 +74,9 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
                                     </Button>
                                 </DrawerClose>
                             </div>
-                            <DrawerDescription>{conversationData ? `NIM: ${conversationData.nim}` : "Identifier: -"}</DrawerDescription>
+                            <DrawerDescription>
+                                {apiResponse?.nim ? `NIM: ${apiResponse.nim}` : "Identifier: -"}
+                            </DrawerDescription>
                         </div>
                     </DrawerHeader>
 
@@ -109,43 +88,26 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
                             {error && (
                                 <p className="text-center text-sm text-destructive">{error}</p>
                             )}
-                            {conversationData?.conversation?.map((msg) => (
-                                <ChatBubble key={msg.id} message={msg} flagged={msg.flagged} />
-                            ))}
-
-                            {!isLoading && !error && !conversationData && (
-                                <p className="text-center text-sm text-muted-foreground">Pilih tiket untuk melihat percakapan.</p>
+                            {!isLoading && !error && messagesToDisplay.length > 0 && (
+                                messagesToDisplay.map((msg) => (
+                                    <ChatBubble
+                                        key={msg.id}
+                                        message={msg}
+                                        flagged={msg.flagged}
+                                        tickets={msg.tickets}
+                                    />
+                                ))
+                            )}
+                            {!isLoading && !error && messagesToDisplay.length === 0 && (
+                                <p className="text-center text-sm text-muted-foreground">
+                                    Tidak ada pesan dalam percakapan ini.
+                                </p>
                             )}
                         </div>
                     </div>
 
                     <DrawerFooter className="border-t bg-card">
-                        {conversationData && (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm text-muted-foreground">Status:</span>
-                                    <Badge variant="secondary" className="capitalize">{activeTicket?.status ?? "—"}</Badge>
-                                    {/* {console.log(activeTicket?.status)} */}
-                                </div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {activeTicket?.status === 'open' ? (
-                                        <Button 
-                                            size="sm" 
-                                            onClick={handleUnresolvedTicket}
-                                            disabled={!activeTicket || updatingTicketId === activeTicket?.id}
-                                        >
-                                            {updatingTicketId === activeTicket?.id ? (
-                                                <LoaderCircle className='animate-spin size-5' />
-                                            ) : (
-                                                <span>Ambil tiket</span>
-                                            )}
-                                        </Button>
-                                    ) : activeTicket?.status === 'in_progress' ? (
-                                        <Button variant="destructive">Selesaikan tiket</Button>
-                                    ) : ""} 
-                                </div>
-                            </div>
-                        )}
+            
                     </DrawerFooter>
                 </div>
             </DrawerContent>
@@ -153,66 +115,102 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
      );
 }
 
-function ChatBubble({ message, flagged }) {
+function ChatBubble({ message, flagged, tickets }) {
     const isUser = message.role === "user"
     return (
-        <div className={cn("flex items-start gap-2", isUser ? "justify-end" : "justify-start")}>
-            {!isUser && flagged && <Flag className="mt-1 h-4 w-4 text-destructive" aria-hidden="true" />}
+        <div className="flex flex-col gap-2">
+            <div className={cn("flex items-start gap-2", isUser ? "justify-end" : "justify-start")}>
+                {!isUser && flagged && <Flag className="mt-1 h-4 w-4 text-destructive" aria-hidden="true" />}
 
-            <div
-                className={cn(
-                    "max-w-[80%] rounded-lg px-4 py-2 text-sm",
-                    isUser ? "ml-auto bg-primary text-primary-foreground" : "bg-muted text-foreground",
-                )}
-            >
-                <p className="text-pretty">{message.text}</p>
                 <div
                     className={cn(
-                        "mt-1 text-[11px] text-muted-foreground",
-                        isUser ? "text-primary-foreground/70" : "text-muted-foreground",
+                        "max-w-[80%] rounded-lg px-4 py-2 text-sm",
+                        isUser ? "ml-auto bg-primary text-primary-foreground" : "bg-muted text-foreground",
                     )}
                 >
-                    {message.timestamp}
+                    <p className="text-pretty whitespace-pre-wrap">{message.text}</p>
+                    <div
+                        className={cn(
+                            "mt-1 text-[11px] text-muted-foreground",
+                            isUser ? "text-primary-foreground/70" : "text-muted-foreground",
+                        )}
+                    >
+                        {message.timestamp}
+                    </div>
                 </div>
+
+                {isUser && flagged && <Flag className="mt-1 h-4 w-4 text-destructive" aria-hidden="true" />}
             </div>
 
-            {isUser && flagged && <Flag className="mt-1 h-4 w-4 text-destructive" aria-hidden="true" />}
+            {tickets && tickets.length > 0 && (
+                <div className={cn("flex gap-2 items-center", isUser ? "justify-end pr-6" : "justify-start pl-6")}>
+                    {tickets.map((ticket) => (
+                        <div key={ticket.id} className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Tiket #{ticket.id}:</span>
+                            <Badge 
+                                variant={ticket.status === 'open' ? 'default' : 
+                                        ticket.status === 'in_progress' ? 'secondary' : 'outline'}
+                                className="text-[10px] py-0 px-2 h-5"
+                            >
+                                {ticket.status === 'open' ? 'Open' :
+                                 ticket.status === 'in_progress' ? 'In Progress' :
+                                 ticket.status === 'resolved' ? 'Resolved' : ticket.status}
+                            </Badge>
+                            {ticket.assignedTo && (
+                                <span className="text-muted-foreground">• {ticket.assignedTo}</span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
+        
     )
 }
 
-function mapApiToTicket(apiData) {
-    const userName = apiData?.user?.name ?? "-"
-    const nim = apiData?.user?.identifier ?? "-"
+function mapApiToTicket(segmentData) {
+    if (!segmentData) return null;
 
-    const status = mapStepToStatus(apiData?.step)
+    const conversation = segmentData.conversation || {}
+    const messages = segmentData.messages || []
+    const activeTicket = segmentData.activeTicket || null
 
-    const conversation = Array.isArray(apiData?.messages)
-        ? apiData.messages.map((m) => ({
+    const userName = conversation.user?.name ?? "-"
+    const nim = conversation.user?.identifier ?? "-"
+
+    const conversationMessages = messages.map((m) => {
+        const tickets = (m.unresolved || []).map((ticket) => ({
+            id: ticket.id,
+            status: ticket.status,
+            assignedTo: ticket.assignedTo,
+            createdAt: ticket.createdAt,
+            updatedAt: ticket.updatedAt,
+        }));
+
+        return {
             id: m.id,
-            role: m.sender, // "user" | "bot" (asumsi dari API)
+            role: m.sender,
             text: m.message_text,
             timestamp: formatDateTime(m.createdAt),
             flagged: Boolean(m.need_human) || Boolean(m.feedback),
-            unresolved: m.unresolved
-        }))
-        : []
+            tickets: tickets,
+        };
+    });
 
     return {
-        id: apiData?.id,
+        id: conversation.id,
         userName,
         nim,
-        status,
-        conversation,
-    }
+        conversation: conversationMessages,
+        activeTicket: activeTicket ? {
+            id: activeTicket.id,
+            status: activeTicket.status,
+            assignedTo: activeTicket.assignedTo,
+            messageId: activeTicket.messageId,
+        } : null,
+    };
 }
 
-function mapStepToStatus(step) {
-    if (!step) return "Open"
-    // Map sederhana, sesuaikan dengan kebutuhan
-    if (step === "awaiting_feedback") return "In Progress"
-    return "Open"
-}
 
 function formatDateTime(iso) {
     try {

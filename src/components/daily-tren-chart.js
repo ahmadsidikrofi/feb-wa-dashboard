@@ -31,14 +31,18 @@ export function DailyTrenChart() {
   const [chartData, setChartData] = useState([])
   const [trendStatus, setTrendStatus] = useState("stable")
   const [percentageChange, setPercentageChange] = useState(0)
-  const maxCount = Math.max(...chartData.map(d => d.count || 0))
+  // const maxCount = Math.max(...chartData.map(d => d.count || 0))
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-trends`)
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-trends`, {
+          headers: {
+            "ngrok-skip-browser-warning": "69420",
+          },
+        })
         const data = res.data
-        setChartData(data)
+        setChartData(Array.isArray(data) ? data : [])
 
         if (data.length >= 2) {
           const last = data[data.length - 1].count

@@ -50,15 +50,27 @@ export function TicketPerCategoryChart() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-categories`)
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-categories`, {
+                    headers: {
+                        "ngrok-skip-browser-warning": true,
+                      },
+                })
                 const data = res.data
+                console.log("Response data:", data);
                 setChartData(data)
 
-                if (data && data.length > 0) {
-                    const maxCategory = data.reduce((prev, curr) =>
-                        curr.total > prev.total ? curr : prev
-                    )
-                    setTopCategory(maxCategory.name)
+                if (Array.isArray(data)) {
+                    setChartData(data);
+
+                    if (data.length > 0) {
+                        const maxCategory = data.reduce((prev, curr) =>
+                            curr.total > prev.total ? curr : prev
+                        );
+                        setTopCategory(maxCategory.name)
+                    }
+                } else {
+                    console.warn("Data bukan array:", data)
+                    setChartData([])
                 }
             } catch (error) {
                 console.error("Gagal memuat data kategori tiket:", error)

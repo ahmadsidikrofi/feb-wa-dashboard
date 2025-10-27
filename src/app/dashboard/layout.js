@@ -16,6 +16,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Image from "next/image"
+import { useAuth } from "@/hooks/use-auth"
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -53,10 +55,11 @@ export function ModeToggle() {
 }
 
 
-export default function DashboardLayout({ children, onLogout }) {
+export default function DashboardLayout({ children }) {
   const router = useRouter()
   const pathname = usePathname()
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const { user, logout, isLoading } = useAuth()
 
   const handleNavigation = (href) => {
     router.push(href)
@@ -96,9 +99,18 @@ export default function DashboardLayout({ children, onLogout }) {
           <SidebarHeader className="p-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">ST</span>
+                <Image
+                  src="/sidebar-logo.svg"
+                  alt="MIRA Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-md"
+                />
               </div>
-              <span className="font-semibold">Smart Ticket</span>
+              <div className="flex flex-col">
+                <span className="font-semibold text-md">MIRA</span>
+                <span className="font-semibold text-[12px]">Media Informasi dan Relasi Akses</span>
+              </div>
             </div>
           </SidebarHeader>
           
@@ -137,11 +149,13 @@ export default function DashboardLayout({ children, onLogout }) {
             <Card className="p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.fullName?.split(' ')[0]?.substring(0, 2)?.toUpperCase() || 'AD'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">Admin User</p>
-                  <p className="text-xs text-muted-foreground truncate">admin@smartticket.com</p>
+                  <p className="text-sm font-medium truncate">{user?.fullName || 'Admin User'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.username || 'admin@smartticket.com'}</p>
                 </div>
                 <div>
                   <ModeToggle />
@@ -151,7 +165,7 @@ export default function DashboardLayout({ children, onLogout }) {
                 variant="outline"
                 size="sm"
                 className="w-full"
-                onClick={onLogout}
+                onClick={logout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
