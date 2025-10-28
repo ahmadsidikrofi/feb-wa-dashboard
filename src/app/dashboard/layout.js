@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton,
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock } from 'lucide-react'
+import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from "next-themes"
 
@@ -29,6 +29,7 @@ const navigation = [
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
+  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <DropdownMenu>
@@ -168,7 +169,7 @@ export default function DashboardLayout({ children }) {
                 onClick={logout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                {isLoading ? <LoaderIcon className="animate-spin size-4" /> : 'Keluar'}
               </Button>
             </Card>
           </SidebarFooter>

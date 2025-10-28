@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Nunito, Raleway } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
+import { Toaster } from "@/components/ui/sonner";
 
 const raleway = Nunito({
   variable: "--font-raleway",
@@ -11,7 +12,7 @@ const raleway = Nunito({
 
 export const metadata = {
   title: "MIRA FEB",
-  description: "Media Relasi dan Relasi Anda - Menunjukkan kemudahan akses informasi bagi Mahasiswa/Dosen",
+  description: "Media Informasi dan Relasi Anda - Menunjukkan kemudahan akses informasi bagi Mahasiswa/Dosen",
 };
 
 export default function RootLayout({ children }) {
@@ -24,9 +25,12 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <main>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -41,6 +41,7 @@ export function AuthProvider({ children }) {
         sessionStorage.removeItem('auth_user')
         setToken(null)
         setUser(null)
+        toast.success('Jangan lupa kembali lagi ya!')
         router.push('/')
     }
 

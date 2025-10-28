@@ -12,13 +12,14 @@ import {
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useState } from "react"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, LoaderIcon } from "lucide-react"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 import { useAuth } from "@/hooks/use-auth"
+import { toast } from "sonner"
 
 export const loginSchema = z.object({
   username: z.string().min(1, "Username tidak boleh kosong"),
@@ -49,6 +50,8 @@ export function LoginForm({
       })
       const { token, admin } = res.data
       login(token, admin)
+      toast.success(`Halo ${data.username}, selamat datang di MIRA FEB`)
+
 
     } catch (error) {
       if (error.response && (error.response.status === 401 || error.response.status === 400)) {
@@ -89,12 +92,9 @@ export function LoginForm({
         <Field>
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
+            <Link href="https://wa.me/6282318572605" className="text-sm ml-auto underline underline-offset-4">
               Lupa dengan passwordmu?
-            </a>
+            </Link>
           </div>
           <div className="relative">
             <Input
@@ -126,7 +126,7 @@ export function LoginForm({
           <Button disabled={isSubmitting} type="submit">
             {isSubmitting ? (
               <div className="flex justify-center items-center text-center gap-2 ">
-                <Loader2 className="animate-spin size-4"/> <span>Memasuki</span>
+                <LoaderIcon className="animate-spin size-4"/> <span>Memasuki</span>
               </div>
             ) : (
               'Masuk'

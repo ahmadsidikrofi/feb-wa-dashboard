@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { AlarmClock, AlarmClockIcon, ArrowLeft, CalendarIcon, Loader2, LoaderCircle, MoreHorizontal, Pencil, PencilLine, Plus, PlusCircle, Trash2, X } from "lucide-react";
+import { AlarmClock, AlarmClockIcon, CalendarIcon, GalleryVertical, GalleryVerticalEnd, Loader2, LoaderCircle, Mail, MoreHorizontal, PencilLine, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { compareAsc, format, isSameDay } from "date-fns"
 import { id as localeId } from "date-fns/locale"
@@ -21,6 +21,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { toast } from "sonner";
 
 export const scheduleSchema = z.object({
     eventTitle: z.string().min(1, "Judul kegiatan wajib diisi"),
@@ -78,6 +79,7 @@ function EventRow({ event, onViewDetail, onCancel, isLoading, scheduleEvents }) 
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="min-w-40">
+                            <DropdownMenuItem disabled><GalleryVerticalEnd className="size-4 mr-2" /> Detail</DropdownMenuItem>
                             <DropdownMenuItem disabled><PencilLine className="size-4 mr-2" /> Edit</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onCancel(event.id)} className="text-destructive">
                                 {isLoading ? <Loader2 className="size-4 mr-2 animate-spin" /> : <X className="text-destructive size-4 mr-2" />} Batalkan
@@ -151,10 +153,14 @@ const ReminderPage = () => {
             
             if (res.status === 201) {
                 await new Promise(resolve => setTimeout(resolve, 1500))
+                toast.success(`Jadwal pengingat sukses dibuat`, {
+                    description: `Yang akan dikirimkan pada ${format(combinedReminderDateTime, "HH:mm")}`
+                })
                 form.reset()
             }
         } catch (error) {
             console.error("Gagal membuat jadwal:", error)
+            toast.error("Gagal membuat pengingat, jangan sungkan untuk mencobanya lagi")
         } finally {
             setIsLoading(false)
             setOpen(false)
@@ -170,9 +176,11 @@ const ReminderPage = () => {
             })
             if (res.status === 200) {
                 await new Promise(resolve => setTimeout(resolve, 3000))
+                toast.success("Jadwal pengingat ini telah dibatalkan")
             }
         } catch (error) {
             console.error("Gagal membuat jadwal:", error)
+            toast.error("Gagal membatalkan pengingat, silahkan dicoba lagi")
         } finally {
             setIsLoading(false)
             scheduleEvents()

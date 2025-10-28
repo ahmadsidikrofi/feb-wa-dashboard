@@ -57,7 +57,7 @@ export default function Home() {
               Kami memanfaatkan AI untuk menyediakan akses informasi yang relevan dan 
               responsif bagi seluruh civitas akademika.&rdquo;
             </p>
-            <footer className="text-sm">Sekretariat</footer>
+            <footer className="text-sm">- Sekretariat</footer>
           </blockquote>
         </div>
       </div>

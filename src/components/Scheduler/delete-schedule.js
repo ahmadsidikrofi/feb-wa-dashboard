@@ -12,10 +12,11 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "../ui/button";
-import { ArrowLeft, LoaderCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, LoaderCircle, LoaderIcon, Trash2 } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
+import { toast } from "sonner";
 
 const DeleteSchedule = ({ event, onDeleteSuccess, scheduleEvents }) => {
     const [isLoading, setIsLoading] = useState(false)
@@ -25,15 +26,17 @@ const DeleteSchedule = ({ event, onDeleteSuccess, scheduleEvents }) => {
     const handleDeleteSchedule = async (eventId) => {
         setIsLoading(true)
         try {
-          const res = await axios.delete(`http://localhost:3001/api/schedules/${eventId}`)
+          const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/schedules/${eventId}`)
+          await new Promise(resolve => setTimeout(resolve, 3000))
           if (res.status === 200) {
-            await new Promise(resolve => setTimeout(resolve, 3000))
             if (onDeleteSuccess) {
                 onDeleteSuccess(eventId)
             }  
+            toast.success("Jadwal pengingat ini telah berhasil dihapus")
           }  
         } catch (error) {
             console.error("Gagal menghapus jadwal:", error)
+            toast.error("Gagal menghapus jadwal, silahkan dicoba lagi")
         } finally {
             setIsLoading(false)
             setIsOpen(false)
@@ -78,7 +81,7 @@ const DeleteSchedule = ({ event, onDeleteSuccess, scheduleEvents }) => {
                         >
                             {isLoading ? (
                                 <>
-                                    <LoaderCircle className="size-4 animate-spin mr-2" />
+                                    <LoaderIcon className="size-4 animate-spin mr-2" />
                                     Menghapus...
                                 </>
                             ) : (
