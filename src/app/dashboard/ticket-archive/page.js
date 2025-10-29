@@ -34,9 +34,13 @@ export default function TicketArchivePage() {
   const [updatingTicketId, setUpdatingTicketId] = useState(null)
   const router = useRouter()
 
+
+  useEffect(() => {
+    fetchAllTickets()
+  }, [])
+  
   useEffect(() => {
     applyFilters()
-    fetchAllTickets()
   }, [allTickets, searchTerm, statusFilter])
 
   const fetchAllTickets = async () => {
@@ -141,7 +145,7 @@ export default function TicketArchivePage() {
     setUpdatingTicketId(ticketId)
     
     try {
-      const res = axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/ticket/${ticketId}/resolve`)
+      const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets/${ticketId}/resolve`)
       if (res.status === 200) {
         fetchAllTickets()
       }  

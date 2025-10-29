@@ -35,11 +35,21 @@ const getBarColor = (category) => {
         case "Sidang":
             return "#ef4444" // biru
         case "Keuangan":
-            return "#fbbf24" // hijau
+            return "#fbbf24" // Kuning
         case "Wisuda":
             return "#22C55E" // ungu
+        case "Sekretariat":
+            return "#14b8a6" // Teal
+        case "Wadek1":
+            return "#4ade80" // Green light
+        case "Wadek2":
+            return "#16a34a" // Green dark
+        case "Prodi1":
+            return "#a3e635" // Lime light
+        case "Prodi2":
+            return "#65a30d" // Lime dark
         default:
-            return "#9CA3AF" // abu
+            return "#1e293b" // Slate
     }
 }
 
