@@ -9,9 +9,9 @@ export default function Home() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="items-center flex justify-center gap-2 md:justify-start">
           <a href="#" className="lg:hidden flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-md">
+            <div className="text-primary-foreground flex size-12 items-center justify-center rounded-md">
               <Image
-                src="/sidebar-logo.svg"
+                src="/logo-feb.png"
                 alt="MIRA Logo"
                 width={720}
                 height={720}
@@ -38,9 +38,9 @@ export default function Home() {
 
         <div className="ml-6 mt-8 relative z-20 items-center flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="bg-primary tracking-tight text-primary-foreground flex size-12 items-center justify-center rounded-md">
+            <div className="tracking-tight text-primary-foreground flex size-12 items-center justify-center rounded-md">
               <Image
-                src="/sidebar-logo.svg"
+                src="/logo-feb.png"
                 alt="MIRA Logo"
                 width={720}
                 height={720}
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
         <div className="absolute bottom-0 w-full z-20 p-6">
           <blockquote className="space-y-2">
-            <p className="text-lg tracking-tight">
+            <p className="text-lg tracking-tight text-white">
               &ldquo;MIRA bukan sekadar asisten, melainkan representasi layanan cerdas FEB. 
               Kami memanfaatkan AI untuk menyediakan akses informasi yang relevan dan 
               responsif bagi seluruh civitas akademika.&rdquo;

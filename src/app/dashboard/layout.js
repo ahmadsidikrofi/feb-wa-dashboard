@@ -99,9 +99,9 @@ export default function DashboardLayout({ children }) {
         <Sidebar className="border-r">
           <SidebarHeader className="p-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+              <div className="w-8 h-8 rounded-md flex items-center justify-center">
                 <Image
-                  src="/sidebar-logo.svg"
+                  src="/logo-feb.png"
                   alt="MIRA Logo"
                   width={32}
                   height={32}
