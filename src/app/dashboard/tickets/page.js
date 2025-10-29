@@ -23,11 +23,14 @@ export default function OpenTicketPage() {
 
   const fetchIncomingTickets = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
+      const token = sessionStorage.getItem('auth_token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": true,
+        }
       })
-      console.log(response);
+      console.log(response)
 
       if (response.ok) {
         const data = await response.json()

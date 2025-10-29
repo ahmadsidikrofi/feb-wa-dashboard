@@ -26,13 +26,13 @@ const DeleteSchedule = ({ event, onDeleteSuccess, scheduleEvents }) => {
     const handleDeleteSchedule = async (eventId) => {
         setIsLoading(true)
         try {
-          const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/schedules/${eventId}`)
+          const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules/${eventId}`)
           await new Promise(resolve => setTimeout(resolve, 3000))
           if (res.status === 200) {
+            toast.success("Jadwal pengingat ini telah berhasil dihapus")
             if (onDeleteSuccess) {
                 onDeleteSuccess(eventId)
-            }  
-            toast.success("Jadwal pengingat ini telah berhasil dihapus")
+            }
           }  
         } catch (error) {
             console.error("Gagal menghapus jadwal:", error)
@@ -44,7 +44,9 @@ const DeleteSchedule = ({ event, onDeleteSuccess, scheduleEvents }) => {
         }
     }
     return (
-        <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialog open={isOpen} onOpenChange={(open) => {
+            if (!isLoading) setIsOpen(open)
+        }}>
             <AlertDialogTrigger asChild>
                 {isInsideDropdown ? (
                     // Jika di dalam dropdown, pemicunya adalah DropdownMenuItem
@@ -72,10 +74,17 @@ const DeleteSchedule = ({ event, onDeleteSuccess, scheduleEvents }) => {
                     <AlertDialogCancel disabled={isLoading}>
                         <ArrowLeft className="size-4" /> Kembali
                     </AlertDialogCancel>
-                    <AlertDialogAction asChild>
-                        <Button 
-                            onClick={() => handleDeleteSchedule(event.id)} 
-                            variant="destructive" 
+                    <AlertDialogAction
+                        onClick={(e) => {
+                            e.preventDefault()
+                            if (!isLoading) {
+                                handleDeleteSchedule(event.id)
+                            }
+                        }}
+                        asChild
+                    >
+                        <Button
+                            variant="destructive"
                             className="dark:text-white"
                             disabled={isLoading}
                         >

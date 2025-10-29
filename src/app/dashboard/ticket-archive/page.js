@@ -41,10 +41,13 @@ export default function TicketArchivePage() {
 
   const fetchAllTickets = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
+      const token = sessionStorage.getItem('auth_token')
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": true,
+        }
       })
 
       if (response.ok) {
