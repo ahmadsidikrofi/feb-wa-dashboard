@@ -2,11 +2,11 @@
 
 import * as React from "react"
 import { useEffect, useState } from 'react'
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter } from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarFooter, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon } from 'lucide-react'
+import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from "next-themes"
 
@@ -16,6 +16,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+
 import Image from "next/image"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -117,21 +124,67 @@ export default function DashboardLayout({ children }) {
           
           <SidebarContent>
             <SidebarMenu className="px-2">
-              {navigation.map((item, index) => (
-                item.action === 'fullscreen' ? (
-                  <SidebarMenuItem key={index}>
-                    <SidebarMenuButton asChild>
-                      <Button
-                        variant={isFullscreen ? 'default' : 'link'}
-                        className={`${isFullscreen ? 'shadow-lg' : 'text-black dark:text-white'} hover:bg-secondary flex items-center justify-start`}
-                        onClick={handleFullscreen}
-                      >
-                        {isFullscreen ? <ScreenShareOff className="h-4 w-4" /> : <item.icon className="h-4 w-4" />}
-                        <span>{isFullscreen ? 'Exit Fullscreen' : item.name}</span>
-                      </Button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ) : (
+              {navigation.map((item, index) => {
+                // Jika menu Reminder, render sebagai collapsible
+                if (item.name === 'Reminder') {
+                  return (
+                    <Collapsible key={item.name} defaultOpen className="group/collapsible">
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className={pathname === item.href ? 'bg-primary text-white font-semibold' : ''}
+                          >
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                            <span className="transition-transform duration-200 ml-auto group-data-[state=open]/collapsible:rotate-90">
+                              <ChevronRightIcon className="size-4 ml-auto transition-transform duration-200" />
+                            </span>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/reminder/tambah-penerima')}
+                                isActive={pathname === '/dashboard/reminder/tambah-penerima'}
+                              >
+                                Tambah penerima
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/reminder/buat-jadwal')}
+                                isActive={pathname === '/dashboard/reminder/buat-jadwal'}
+                              >
+                                Buat jadwal
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  )
+                }
+
+                // Jika menu adalah fullscreen
+                if (item.action === 'fullscreen') {
+                  return (
+                    <SidebarMenuItem key={index}>
+                      <SidebarMenuButton asChild>
+                        <Button
+                          variant={isFullscreen ? 'default' : 'link'}
+                          className={`${isFullscreen ? 'shadow-lg' : 'text-black dark:text-white'} hover:bg-secondary flex items-center justify-start`}
+                          onClick={handleFullscreen}
+                        >
+                          {isFullscreen ? <ScreenShareOff className="h-4 w-4" /> : <item.icon className="h-4 w-4" />}
+                          <span>{isFullscreen ? 'Exit Fullscreen' : item.name}</span>
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                }
+                // Menu lainnya
+                return (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton
                       onClick={() => handleNavigation(item.href)}
@@ -142,7 +195,7 @@ export default function DashboardLayout({ children }) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
-              ))}
+              })}
             </SidebarMenu>
           </SidebarContent>
 

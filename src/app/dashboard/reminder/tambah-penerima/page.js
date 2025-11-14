@@ -1,0 +1,188 @@
+'use client'
+
+import ContactTable from '@/components/Scheduler/contact-table'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Contact2, LoaderIcon } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import axios from 'axios';
+import { toast } from 'sonner';
+
+export const contactSchema = z.object({
+  name: z.string().min(1, "Nama wajib diisi"),
+  phoneNumber: z.string()
+  .min(9, "Nomor tujuan terlalu pendek")
+  .max(15, "Nomor whatsapp terlalu panjang")
+  .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
+  .refine(value => !value.startsWith("62"), {
+      message: "Nomor WhatsApp tidak boleh diawali dengan 62 atau 0."
+  }),
+  notes: z.string().min(1, "Catatan wajib diisi"),
+})
+
+function TambahPenerimaPage() {
+  const [open, setOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [contacts, setContacts] = useState([])
+
+  const getContacts = async () => {
+    setIsLoading(true)
+      try {
+          const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
+              headers: {
+                  "ngrok-skip-browser-warning": true,
+              },
+          })
+          const data = res.data
+          if (Array.isArray(data)) {
+              setContacts(data)
+          } else {
+              console.warn("Unexpected API response:", data)
+              setContacts([])
+          }
+      } catch (err) {
+          console.error("Gagal fetch contacts:", err)
+          setContacts([])
+      }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
+
+  const form = useForm({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      phoneNumber: "",
+      notes: "",
+      title: ""
+    }
+  })
+
+  const createContact = async (values) => {
+    const formattedPhoneNumber = `62${values.phoneNumber.replace(/^0+/, '')}@c.us`
+    
+    try {
+      setIsLoading(true)
+      const res = await axios.post(`http://localhost:3001/api/contacts`, {
+        name: values.name,
+        phoneNumber: formattedPhoneNumber,
+        notes: values.notes,
+        title: values.title
+      }, {
+        headers: {
+          "ngrok-skip-browser-warning": true,
+        },
+      })
+      const data = res.data
+      if (res.status === 201 || data.id) {
+        getContacts()
+        form.reset()
+        setOpen(false)
+        toast.success("Kontak berhasil ditambahkan")
+      } else {
+        toast.error("Kontak gagal ditambahkan")
+      }
+    } catch (error) {
+      console.error("Error creating contact:", error)
+      toast.error(error.response?.data?.message || "Kontak gagal ditambahkan")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getContacts()
+  }, [])
+
+  return (
+    <section className='space-y-6'>
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start mt-1 gap-3">
+          <Contact2 className="size-10 text-emerald-600" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-emerald-600">Kumpulan Penerima Reminder</h1>
+            <p className="text-muted-foreground">
+              Daftar penerima reminder yang telah ditambahkan
+            </p>
+          </div>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full sm:w-auto">+ Tambah kontak</Button>
+          </DialogTrigger>
+
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Buat kontak penerima reminder</DialogTitle>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form id="contact-form" onSubmit={form.handleSubmit(createContact)} className="grid gap-4 py-2 max-h-[60vh] overflow-y-auto pr-1 space-y-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama kontak</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Cth: Royal Ignatius" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>No. telepon</FormLabel>
+                      <FormControl>
+                        <Input placeholder="81234567890" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField 
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Catatan</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Dosen S1" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Batal
+              </Button>
+              <Button type="submit" form="contact-form" disabled={isLoading}>
+                {isLoading ?
+                  <div className="flex justify-center items-center text-center gap-2 ">
+                    <LoaderIcon className="animate-spin size-4" /> <span>Menambahkan kontak...</span>
+                  </div>
+                  : "Tambahkan kontak"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <ContactTable contacts={contacts} isLoading={isLoading}/>
+    </section>
+  )
+}
+
+export default TambahPenerimaPage

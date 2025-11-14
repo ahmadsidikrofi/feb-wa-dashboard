@@ -468,7 +468,7 @@ const ReminderPage = () => {
                                     {eventsForDay.map((event) => (
                                         <EventRow scheduleEvents={scheduleEvents} key={event.id} event={event} onViewDetail={handleViewDetail} onCancel={handleCancelSchedule} isLoading={isLoading} />
                                     ))}
-                                    </div>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
