@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
+import { RecipientsMultiSelect } from "@/components/Scheduler/recipient-multi-select";
 
 export const scheduleSchema = z.object({
     eventTitle: z.string().min(1, "Judul kegiatan wajib diisi"),
@@ -95,7 +96,6 @@ function EventRow({ event, onViewDetail, onCancel, isLoading, scheduleEvents }) 
     )
 }
 
-
 const ReminderPage = () => {
     const [open, setOpen] = useState(false)
     const [schedules, setSchedules] = useState([])
@@ -103,6 +103,7 @@ const ReminderPage = () => {
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [isMounted, setIsMounted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [contacts, setContacts] = useState([])
 
     const scheduleEvents = async () => {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
@@ -187,9 +188,24 @@ const ReminderPage = () => {
         }
     }
 
+    const fetchContacts = async () => {
+        try {
+            const res = await axios.get(`http://localhost:3001/api/contacts`, {
+                headers: {
+                    "ngrok-skip-browser-warning": true,
+                },
+            })
+            setContacts(res.data)
+        } catch (error) {
+            console.error("Gagal mengambil kontak:", error)
+            toast.error("Gagal memuat daftar kontak")
+        }
+    }
+
     useEffect(() => {
         scheduleEvents()
         setIsMounted(true)
+        fetchContacts()
     }, [])
 
     const eventsForDay = useMemo(() => {
@@ -207,7 +223,8 @@ const ReminderPage = () => {
         resolver: zodResolver(scheduleSchema),
         defaultValues: {
             eventTitle: "",
-            recipients: [{ name: "", phoneNumber: "" }],
+            // recipients: [{ name: "", phoneNumber: "" }],
+            recipients: [],
             eventDate: new Date(),
             time: "09:00",
             reminderDate: new Date(),
@@ -215,10 +232,10 @@ const ReminderPage = () => {
         }
     })
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: 'recipients'
-    })
+    // const { fields, append, remove } = useFieldArray({
+    //     control: form.control,
+    //     name: 'recipients'
+    // })
       
     return ( 
         <div className="space-y-6">
@@ -258,56 +275,30 @@ const ReminderPage = () => {
                                     )}
                                 />
 
-                                {fields.map((field, i) => (
-                                    <div key={i} className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-2 border p-3 rounded-xl bg-muted/40 items-start">
-                                        <FormField
-                                            control={form.control}
-                                            name={`recipients.${i}.name`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-xs">Nama Penerima</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder="Contoh: Akbar Sahroni" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                <FormField
+                                    control={form.control}
+                                    name="recipients"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Penerima Pengingat</FormLabel>
+                                            <FormControl>
+                                                <RecipientsMultiSelect
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    contacts={contacts}
+                                                    disabled={isLoading}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                                        <FormField
-                                            control={form.control}
-                                            name={`recipients.${i}.phoneNumber`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-xs">Nomor WA penerima</FormLabel>
-                                                    <FormControl>
-                                                        <div className="flex items-center rounded-md border border-input">
-                                                            <span className="px-1 text-sm text-muted-foreground">+62</span>
-                                                            <Input type="tel" placeholder="851512xxxx" className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0" {...field} />
-                                                        </div>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        {fields.length > 1 && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => remove(i)}
-                                            >
-                                                <X className="size-4 text-destructive" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-
-                                <div className="flex justify-center">
+                                {/* <div className="flex justify-center">
                                     <Button type="button" className="text-white"
                                         onClick={() => append({ name: "", phoneNumber: "" })}
                                     >Tambah penerima</Button>
-                                </div>
+                                </div> */}
 
                             <FormField
                                 control={form.control}
