@@ -165,6 +165,44 @@ export default function DashboardLayout({ children }) {
                       </SidebarMenuItem>
                     </Collapsible>
                   )
+                } else if (item.name === 'Partnership Monitoring') {
+                  return (
+                    <Collapsible key={item.name} defaultOpen className="group/collapsible">
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className={pathname === item.href ? 'bg-primary text-white font-semibold' : ''}
+                          >
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                            <span className="transition-transform duration-200 ml-auto group-data-[state=open]/collapsible:rotate-90">
+                              <ChevronRightIcon className="size-4 ml-auto transition-transform duration-200" />
+                            </span>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/partnership-monitoring/pengajuan')}
+                                isActive={pathname === '/dashboard/partnership-monitoring/pengajuan'}
+                              >
+                                Pengajuan
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/partnership-monitoring/penerapan')}
+                                isActive={pathname === '/dashboard/partnership-monitoring/penerapan'}
+                              >
+                                Penerapan
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  )
                 }
 
                 // Jika menu adalah fullscreen
