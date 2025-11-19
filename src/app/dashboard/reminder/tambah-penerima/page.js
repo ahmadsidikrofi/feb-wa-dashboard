@@ -86,13 +86,29 @@ function TambahPenerimaPage() {
         getContacts()
         form.reset()
         setOpen(false)
-        toast.success("Kontak berhasil ditambahkan")
+        toast.success("Kontak berhasil ditambahkan", {
+          style: { background: "#059669", color: "#d1fae5" },
+          className: "border border-emerald-500"
+        })
       } else {
-        toast.error("Kontak gagal ditambahkan")
+        toast.error("Kontak gagal ditambahkan", {
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500"
+        })
       }
     } catch (error) {
-      console.error("Error creating contact:", error)
-      toast.error(error.response?.data?.message || "Kontak gagal ditambahkan")
+      console.log("Error creating contact:", error)
+      if (error.response?.data?.message?.includes("Unique constraint failed on the fields: (`phone_number`)")) {
+        toast.error("Kontak dengan nomor telepon ini sudah ada.", {
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500"
+        })
+      } else {
+        toast.error(error.response?.data?.message || "Kontak gagal ditambahkan", {
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500"
+        })
+      }
     } finally {
       setIsLoading(false)
     }
@@ -115,9 +131,12 @@ function TambahPenerimaPage() {
           </div>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">+ Tambah kontak</Button>
-          </DialogTrigger>
+          <div className='flex gap-2'>
+            <Input className="w-full" placeholder="Cari kontak penerima" />
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto">+ Tambah kontak</Button>
+            </DialogTrigger>
+          </div>
 
           <DialogContent className="max-w-lg">
             <DialogHeader>
@@ -135,6 +154,7 @@ function TambahPenerimaPage() {
                       <FormControl>
                         <Input placeholder="Cth: Royal Ignatius" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -147,6 +167,7 @@ function TambahPenerimaPage() {
                       <FormControl>
                         <Input placeholder="81234567890" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -157,8 +178,9 @@ function TambahPenerimaPage() {
                     <FormItem>
                       <FormLabel>Catatan</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Dosen S1" {...field} />
+                        <Input placeholder="Dosen S1 Adbis" {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -180,7 +202,7 @@ function TambahPenerimaPage() {
           </DialogContent>
         </Dialog>
       </div>
-      <ContactTable contacts={contacts} isLoading={isLoading}/>
+      <ContactTable contacts={contacts} isLoading={isLoading} setIsLoading={setIsLoading} getContacts={getContacts}/>
     </section>
   )
 }

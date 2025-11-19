@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { X, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export function RecipientsMultiSelect({ 
   value, 
@@ -21,10 +22,14 @@ export function RecipientsMultiSelect({
   })
 
   const handleSelectContact = (contact) => {
+    const cleanedPhoneNumber = contact.phoneNumber.replace(/\D/g, '')
+    .replace(/^0+/, '')
+    .replace(/^62/, '')
+
     const newRecipient = {
       id: contact.id,
       name: contact.name,
-      phoneNumber: contact.phoneNumber
+      phoneNumber: cleanedPhoneNumber
     }
     onChange([...value, newRecipient])
     setSearchQuery('')

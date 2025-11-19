@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton,
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown } from 'lucide-react'
+import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown, ParkingMeter } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from "next-themes"
 
@@ -31,6 +31,7 @@ const navigation = [
   { name: 'Ticket Archive', href: '/dashboard/ticket-archive', icon: List },
   { name: 'Open Ticket', href: '/dashboard/tickets', icon: Inbox, disable: true },
   { name: 'Reminder', href: "/dashboard/reminder", icon: AlarmClock },
+  { name: 'Partnership Monitoring', href: "/dashboard/partnership-monitoring", icon: ParkingMeter },
   { name: 'Fullscreen', action: "fullscreen", icon: ScreenShare },
 ]
 

@@ -28,16 +28,11 @@ export const scheduleSchema = z.object({
     eventTitle: z.string().min(1, "Judul kegiatan wajib diisi"),
     recipients: z.array(
         z.object({
-            name: z.string().min(1, "Nama penerima wajib diisi"),
-            phoneNumber: z.string()
-                .min(9, "Nomor tujuan terlalu pendek")
-                .max(15, "Nomor whatsapp terlalu panjang")
-                .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
-                .refine(value => !value.startsWith("62"), {
-                    message: "Nomor WhatsApp tidak boleh diawali dengan 62 atau 0."
-                }),
-        }),
-    ).min(1, "Minimal 1 penerima."),
+          id: z.number(),
+          name: z.string(),
+          phoneNumber: z.string(),
+        })
+      ).min(1, { message: "Minimal satu penerima harus dipilih" }),
     eventDescription: z.string().min(1, "Deskripsi kegiatan wajib diisi"),
     eventDate: z.date({ required_error: "Tanggal kegiatan wajib dipilih." }),
     time: z.string(),
@@ -134,10 +129,7 @@ const ReminderPage = () => {
             combinedReminderDateTime.setHours(reminderHours, reminderMinutes, 0, 0)
 
             // Format recipients untuk API
-            const formattedRecipients = values.recipients.map((recipient) => ({
-                name: recipient.name,
-                phoneNumber: `62${recipient.phoneNumber.replace(/^0+/, '')}@c.us`
-            }))
+            const formattedRecipients = values.recipients.map((r) => ({ id: r.id }))
 
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
                 eventTitle: values.eventTitle,
@@ -190,7 +182,7 @@ const ReminderPage = () => {
 
     const fetchContacts = async () => {
         try {
-            const res = await axios.get(`http://localhost:3001/api/contacts`, {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
                 headers: {
                     "ngrok-skip-browser-warning": true,
                 },
@@ -289,7 +281,7 @@ const ReminderPage = () => {
                                                     disabled={isLoading}
                                                 />
                                             </FormControl>
-                                            <FormMessage />
+                                            {/* <FormMessage /> */}
                                         </FormItem>
                                     )}
                                 />

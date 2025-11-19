@@ -1,9 +1,15 @@
+'use client'
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "../ui/button";
 import { Ellipsis, Pencil, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import DeleteContact from "../Contact/delete-contact";
+import axios from "axios";
+import { toast } from "sonner";
+import EditContact from "../Contact/edit-contact";
 
-const ContactTable = ({ contacts, isLoading }) => {
+const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {
     const formatDate = (dateString) => {
         if (!dateString) return '-'
         const d = new Date(dateString)
@@ -57,16 +63,10 @@ const ContactTable = ({ contacts, isLoading }) => {
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent>
-                                            <DropdownMenuLabel>Edit / Hapus Kontak</DropdownMenuLabel>
+                                            <DropdownMenuLabel className="text-left">Edit / Hapus Kontak</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem>
-                                                <Pencil />
-                                                Edit
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                <Trash2 />
-                                                Hapus
-                                            </DropdownMenuItem>
+                                            <EditContact getContacts={getContacts} contact={contact} />
+                                            <DeleteContact getContacts={getContacts} contactId={contact.id} isLoading={isLoading} setIsLoading={setIsLoading}/>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
