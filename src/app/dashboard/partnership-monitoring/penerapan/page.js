@@ -103,11 +103,9 @@ const Penerapan = () => {
             </div>
 
             {/* Chart */}
-            <div className='grid grid-cols-2 gap-4'>
+            <div className='grid grid-cols-3 gap-4'>
                 <GrowthTrendByYearChart />
                 <ProportionPartnershipCategory />
-            </div>
-            <div className='grid grid-cols-2 gap-4'>
                 <ScopeChart />
             </div>
         </div>
