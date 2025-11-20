@@ -2,63 +2,62 @@
 
 import { LoginForm } from "@/components/login-form";
 import Image from "next/image";
+import FloatingLines from "@/components/FloatingLines";
 
 export default function Home() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="items-center flex justify-center gap-2 md:justify-start">
-          <a href="#" className="lg:hidden flex items-center gap-2 font-medium">
-            <div className="text-primary-foreground flex size-12 items-center justify-center rounded-md">
+    <div className="relative flex min-h-svh items-center justify-center bg-slate-900 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="absolute inset-0">
+        <div className="absolute inset-0">
+          <FloatingLines
+            enabledWaves={["middle", "bottom"]}
+            lineCount={[5, 3]}
+            lineDistance={[8, 6, 4]}
+            bendRadius={5.0}
+            bendStrength={1.9}
+            interactive={true}
+            parallax={true}
+            mixBlendMode="screen"
+          />
+        </div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#030711] via-[#01030b]/50 to-[#030711]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-col items-start text-center text-white">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex size-14 items-center justify-center rounded-xl bg-white/10 p-1 shadow-lg">
               <Image
                 src="/logo-feb.png"
                 alt="MIRA Logo"
-                width={720}
-                height={720}
-                className="rounded-md"
+                width={80}
+                height={80}
+                className="rounded-xl"
+                priority
               />
             </div>
-            MIRA - Media Informasi dan Relasi Akses
-          </a>
+            <div className="text-left">
+              <div className="flex flex-col">
+                <p className="text-lg font-semibold">
+                  MIRA
+                </p>
+                <p className="text-xs">
+                  Media Informasi dan Relasi Akses
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* <p className="text-sm text-white/70">
+            &ldquo;MIRA bukan sekadar asisten, melainkan representasi layanan cerdas FEB.
+            Kami memanfaatkan AI untuk menyediakan akses informasi yang relevan dan responsif
+            bagi seluruh civitas akademika.&rdquo;
+          </p> */}
         </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
+
+        <div className="flex justify-center">
+          <div className="w-full">
             <LoginForm />
           </div>
-        </div>
-      </div>
-      <div className="bg-muted relative hidden lg:block">
-        <Image
-          src="/login-image.jpg"
-          alt="Login image"
-          width={1440}
-          height={1440}
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.6]"
-        />
-
-        <div className="ml-6 mt-8 relative z-20 items-center flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="tracking-tight text-primary-foreground flex size-12 items-center justify-center rounded-md">
-              <Image
-                src="/logo-feb.png"
-                alt="MIRA Logo"
-                width={720}
-                height={720}
-                className="rounded-md"
-              />
-            </div>
-            MIRA - Media Informasi dan Relasi Akses
-          </a>
-        </div>
-        <div className="absolute bottom-0 w-full z-20 p-6">
-          <blockquote className="space-y-2">
-            <p className="text-lg tracking-tight text-white">
-              &ldquo;MIRA bukan sekadar asisten, melainkan representasi layanan cerdas FEB. 
-              Kami memanfaatkan AI untuk menyediakan akses informasi yang relevan dan 
-              responsif bagi seluruh civitas akademika.&rdquo;
-            </p>
-            <footer className="text-sm text-white">- Sekretariat</footer>
-          </blockquote>
         </div>
       </div>
     </div>

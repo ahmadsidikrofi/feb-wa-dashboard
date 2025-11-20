@@ -71,9 +71,9 @@ export function LoginForm({
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Masuk ke akunmu</h1>
           <p className="text-muted-foreground text-sm text-balance">
-            Masukkan username dan password yang kamu miliki untuk masuk ke akunmu 
+            Masuk dulu pakai username dan password kamu.<br />
+            Biar akses informasi dan layanan makin gampang!
           </p>
         </div>
         {apiError && (
@@ -84,7 +84,7 @@ export function LoginForm({
 
         <Field>
           <FieldLabel htmlFor="username">Username</FieldLabel>
-          <Input id="username" placeholder="8541234" {...register("username")} />
+          <Input id="username" placeholder="nyomanpaul" {...register("username")} />
           {errors.username && (
             <p className="text-rose-500 text-sm">{errors.username.message}</p>
           )}
@@ -98,6 +98,7 @@ export function LoginForm({
           </div>
           <div className="relative">
             <Input
+              placeholder="**********"
               id="password"
               type={pwVisible ? "text" : "password"}
               className="pr-10"
@@ -123,7 +124,7 @@ export function LoginForm({
           )}
         </Field>
         <Field>
-          <Button disabled={isSubmitting} type="submit">
+          <Button disabled={isSubmitting} type="submit" variant="outline">
             {isSubmitting ? (
               <div className="flex justify-center items-center text-center gap-2 ">
                 <LoaderIcon className="animate-spin size-4"/> <span>Memasuki</span>
