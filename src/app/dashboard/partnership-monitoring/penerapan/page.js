@@ -8,6 +8,7 @@ import { DailyTrenChart } from "@/components/daily-tren-chart"
 import { GrowthTrendByYearChart } from "@/components/PartnershipMonitoring/growth-trend-by-year-chart"
 import { ProportionPartnershipCategory } from "@/components/PartnershipMonitoring/proportion-partnership-cateogory-chart"
 import { ScopeChart } from "@/components/PartnershipMonitoring/scope-chart"
+import TableImplementation from "@/components/PartnershipMonitoring/table-implementation"
 
 const Penerapan = () => {
     const [statusData, setStatusData] = useState({
@@ -35,11 +36,11 @@ const Penerapan = () => {
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start mt-1 gap-3">
-                    <div className="bg-emerald-500 rounded-full w-14 h-14 flex justify-center items-center">
+                    <div className="bg-[#e31e25] rounded-full w-14 h-14 flex justify-center items-center">
                         <FileText className="size-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-emerald-600">Dokumen Penerapan Kerjasama</h1>
+                        <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">Dokumen Penerapan Kerjasama</h1>
                         <p className="text-muted-foreground">
                             Pantau status dokumen kerjasama MoU maupun MoA yang telah diajukan bersama mitra.
                         </p>
@@ -103,11 +104,13 @@ const Penerapan = () => {
             </div>
 
             {/* Chart */}
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid xl:grid-cols-3 sm:grid-cols-2 gap-4'>
                 <GrowthTrendByYearChart />
                 <ProportionPartnershipCategory />
                 <ScopeChart />
             </div>
+    
+            <TableImplementation />
         </div>
     )
 }

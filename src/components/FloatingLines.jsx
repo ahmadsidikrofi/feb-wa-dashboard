@@ -56,8 +56,8 @@ uniform vec3 lineGradient[8];
 uniform int lineGradientCount;
 
 // Telkom University Colors
-const vec3 TELKOM_DARK = vec3(183.0, 28.0, 28.0) / 255.0;   // #b71c1c
-const vec3 TELKOM_RED  = vec3(227.0, 30.0, 37.0) / 255.0;   // #e31e25
+const vec3 TELKOM_DARK = vec3(176.0, 17.0, 22.0) / 255.0;   // #b71c1c
+const vec3 TELKOM_RED  = vec3(237.0, 28.0, 36.0) / 255.0;   // #e31e25
 const vec3 TELKOM_SOFT = vec3(255.0, 138.0, 138.0) / 255.0; // #ff8a8a
 const vec3 TELKOM_WHITE= vec3(1.0, 1.0, 1.0);               // #ffffff
 

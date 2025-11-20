@@ -83,7 +83,7 @@ export function LoginForm({
         )}
 
         <Field>
-          <FieldLabel htmlFor="username">Username</FieldLabel>
+          <FieldLabel htmlFor="username" className="text-white">Username</FieldLabel>
           <Input id="username" placeholder="nyomanpaul" {...register("username")} />
           {errors.username && (
             <p className="text-rose-500 text-sm">{errors.username.message}</p>
@@ -91,7 +91,7 @@ export function LoginForm({
         </Field>
         <Field>
           <div className="flex items-center">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldLabel htmlFor="password" className="text-white">Password</FieldLabel>
             <Link href="https://wa.me/6282318572605" className="text-sm ml-auto underline underline-offset-4">
               Lupa dengan passwordmu?
             </Link>
@@ -124,7 +124,7 @@ export function LoginForm({
           )}
         </Field>
         <Field>
-          <Button disabled={isSubmitting} type="submit" variant="outline">
+          <Button disabled={isSubmitting} type="submit" className="bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
             {isSubmitting ? (
               <div className="flex justify-center items-center text-center gap-2 ">
                 <LoaderIcon className="animate-spin size-4"/> <span>Memasuki</span>

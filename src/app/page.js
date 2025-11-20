@@ -20,7 +20,7 @@ export default function Home() {
             mixBlendMode="screen"
           />
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#030711] via-[#01030b]/50 to-[#030711]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#030711] via-[#01030b]/30 to-[#030711]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 p-8 shadow-2xl backdrop-blur-xl">
