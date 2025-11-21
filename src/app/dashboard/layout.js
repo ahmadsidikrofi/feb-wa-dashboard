@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }) {
           </SidebarHeader>
           
           <SidebarContent>
-            <SidebarMenu className="px-2">
+            <SidebarMenu className="px-2 cursor-pointer">
               {navigation.map((item, index) => {
                 // Jika menu Reminder, render sebagai collapsible
                 if (item.name === 'Reminder') {
