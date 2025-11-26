@@ -63,7 +63,11 @@ export function ProportionPartnershipCategory() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`)
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
+        headers: {
+          "ngrok-skip-browser-warning": true,
+        },
+      })
       const rawData = res?.data?.data?.documentByCategory || []
       const mapp = rawData.map((data) => ({
         name: data.name,

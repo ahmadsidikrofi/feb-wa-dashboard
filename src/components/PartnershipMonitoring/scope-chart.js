@@ -42,7 +42,11 @@ export function ScopeChart() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`)
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
+        headers: {
+          "ngrok-skip-browser-warning": true,
+        },
+      })
 
       // Perhatikan response datanya, gunakan 'documentByScope'
       const rawData = res?.data?.data?.documentByScope || []
