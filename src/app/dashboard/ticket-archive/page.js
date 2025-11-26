@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { List, Search, Filter, User, Calendar, Clock, Ticket, Ellipsis, Eye, HandHelpingIcon, LoaderCircle, CheckCircle } from 'lucide-react'
+import { Search, Filter, User, Calendar, Clock, Ticket, Ellipsis, Eye, HandHelpingIcon, LoaderCircle, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import {
@@ -31,15 +31,6 @@ export default function TicketArchivePage() {
   const [selected, setSelected] = useState(null)
   const [updatingTicketId, setUpdatingTicketId] = useState(null)
   const router = useRouter()
-
-
-  useEffect(() => {
-    fetchAllTickets()
-  }, [])
-  
-  useEffect(() => {
-    applyFilters()
-  }, [applyFilters])
 
   const fetchAllTickets = async () => {
     try {
@@ -153,6 +144,14 @@ export default function TicketArchivePage() {
       setUpdatingTicketId(null)
     }
   }
+
+  useEffect(() => {
+    fetchAllTickets()
+  }, [])
+  
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
 
   if (loading) {
     return (
