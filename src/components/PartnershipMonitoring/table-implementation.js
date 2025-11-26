@@ -156,7 +156,7 @@ const TableImplementation = () => {
         {!isLoading && partnershipData.length === 0 && debounceSearch && (
           <div className="text-center py-8 text-gray-500">
             <SearchX className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>Tidak ada hasil untuk "{debounceSearch}"</p>
+            <p>Tidak ada hasil untuk {debounceSearch}</p>
             <button
               onClick={handleClearSearch}
               className="mt-2 text-sm text-blue-600 hover:underline"
