@@ -3,8 +3,6 @@
 import { CheckCircle, Clock, FileSignature, FileText, Globe2, Handshake, ScrollText, SquareDashedBottomCodeIcon, Ticket, Users } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { TicketPerCategoryChart } from "@/components/ticket-per-category-chart"
-import { DailyTrenChart } from "@/components/daily-tren-chart"
 import { GrowthTrendByYearChart } from "@/components/PartnershipMonitoring/growth-trend-by-year-chart"
 import { ProportionPartnershipCategory } from "@/components/PartnershipMonitoring/proportion-partnership-cateogory-chart"
 import { ScopeChart } from "@/components/PartnershipMonitoring/scope-chart"
@@ -16,7 +14,7 @@ const Penerapan = () => {
         totalMoU: 0,
         totalIA: 0,
         activePartnerGroup: 0
-      })
+    })
 
     const fetchDashboardData = async () => {
         // Fetch summary data

@@ -42,7 +42,7 @@ export default function Home() {
                   MIRA
                 </p>
                 <p className="text-xs">
-                  Media Informasi dan Relasi Akses
+                  Media Informasi dan Relasi Anda
                 </p>
               </div>
             </div>

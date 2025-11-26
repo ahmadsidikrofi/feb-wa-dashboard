@@ -118,7 +118,7 @@ export default function DashboardLayout({ children }) {
               </div>
               <div className="flex flex-col">
                 <span className="font-semibold text-md">MIRA</span>
-                <span className="font-semibold text-[12px]">Media Informasi dan Relasi Akses</span>
+                <span className="font-semibold text-[12px]">Media Informasi dan Relasi Anda</span>
               </div>
             </div>
           </SidebarHeader>
@@ -158,6 +158,14 @@ export default function DashboardLayout({ children }) {
                                 isActive={pathname === '/dashboard/reminder/buat-jadwal'}
                               >
                                 Buat jadwal
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/reminder/google-calendar')}
+                                isActive={pathname === '/dashboard/reminder/google-calendar'}
+                              >
+                                Google Calendar
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           </SidebarMenuSub>

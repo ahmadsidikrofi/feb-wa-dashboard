@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { ChevronDownIcon, CircleFadingArrowUpIcon } from "lucide-react"
+import { Loader2, PackageOpenIcon, Search, SearchX, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "../ui/button"
 import {
@@ -14,16 +14,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
+import { Input } from "../ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useDebounce } from "@/hooks/use-debounce"
+import PartnershipDetailDrawer from "./partnership-detail-drawer"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -37,15 +31,6 @@ const formatDate = (value) => {
   return formatter.format(date)
 }
 
-const DetailField = ({ label, value }) => (
-  <div className="rounded-xl border border-slate-100 bg-gradient-to-br from-white via-slate-50 to-slate-100/40 p-4 shadow-sm">
-    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-      {label}
-    </p>
-    <p className="mt-1 text-base font-semibold text-slate-900">{value || "-"}</p>
-  </div>
-)
-
 const TableImplementation = () => {
     const [partnershipData, setPartnershipData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
@@ -54,33 +39,56 @@ const TableImplementation = () => {
       totalItem: 0,
       totalPages: 0,
       currentPage: 1,
-      pageSize: 10
+      pageSize: 15
     })
+
+    const [searchTerm, setSearchTerm] = useState('')
+    const [rowFilter, setRowFilter] = useState(15)
+    const debounceSearch = useDebounce(searchTerm, 500)
 
     const getPartnershipData = async (page = 1) => {
         try {
             setIsLoading(true)
+            const params = {
+              page,
+              limit: rowFilter,
+              search: debounceSearch || ""
+            }
+            console.log('🔍 Sending request with params:', params)
+
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, {
-                params: { page },
+                params: {
+                  page,
+                  limit: rowFilter,
+                  search: debounceSearch || ""
+                },
                 headers: {
                     "ngrok-skip-browser-warning": true,
                 },
             })
 
+            console.log('📦 Response from backend:', res.data)
+            console.log('📊 Data length:', res.data?.data?.length)
+
             if (res.data) {
-              const { data = [], pagination: resPagination, currentPage: resCurrentPage } = res.data
+              const { data = [], pagination: resPagination } = res.data
               setPartnershipData(Array.isArray(data) ? data : [])
-              setPagination(resPagination ?? {
-                totalItem: 0,
-                totalPages: 0,
-                currentPage: page,
-                pageSize: 10,
-              })
-              setCurrentPage(resCurrentPage ?? page)
+              if (resPagination) {
+                setPagination(resPagination);
+                setCurrentPage(resPagination.currentPage);
+              } else {
+                setPagination({
+                  totalItem: 0,
+                  totalPages: 0,
+                  currentPage: page,
+                  pageSize: rowFilter,
+                });
+                setCurrentPage(page);
+              }
             }
 
         } catch (err) {
-            console.error("Gagal fetch contacts:", err)
+            console.error("Gagal fetch data:", err)
             setPartnershipData([])
         } finally {
             setIsLoading(false)
@@ -88,8 +96,9 @@ const TableImplementation = () => {
     }
 
     useEffect(() => {
+        console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
         getPartnershipData(1)
-    }, [])
+    }, [rowFilter, debounceSearch])
 
     const handlePageChange = (newPage) => {
       if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -97,15 +106,73 @@ const TableImplementation = () => {
       }
     }
 
+    const handleClearSearch = () => {
+      setSearchTerm('')
+    }
+
     return (
       <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cari berdasarkan nama mitra...."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {searchTerm && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <Select
+            value={String(rowFilter)}
+            onValueChange={(value) => (setRowFilter(parseInt(value)))}
+          >
+            <SelectTrigger className="w-full sm:w-38 text-start">
+              <PackageOpenIcon className="w-4 h-4" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="15">15</SelectItem>
+              <SelectItem value="30">30</SelectItem>
+              <SelectItem value="3000">Semua Data</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {isLoading && (
+          <div className="flex items-center justify-center py-4 text-sm text-gray-500">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            Mencari data...
+          </div>
+        )}
+
+        {!isLoading && partnershipData.length === 0 && debounceSearch && (
+          <div className="text-center py-8 text-gray-500">
+            <SearchX className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <p>Tidak ada hasil untuk "{debounceSearch}"</p>
+            <button
+              onClick={handleClearSearch}
+              className="mt-2 text-sm text-blue-600 hover:underline"
+            >
+              Hapus pencarian
+            </button>
+          </div>
+        )}
+
         <div className="border border-gray-200 rounded-lg shadow dark:border-gray-800">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead style={{ minWidth: '90px' }}>Tahun/Year</TableHead>
                 <TableHead style={{ minWidth: '100px' }}>Doc. Type</TableHead>
-                <TableHead className="max-sm:hidden block" style={{ minWidth: '50px' }}>Mitra/Partner</TableHead>
+                <TableHead className="max-sm:hidden block text-wrap" style={{ minWidth: '50px' }}>Mitra/Partner</TableHead>
                 <TableHead style={{ minWidth: '50px' }}>Scope</TableHead>
                 <TableHead style={{ minWidth: '100px' }}>Valid Until</TableHead>
                 <TableHead>Detail</TableHead>
@@ -120,56 +187,13 @@ const TableImplementation = () => {
                       {partnership.docType || "-"}
                     </span>
                   </TableCell>
-                  <TableCell>{partnership.partnerName || "-"}</TableCell>
+                  <TableCell className="uppercase">{partnership.partnerName || "-"}</TableCell>
                   <TableCell className="max-sm:hidden block capitalize">{partnership.scope || "-"}</TableCell>
                   <TableCell className="text-green-600 font-medium">
                     {formatDate(partnership.validUntil)}
                   </TableCell>
                   <TableCell className="">
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button variant="outline" size="icon" className="rounded-full border-blue-100 text-blue-700 hover:bg-blue-50">
-                          <CircleFadingArrowUpIcon className="h-4 w-4" />
-                        </Button>
-                      </DrawerTrigger>
-                      <DrawerContent className="max-h-[90vh] overflow-y-auto rounded-t-3xl bg-gradient-to-b from-blue-50/80 via-white to-white">
-                        <DrawerHeader className="space-y-2 text-left">
-                          <p className="inline-flex w-fit items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
-                            {partnership.docType || "Dokumen"}
-                          </p>
-                          <DrawerTitle className="text-2xl font-semibold text-slate-900">
-                            {partnership.partnerName || "Detail Kemitraan"}
-                          </DrawerTitle>
-                          <p className="text-sm text-slate-500">
-                            Catatan kemitraan pendidikan ini menampilkan ringkasan status dokumen, cakupan kolaborasi, dan periode berlakunya.
-                          </p>
-                        </DrawerHeader>
-                        <div className="grid gap-4 px-6 pb-2 md:grid-cols-2">
-                          <DetailField label="Tahun Penerbitan" value={partnership.yearIssued} />
-                          <DetailField label="Berlaku Hingga" value={formatDate(partnership.validUntil)} />
-                          <DetailField label="Scope Kolaborasi" value={partnership.scope} />
-                          <DetailField label="Institusi Penanggung Jawab" value={partnership.partnerName} />
-                          <DetailField label="Status Implementasi" value={partnership.status || partnership.implementationStatus} />
-                          <DetailField label="PIC Kampus" value={partnership.picName || partnership.picEmail || "-"} />
-                        </div>
-                        {partnership.notes && (
-                          <div className="px-6 pb-4">
-                            <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
-                              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Catatan Kolaborasi</p>
-                              <p className="mt-1 text-sm text-amber-800">{partnership.notes}</p>
-                            </div>
-                          </div>
-                        )}
-                        <DrawerFooter>
-                          <DrawerClose asChild>
-                            <Button variant="outline" className="border-slate-300 text-slate-700">
-                              Tutup
-                            </Button>
-                          </DrawerClose>
-                        </DrawerFooter>
-                      </DrawerContent>
-                    </Drawer>
-
+                    <PartnershipDetailDrawer partnership={partnership} />
                   </TableCell>
                 </TableRow>
               ))}

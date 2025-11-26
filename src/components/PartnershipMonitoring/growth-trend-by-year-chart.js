@@ -17,14 +17,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useEffect, useState } from "react"
+import axios from "axios"
 
 export const description = "A bar chart with a label"
-
-const chartData = [
-  { year: "2023", desktop: 186 },
-  { year: "2024", desktop: 321 },
-  { year: "2025", desktop: 305 },
-]
 
 const chartConfig = {
   desktop: {
@@ -34,6 +30,43 @@ const chartConfig = {
 }
 
 export function GrowthTrendByYearChart() {
+  const [chartData, setChartData] = useState([])
+  const [growthPercentage, setGrowthPercentage] = useState(0)
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`)
+      const rawData = res.data.data.documentsByYear || []
+      
+      const mapp = rawData.map((data) => ({
+        tahun: data.name,
+        jumlah: data.value,
+      }))
+
+      setChartData(mapp)
+
+      if (mapp.length >= 2) {
+        const last = mapp[mapp.length - 1].jumlah;
+        const prev = mapp[mapp.length - 2].jumlah;
+      
+        if (prev > 0) {
+          const growth = ((last - prev) / prev) * 100;
+          setGrowthPercentage(growth);
+        } else {
+          setGrowthPercentage(0);
+        }
+      } else {
+        setGrowthPercentage(0);
+      }
+    } catch (error) {
+      console.error("Gagal memuat data kategori tiket:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   return (
     <Card>
       <CardHeader>
@@ -48,12 +81,12 @@ export function GrowthTrendByYearChart() {
             accessibilityLayer
             data={chartData}
             margin={{
-              top: 20,
+              top: -20,
             }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="year"
+              dataKey="tahun"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
@@ -63,7 +96,7 @@ export function GrowthTrendByYearChart() {
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8}>
+            <Bar dataKey="jumlah" fill="var(--color-desktop)" radius={8}>
               <LabelList
                 position="top"
                 offset={12}
@@ -76,10 +109,10 @@ export function GrowthTrendByYearChart() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 leading-none font-medium">
-          Trending up by 5.2% this year <TrendingUp className="h-4 w-4" />
+          Trending up by {growthPercentage.toFixed(1)}% this year <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last 6 years
+          Showing total visitors for the last {chartData.length} years
         </div>
       </CardFooter>
     </Card>
