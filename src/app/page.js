@@ -47,11 +47,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-          {/* <p className="text-sm text-white/70">
-            &ldquo;MIRA bukan sekadar asisten, melainkan representasi layanan cerdas FEB.
-            Kami memanfaatkan AI untuk menyediakan akses informasi yang relevan dan responsif
-            bagi seluruh civitas akademika.&rdquo;
-          </p> */}
         </div>
 
         <div className="flex justify-center">

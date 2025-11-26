@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -21,8 +21,6 @@ import {
 import TicketDrawer from '@/components/ticket-drawer'
 import axios from 'axios'
 
-
-
 export default function TicketArchivePage() {
   const [allTickets, setAllTickets] = useState([])
   const [filteredTickets, setFilteredTickets] = useState([])
@@ -41,7 +39,7 @@ export default function TicketArchivePage() {
   
   useEffect(() => {
     applyFilters()
-  }, [allTickets, searchTerm, statusFilter])
+  }, [applyFilters])
 
   const fetchAllTickets = async () => {
     try {
@@ -65,7 +63,7 @@ export default function TicketArchivePage() {
     }
   }
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...allTickets]
 
     // Apply status filter
@@ -89,7 +87,7 @@ export default function TicketArchivePage() {
     filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
     setFilteredTickets(filtered)
-  }
+  }, [allTickets, searchTerm, statusFilter])
 
 
   const formatDate = (dateString) => {

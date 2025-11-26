@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { CalendarDaysIcon } from "lucide-react"
 import axios from "axios"
 import { useSearchParams } from "next/navigation"
@@ -16,32 +16,36 @@ const GoogleCalendar = () => {
     const searchParams = useSearchParams()
     const isConnected = searchParams.get("connected")
     
-    const fetchEvents = async () => {
-        try {
-            setLoading(true)
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/google/events`, {
-                headers: {
-                    "ngrok-skip-browser-warning": true
-                }
-            })
-            setEvents(mapGoogleEventsToCalendar(res.data))
-            console.log(res.data);
-            
-        } catch (err) {
-            console.error("Gagal fetch events:", err)
-        } finally {
-            setLoading(false)
-        }
-    }
-    
     useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setLoading(true);
+                const res = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/google/events`,
+                    {
+                        headers: {
+                            "ngrok-skip-browser-warning": true,
+                        },
+                    }
+                );
+                setEvents(mapGoogleEventsToCalendar(res.data));
+                console.log(res.data);
+            } catch (err) {
+                console.error("Gagal fetch events:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+    
         if (isConnected === "true") {
             toast.success("Google Calendar berhasil terhubung!");
         } else if (isConnected === "false") {
             toast.error("Gagal menghubungkan Google Calendar.");
         }
+    
         fetchEvents()
     }, [isConnected])
+    
 
     function mapGoogleEventsToCalendar(events) {
         return events.map(e => {
