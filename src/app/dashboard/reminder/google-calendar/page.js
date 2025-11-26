@@ -5,9 +5,11 @@ import { Suspense } from "react"
 
 
 const CalendarTaskPage = () => {
+  return (
     <Suspense fallback={<p>Loading Google Calendar...</p>}>
       <GoogleCalendar />
     </Suspense>
+  )
 }
 
 export default CalendarTaskPage
