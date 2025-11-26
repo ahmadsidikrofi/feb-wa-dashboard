@@ -45,7 +45,7 @@ export function ScopeChart() {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`)
 
       // Perhatikan response datanya, gunakan 'documentByScope'
-      const rawData = res.data.data.documentByScope || []
+      const rawData = res?.data?.data?.documentByScope || []
 
       // Gunakan key yang sesuai untuk dipakai di chart
       const mapp = rawData.map((data) => ({
@@ -85,6 +85,7 @@ export function ScopeChart() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {chartData.length === 0 && <p className="text-muted-foreground">Data tidak tersedia</p>}
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer

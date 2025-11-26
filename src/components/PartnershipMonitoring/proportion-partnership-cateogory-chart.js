@@ -64,7 +64,7 @@ export function ProportionPartnershipCategory() {
   const fetchData = async () => {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`)
-      const rawData = res.data.data.documentByCategory || []
+      const rawData = res?.data?.data?.documentByCategory || []
       const mapp = rawData.map((data) => ({
         name: data.name,
         value: data.value,
@@ -104,6 +104,7 @@ export function ProportionPartnershipCategory() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
+        {chartData.length === 0 && <p className="text-muted-foreground">Data tidak tersedia</p>}
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"

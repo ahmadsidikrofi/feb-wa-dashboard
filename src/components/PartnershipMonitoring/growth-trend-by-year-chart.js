@@ -36,7 +36,7 @@ export function GrowthTrendByYearChart() {
   const fetchData = async () => {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`)
-      const rawData = res.data.data.documentsByYear || []
+      const rawData = res?.data?.data?.documentsByYear || []
       
       const mapp = rawData.map((data) => ({
         tahun: data.name,
@@ -76,6 +76,7 @@ export function GrowthTrendByYearChart() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {chartData.length === 0 && <p className="text-muted-foreground">Data tidak tersedia</p>}
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
