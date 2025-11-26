@@ -10,6 +10,31 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import interactionPlugin from "@fullcalendar/interaction"
 
+export function parsePlannerDescription(description) {
+    if (!description) return null;
+
+    const lines = description.split("\n").map(l => l.trim()).filter(Boolean);
+
+    const progress = lines.find(l => l.toLowerCase().startsWith("progress")) || null;
+    const checklist = lines.find(l => l.toLowerCase().startsWith("checklist")) || null;
+
+    // Extract bullet list (line starting with "-", "*", or "•")
+    const bullets = lines
+        .filter(l => l.startsWith("-") || l.startsWith("*") || l.startsWith("•"))
+        .map(l => l.replace(/^[-*•]\s*/, ""));
+
+    // Find Planner link
+    const plannerLink = lines.find(l => l.startsWith("http")) || null;
+
+    return {
+        progress,      // e.g. "Progress: Not started"
+        checklist,     // e.g. "Checklist 0 / 1 complete"
+        bullets,       // array berisi bullet point
+        plannerLink    // URL
+    };
+}
+  
+
 const GoogleCalendar = () => {
     const [events, setEvents] = useState([])
     const [loading, setLoading] = useState(false)
@@ -45,24 +70,74 @@ const GoogleCalendar = () => {
     
         fetchEvents()
     }, [isConnected])
-    
 
+    const COLORS = [
+        "#1a73e8", // Google Blue
+        "#e8710a", // Orange
+        "#188038", // Green
+        "#a142f4", // Purple
+        "#d93025", // Red
+    ];
+    
     function mapGoogleEventsToCalendar(events) {
-        return events.map(e => {
+        return events.map((e, idx) => {
             const start = e.start?.dateTime || e.start?.date;
             const end = e.end?.dateTime || e.end?.date;
-
+            const color = COLORS[idx % COLORS.length]
+    
             return {
                 id: e.id,
                 title: e.summary,
                 start: start ? new Date(start).toISOString() : null,
                 end: end ? new Date(end).toISOString() : null,
+                extendedProps: {
+                    description: e.description,
+                    color,
+                    planner: parsePlannerDescription(e.description || "")
+                }
             };
         }).filter(e => e.start);
     }
       
+    function renderEventContent(info) {
+        const planner = info.event.extendedProps.planner;
+    
+        return (
+            <div className="fc-event-custom" style={{ "--event-color": info.event.extendedProps.color }}>
+                <div className="font-semibold text-[13px] leading-tight text-red-500">
+                    {info.event.title}
+                </div>
+    
+                {planner?.progress && (
+                    <div className="text-[11px] text-gray-600">
+                        {planner.progress}
+                    </div>
+                )}
+    
+                {planner?.bullets?.length > 0 && (
+                    <ul className="text-[11px] text-gray-700 ml-3 list-disc">
+                        {planner.bullets.map((item, idx) => (
+                            <li key={idx}>{item}</li>
+                        ))}
+                    </ul>
+                )}
+    
+                {planner?.plannerLink && (
+                    <a
+                        href={planner.plannerLink}
+                        target="_blank"
+                        className="text-[11px] text-blue-600 underline"
+                    >
+                        Open task
+                    </a>
+                )}
+            </div>
+        );
+    }
+    
 
-
+    
+    
     return (
         <div className="space-y-6">
             {/* HEADER */}
@@ -99,17 +174,23 @@ const GoogleCalendar = () => {
                 )}
 
                 {!loading && (
-                    <div className="grid md:grid-cols-1 xl:grid-cols-2 gap-8">
-                        <FullCalendar
-                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                            initialView="dayGridMonth"
-                            events={events}
-                        />
-                        <FullCalendar
-                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                            initialView="dayGridMonth"
-                            events={events}
-                        />
+                    <div className="grid xl:grid-cols-2 gap-4">
+                        <div className="bg-slate-100 shadow-sm border border-gray-200 rounded-xl p-4">
+                            <FullCalendar
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                initialView="dayGridMonth"
+                                events={events}
+                                eventContent={renderEventContent}
+                            />
+                        </div>
+                        <div className="bg-slate-100 shadow-sm border border-gray-200 rounded-xl p-4">
+                            <FullCalendar
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                initialView="dayGridMonth"
+                                events={events}
+                                eventContent={renderEventContent}
+                            />
+                        </div>
                     </div>
                 )}
 

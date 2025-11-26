@@ -121,3 +121,75 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* ===== GOOGLE CALENDAR STYLE ===== */
+
+/* Event container */
+.fc-event {
+  background: #fff !important;
+  border-left: 4px solid var(--event-color, #1a73e8) !important;
+  border-radius: 8px !important;
+  padding: 4px 6px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  color: #3c4043 !important;
+  cursor: pointer;
+  overflow: hidden !important;
+}
+
+/* Event hover (Google-style) */
+.fc-event:hover {
+  background: #f7faff !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+
+/* Event title */
+.fc-event .fc-event-title {
+  font-weight: 600 !important;
+  font-size: 12.8px !important;
+  color: #202124 !important;
+}
+
+/* Description inside event */
+.fc-event-custom {
+  padding: 2px 0;
+}
+
+.fc-event-custom ul {
+  margin-top: 2px;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 12px;
+  font-weight: 500;
+  color: #5f6368;
+}
+
+/* Today highlight */
+.fc-day-today {
+  background-color: #e8f0fe !important;
+}
+
+/* Month header */
+.fc-toolbar-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #202124;
+}
+
+/* Weekday header */
+.fc-col-header-cell-cushion {
+  color: #5f6368 !important;
+  font-weight: 500 !important;
+}
+
+/* Grid border like Google */
+.fc-theme-standard td, 
+.fc-theme-standard th {
+  border-color: #e0e3e7 !important;
+}
+
+/* Remove default event dot */
+.fc-daygrid-event-dot {
+  display: none !important;
+}
