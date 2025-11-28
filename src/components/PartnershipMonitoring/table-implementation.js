@@ -172,9 +172,16 @@ const TableImplementation = () => {
               <TableRow>
                 <TableHead style={{ minWidth: '90px' }}>Tahun/Year</TableHead>
                 <TableHead style={{ minWidth: '100px' }}>Doc. Type</TableHead>
-                <TableHead className="max-sm:hidden block text-wrap" style={{ minWidth: '50px' }}>Mitra/Partner</TableHead>
-                <TableHead style={{ minWidth: '50px' }}>Scope</TableHead>
-                <TableHead style={{ minWidth: '100px' }}>Valid Until</TableHead>
+                <TableHead 
+                  className="max-sm:hidden" 
+                  style={{ minWidth: '100px', maxWidth: '220px' }}>
+                  Mitra/Partner
+                </TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Scope</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Approve Dekan</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Approve Warek 1</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Approve Rektor</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Valid Until</TableHead>
                 <TableHead>Detail</TableHead>
               </TableRow>
             </TableHeader>
@@ -187,9 +194,17 @@ const TableImplementation = () => {
                       {partnership.docType || "-"}
                     </span>
                   </TableCell>
-                  <TableCell className="uppercase">{partnership.partnerName || "-"}</TableCell>
+                  <TableCell
+                    className="uppercase max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                    title={partnership.partnerName || "-"}
+                  >
+                    {partnership.partnerName || "-"}
+                  </TableCell>
                   <TableCell className="max-sm:hidden block capitalize">{partnership.scope || "-"}</TableCell>
-                  <TableCell className="text-green-600 font-medium">
+                  <TableCell className="max-sm:hidden capitalize">{partnership.approvalDekan || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden capitalize">{partnership.approvalWarek1 || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden capitalize">{partnership.approvalRektor || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden text-green-600 font-medium">
                     {formatDate(partnership.validUntil)}
                   </TableCell>
                   <TableCell className="">

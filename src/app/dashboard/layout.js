@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton,
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown, ParkingMeter } from 'lucide-react'
+import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown, ParkingMeter, Ellipsis, UserCog2 } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from "next-themes"
 
@@ -258,7 +258,10 @@ export default function DashboardLayout({ children }) {
                   <p className="text-sm font-medium truncate">{user?.fullName || 'Admin User'}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.username || 'admin@smartticket.com'}</p>
                 </div>
-                <div>
+                <div className="flex flex-col">
+                  <Button size="icon" variant="ghost">
+                    <UserCog2 />
+                  </Button>
                   <ModeToggle />
                 </div>
               </div>

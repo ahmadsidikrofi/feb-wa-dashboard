@@ -21,6 +21,7 @@ import {
     User,
     AlertCircle,
     ExternalLink,
+    MinusCircle,
 } from "lucide-react"
 import { CircleFadingArrowUpIcon } from "lucide-react"
 
@@ -39,21 +40,75 @@ const formatDate = (value) => {
 const PartnershipDetailDrawer = ({ partnership }) => {
     const getScopeIcon = () => {
         switch (partnership.scope?.toLowerCase()) {
-            case 'international': return <Globe className="w-4 h-4" />;
-            case 'national': return <Building2 className="w-4 h-4" />;
-            default: return <Building2 className="w-4 h-4" />;
+            case 'international': return <Globe className="w-4 h-4" />
+            case 'national': return <Building2 className="w-4 h-4" />
+            default: return <Building2 className="w-4 h-4" />
         }
     }
 
     const getStatusColor = () => {
-        if (!partnership.validUntil) return "bg-slate-50 text-slate-600 border-slate-200";
-        const validDate = new Date(partnership.validUntil);
-        const today = new Date();
-        const diffMonths = (validDate - today) / (1000 * 60 * 60 * 24 * 30);
+        if (!partnership.validUntil) return "bg-slate-50 text-slate-600 border-slate-200"
+        const validDate = new Date(partnership.validUntil)
+        const today = new Date()
+        const diffMonths = (validDate - today) / (1000 * 60 * 60 * 24 * 30)
         
-        if (diffMonths > 6) return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
-        if (diffMonths > 3) return "bg-amber-500/10 text-amber-600 border-amber-500/20";
-        return "bg-red-500/10 text-red-600 border-red-500/20";
+        if (diffMonths > 6) return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+        if (diffMonths > 3) return "bg-amber-500/10 text-amber-600 border-amber-500/20"
+        return "bg-red-500/10 text-red-600 border-red-500/20"
+    }
+
+    const approvalSteps = [
+        { label: "Wadek II", status: partnership.approvalWadek2 },
+        { label: "Wadek I", status: partnership.approvalWadek1 },
+        { label: "Ka. Bag. KST", status: partnership.approvalKabagKST },
+        { label: "Dir. SPIO", status: partnership.approvalDirSPIO },
+        { label: "Ka. Ur. Legal", status: partnership.approvalKaurLegal },
+        { label: "Ka. Bag. Sekpim", status: partnership.approvalKabagSekpim },
+        { label: "Dir. SPS", status: partnership.approvalDirSPS },
+        { label: "Dekan", status: partnership.approvalDekan },
+        { label: "Warek I", status: partnership.approvalWarek1 },
+        { label: "Rektor", status: partnership.approvalRektor },
+    ]
+
+    const getApprovalStyle = (status) => {
+        switch(status) {
+            case 'Approved': 
+                return { 
+                    bgIcon: 'bg-emerald-500', 
+                    shadow: 'shadow-emerald-500/30',
+                    icon: <CheckCircle2 className="w-3 h-3 text-white" />,
+                    bgCard: 'bg-emerald-50/50 border-emerald-100',
+                    text: 'text-emerald-700',
+                    label: 'Disetujui'
+                }
+            case 'Returned': 
+                return { 
+                    bgIcon: 'bg-red-500', 
+                    shadow: 'shadow-red-500/30',
+                    icon: <XCircle className="w-3 h-3 text-white" />,
+                    bgCard: 'bg-red-50/50 border-red-100',
+                    text: 'text-red-700',
+                    label: 'Dikembalikan'
+                }
+            case 'Submitted': 
+                return { 
+                    bgIcon: 'bg-blue-500', 
+                    shadow: 'shadow-blue-500/30',
+                    icon: <Clock className="w-3 h-3 text-white" />,
+                    bgCard: 'bg-blue-50/50 border-blue-100',
+                    text: 'text-blue-700',
+                    label: 'Diajukan'
+                }
+            default:
+                return { 
+                    bgIcon: 'bg-slate-200', 
+                    shadow: '',
+                    icon: <MinusCircle className="w-3 h-3 text-slate-500" />,
+                    bgCard: 'bg-slate-50 border-slate-100',
+                    text: 'text-slate-400',
+                    label: 'Menunggu'
+                }
+        }
     }
 
     return (
@@ -109,11 +164,13 @@ const PartnershipDetailDrawer = ({ partnership }) => {
                             <div className="grid grid-cols-3 gap-4 mt-6">
                                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                                     <p className="text-blue-100 text-xs mb-1">Tahun Terbit</p>
-                                    <p className="text-white text-2xl font-bold">{partnership.yearIssued || "-"}</p>
+                                    <p className="text-white text-xl lg:text-2xl max-sm:text-sm font-bold">
+                                        {partnership.yearIssued || "-"}
+                                    </p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                                     <p className="text-blue-100 text-xs mb-1">Status</p>
-                                    <p className="text-white text-lg font-semibold flex items-center gap-1">
+                                    <p className="text-white text-xl max-sm:text-sm font-semibold flex items-center gap-1">
                                         <CheckCircle2 className="w-4 h-4 text-emerald-300" />
                                         Active
                                     </p>
@@ -127,47 +184,89 @@ const PartnershipDetailDrawer = ({ partnership }) => {
                     </div>
 
                     {/* Status Timeline Card */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-lg">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Clock className="w-5 h-5 text-blue-600" />
-                            <h3 className="text-lg font-bold text-slate-800">Timeline Dokumen</h3>
+                    <div className="space-y-6 md:grid grid-cols-2 gap-4">
+                        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-lg">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Clock className="w-5 h-5 text-blue-600" />
+                                <h3 className="text-lg font-bold text-slate-800">Timeline Dokumen</h3>
+                            </div>
+
+                            <div className="relative">
+                                {/* Timeline Line */}
+                                <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-emerald-500 border"></div>
+
+                                {/* Timeline Items */}
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-4 relative">
+                                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/30 z-10">
+                                            <FileText className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div className="flex-1 bg-gradient-to-br from-blue-50 to-transparent rounded-xl p-4 border border-blue-100">
+                                            <p className="text-xs font-semibold text-blue-700 mb-1">Dokumen Dibuat</p>
+                                            <p className="text-slate-900 font-medium">{formatDate(partnership.dateCreated) || "-"}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-4 relative">
+                                        <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center shadow-lg shadow-purple-500/30 z-10">
+                                            <CheckCircle2 className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div className="flex-1 bg-gradient-to-br from-purple-50 to-transparent rounded-xl p-4 border border-purple-100">
+                                            <p className="text-xs font-semibold text-purple-700 mb-1">Dokumen Ditandatangani</p>
+                                            <p className="text-slate-900 font-medium">{formatDate(partnership.dateSigned) || "-"}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-4 relative">
+                                        <div className={`w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 z-10`}>
+                                            <Calendar className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div className={`flex-1 rounded-xl p-4 border ${getStatusColor()}`}>
+                                            <p className="text-xs font-semibold mb-1">Berlaku Hingga</p>
+                                            <p className="font-bold text-lg">{formatDate(partnership.validUntil) || "-"}</p>
+                                            <p className="text-xs text-slate-500 mt-1">Durasi: {partnership.duration || "-"}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="relative">
-                            {/* Timeline Line */}
-                            <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-emerald-500"></div>
+                        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-lg">
+                            <div className="flex items-center gap-2 mb-6">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                <h3 className="text-lg font-bold text-slate-800">Workflow Persetujuan</h3>
+                            </div>
 
-                            {/* Timeline Items */}
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4 relative">
-                                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/30 z-10">
-                                        <FileText className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div className="flex-1 bg-gradient-to-br from-blue-50 to-transparent rounded-xl p-4 border border-blue-100">
-                                        <p className="text-xs font-semibold text-blue-700 mb-1">Dokumen Dibuat</p>
-                                        <p className="text-slate-900 font-medium">{formatDate(partnership.dateCreated) || "-"}</p>
-                                    </div>
-                                </div>
+                            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                {approvalSteps.map((step, index) => {
+                                    const style = getApprovalStyle(step.status);
+                                    let lineColor = 'bg-slate-200';
+                                    if (step.status === 'Approved') lineColor = 'bg-emerald-500';
+                                    if (step.status === 'Returned') lineColor = 'bg-red-300';
 
-                                <div className="flex items-start gap-4 relative">
-                                    <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center shadow-lg shadow-purple-500/30 z-10">
-                                        <CheckCircle2 className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div className="flex-1 bg-gradient-to-br from-purple-50 to-transparent rounded-xl p-4 border border-purple-100">
-                                        <p className="text-xs font-semibold text-purple-700 mb-1">Dokumen Ditandatangani</p>
-                                        <p className="text-slate-900 font-medium">{formatDate(partnership.dateSigned) || "-"}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 relative">
-                                    <div className={`w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 z-10`}>
-                                        <Calendar className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div className={`flex-1 rounded-xl p-4 border ${getStatusColor()}`}>
-                                        <p className="text-xs font-semibold mb-1">Berlaku Hingga</p>
-                                        <p className="font-bold text-lg">{formatDate(partnership.validUntil) || "-"}</p>
-                                    </div>
-                                </div>
+                                    return (
+                                        <div key={index} className={`relative flex gap-3 pb-2`}>
+                                            
+                                            <div 
+                                                className={`absolute left-[11px] top-6 -bottom-3 w-0.5 ${lineColor}`}
+                                                aria-hidden="true"
+                                            />
+                            
+                                            {/* 2. ICON BULAT */}
+                                            <div className={`relative z-10 w-6 h-6 rounded-full ${style.bgIcon} ${style.shadow} flex items-center justify-center shrink-0`}>
+                                                {style.icon}
+                                            </div>
+                            
+                                            {/* 3. CARD INFO */}
+                                            <div className={`flex-1 flex items-center justify-between p-3 rounded-xl border ${style.bgCard} -mt-1`}>
+                                                <span className="text-sm font-semibold text-slate-700">{step.label}</span>
+                                                <span className={`text-xs font-bold px-2 py-1 rounded-md bg-white/50 ${style.text}`}>
+                                                    {step.status || "Menunggu"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
                     </div>
@@ -206,6 +305,11 @@ const PartnershipDetailDrawer = ({ partnership }) => {
                                 <div className="bg-gradient-to-br from-purple-50 to-transparent rounded-xl p-3 border border-purple-100">
                                     <p className="text-xs text-purple-700 font-semibold mb-1">External PIC</p>
                                     <p className="text-sm font-medium text-slate-900">{partnership.picExternal || "-"}</p>
+                                    {partnership.picExternalPhone && (
+                                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                            📞 {partnership.picExternalPhone}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -257,7 +361,10 @@ const PartnershipDetailDrawer = ({ partnership }) => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-2 items-center justify-end">
-                        <Button className="bg-gradient-to-r from-[#e31e25] to-red-900 text-white py-4 rounded-md font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2">
+                        <Button
+                            onClick={() => window.open(partnership.docLink, '_blank')} 
+                            className="bg-gradient-to-r from-[#e31e25] to-red-900 text-white py-4 rounded-md font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
+                        >
                             <ExternalLink className="w-5 h-5" />
                             Lihat Dokumen
                         </Button>
