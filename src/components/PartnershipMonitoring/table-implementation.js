@@ -45,60 +45,59 @@ const TableImplementation = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [rowFilter, setRowFilter] = useState(15)
     const debounceSearch = useDebounce(searchTerm, 500)
-  
-    const getPartnershipData = async (page = 1) => {
-        try {
-            setIsLoading(true)
-            const params = {
-              page,
-              limit: rowFilter,
-              search: debounceSearch || ""
-            }
-            console.log('🔍 Sending request with params:', params)
 
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, {
-                params: {
-                  page,
-                  limit: rowFilter,
-                  search: debounceSearch || ""
-                },
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
-
-            console.log('📦 Response from backend:', res.data)
-            console.log('📊 Data length:', res.data?.data?.length)
-
-            if (res.data) {
-              const { data = [], pagination: resPagination } = res.data
-              setPartnershipData(Array.isArray(data) ? data : [])
-              if (resPagination) {
-                setPagination(resPagination);
-                setCurrentPage(resPagination.currentPage);
-              } else {
-                setPagination({
-                  totalItem: 0,
-                  totalPages: 0,
-                  currentPage: page,
-                  pageSize: rowFilter,
-                });
-                setCurrentPage(page);
-              }
-            }
-
-        } catch (err) {
-            console.error("Gagal fetch data:", err)
-            setPartnershipData([])
-        } finally {
-            setIsLoading(false)
+    const getPartnershipData = React.useCallback(async (page = 1) => {
+      try {
+        setIsLoading(true)
+        const params = {
+          page,
+          limit: rowFilter,
+          search: debounceSearch || ""
         }
-    }
-    
+
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, {
+          params: {
+            page,
+            limit: rowFilter,
+            search: debounceSearch || ""
+          },
+          headers: {
+            "ngrok-skip-browser-warning": true,
+          },
+        })
+
+        // console.log('📦 Response from backend:', res.data)
+        // console.log('📊 Data length:', res.data?.data?.length)
+
+        if (res.data) {
+          const { data = [], pagination: resPagination } = res.data
+          setPartnershipData(Array.isArray(data) ? data : [])
+          if (resPagination) {
+            setPagination(resPagination);
+            setCurrentPage(resPagination.currentPage);
+          } else {
+            setPagination({
+              totalItem: 0,
+              totalPages: 0,
+              currentPage: page,
+              pageSize: rowFilter,
+            });
+            setCurrentPage(page);
+          }
+        }
+
+      } catch (err) {
+        console.error("Gagal fetch data:", err)
+        setPartnershipData([])
+      } finally {
+        setIsLoading(false)
+      }
+    }, [rowFilter, debounceSearch]);
+
     useEffect(() => {
       console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
-        getPartnershipData(1)
-    }, [rowFilter, debounceSearch])
+      getPartnershipData(1)
+    }, [rowFilter, debounceSearch, getPartnershipData])
 
     const handlePageChange = (newPage) => {
       if (newPage >= 1 && newPage <= pagination.totalPages) {

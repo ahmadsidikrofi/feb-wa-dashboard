@@ -22,6 +22,7 @@ import {
     AlertCircle,
     ExternalLink,
     MinusCircle,
+    XCircle,
 } from "lucide-react"
 import { CircleFadingArrowUpIcon } from "lucide-react"
 
