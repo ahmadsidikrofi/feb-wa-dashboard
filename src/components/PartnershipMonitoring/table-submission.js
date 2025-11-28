@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { Loader2, PackageOpenIcon, Search, SearchX, X } from "lucide-react"
+import { Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import {
   Pagination,
@@ -16,7 +16,8 @@ import {
 import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDebounce } from "@/hooks/use-debounce"
-import ImplementationDetailDrawer from "./implementation-detail-drawer"
+import SubmissionDetailDrawer from "./submission-detail-drawer"
+import { Button } from "../ui/button"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -30,7 +31,7 @@ const formatDate = (value) => {
   return formatter.format(date)
 }
 
-const TableImplementation = () => {
+const TableSubmission = () => {
     const [partnershipData, setPartnershipData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
@@ -142,6 +143,7 @@ const TableImplementation = () => {
               <SelectItem value="3000">Semua Data</SelectItem>
             </SelectContent>
           </Select>
+          <Button variant="outline"> <PlusCircle/> Tambah partnership</Button>
         </div>
 
         {isLoading && (
@@ -176,8 +178,9 @@ const TableImplementation = () => {
                   Mitra
                 </TableHead>
                 <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Tingkat</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Jenis Kerjasama</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">PIC</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Persetujuan Dekan</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Persetujuan Warek 1</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Persetujuan Rektor</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Berlaku hingga</TableHead>
                 <TableHead>Detail</TableHead>
               </TableRow>
@@ -197,14 +200,15 @@ const TableImplementation = () => {
                   >
                     {partnership.partnerName || "-"}
                   </TableCell>
-                  <TableCell className="max-sm:hidden capitalize">{partnership.scope || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{partnership.partnershipType || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden capitalize">{partnership.picInternal || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden block capitalize">{partnership.scope || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden capitalize">{partnership.approvalDekan || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden capitalize">{partnership.approvalWarek1 || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden capitalize">{partnership.approvalRektor || "-"}</TableCell>
                   <TableCell className="max-sm:hidden text-green-600 font-medium">
                     {formatDate(partnership.validUntil)}
                   </TableCell>
                   <TableCell className="">
-                    <ImplementationDetailDrawer partnership={partnership} />
+                    <SubmissionDetailDrawer partnership={partnership} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -272,4 +276,4 @@ const TableImplementation = () => {
     )
 }
 
-export default TableImplementation
+export default TableSubmission

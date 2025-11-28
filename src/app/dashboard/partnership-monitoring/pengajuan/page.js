@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { GrowthTrendByYearChart } from "@/components/PartnershipMonitoring/growth-trend-by-year-chart"
 import { ProportionPartnershipCategory } from "@/components/PartnershipMonitoring/proportion-partnership-cateogory-chart"
 import { ScopeChart } from "@/components/PartnershipMonitoring/scope-chart"
-import TableImplementation from "@/components/PartnershipMonitoring/table-implementation"
+import TableSubmission from "@/components/PartnershipMonitoring/table-submission"
 
 const Pengajuan = () => {
     const [statusData, setStatusData] = useState({
@@ -109,7 +109,7 @@ const Pengajuan = () => {
                 <ScopeChart />
             </div>
 
-            <TableImplementation />
+            <TableSubmission />
         </div>
     )
 }
