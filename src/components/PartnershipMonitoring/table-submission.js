@@ -13,11 +13,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+
 import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDebounce } from "@/hooks/use-debounce"
 import SubmissionDetailDrawer from "./submission-detail-drawer"
 import { Button } from "../ui/button"
+import FilterTablePartnership from "./filter-table"
+import AddPartnership from "./addPartnership"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -45,6 +48,12 @@ const TableSubmission = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [rowFilter, setRowFilter] = useState(15)
     const debounceSearch = useDebounce(searchTerm, 500)
+    const [filters, setFilters] = useState({
+      scope: null,
+      docType: null,
+      status: null,
+      archive: null,
+    })
 
     const getPartnershipData = React.useCallback(async (page = 1) => {
       try {
@@ -52,22 +61,19 @@ const TableSubmission = () => {
         const params = {
           page,
           limit: rowFilter,
-          search: debounceSearch || ""
+          search: debounceSearch || "",
+          scope: filters.scope,
+          docType: filters.docType,
+          status: filters.status,
+          archive: filters.archive
         }
 
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, {
-          params: {
-            page,
-            limit: rowFilter,
-            search: debounceSearch || ""
-          },
+          params: params,
           headers: {
             "ngrok-skip-browser-warning": true,
           },
         })
-
-        // console.log('📦 Response from backend:', res.data)
-        // console.log('📊 Data length:', res.data?.data?.length)
 
         if (res.data) {
           const { data = [], pagination: resPagination } = res.data
@@ -92,12 +98,12 @@ const TableSubmission = () => {
       } finally {
         setIsLoading(false)
       }
-    }, [rowFilter, debounceSearch]);
+    }, [rowFilter, debounceSearch, filters]);
 
     useEffect(() => {
       console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
       getPartnershipData(1)
-    }, [rowFilter, debounceSearch, getPartnershipData])
+    }, [rowFilter, debounceSearch, getPartnershipData, filters ])
 
     const handlePageChange = (newPage) => {
       if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -109,9 +115,18 @@ const TableSubmission = () => {
       setSearchTerm('')
     }
 
+    const handleResetFilters = () => {
+      setFilters({ scope: null, docType: null, status: null, archive: null })
+    }
+
     return (
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4">
+          <FilterTablePartnership 
+            filters={filters}
+            setFilter={setFilters}
+            onReset={handleResetFilters}
+          />
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -143,7 +158,7 @@ const TableSubmission = () => {
               <SelectItem value="3000">Semua Data</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline"> <PlusCircle/> Tambah partnership</Button>
+          <AddPartnership />
         </div>
 
         {isLoading && (
