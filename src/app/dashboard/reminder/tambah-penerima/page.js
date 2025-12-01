@@ -71,7 +71,7 @@ function TambahPenerimaPage() {
     
     try {
       setIsLoading(true)
-      const res = await axios.post(`http://localhost:3001/api/contacts`, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
         name: values.name,
         phoneNumber: formattedPhoneNumber,
         notes: values.notes,
