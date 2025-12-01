@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from "@/components/ui/checkbox"
 
 const docTypeOptions = [
     { label: "MoA", value: "MoA" },
@@ -80,7 +81,10 @@ const partnershipSchema = z.object({
     picInternal: z.string().optional().or(z.literal("")),
     docNumberInternal: z.string().optional().or(z.literal("")),
     docNumberExternal: z.string().optional().or(z.literal("")),
-    partnershipType: z.enum(["Akademik", "Penelitian", "Abdimas"], { required_error: "Pilih tipe kerjasama" }),
+    partnershipType: z.enum(["Akademik", "Penelitian", "Abdimas"], { 
+        required_error: "Pilih tipe kerjasama", 
+        invalid_type_error: "Pilih tipe kerjasama" 
+    }),
     activityType: z.enum([
         "JointDegree",
         "DoubleDegree",
@@ -92,7 +96,10 @@ const partnershipSchema = z.object({
         "JointCommunityService",
         "SocialProject",
         "General"
-    ], { required_error: "Pilih jenis aktivitas" }),
+    ], { 
+        required_error: "Pilih jenis aktivitas", 
+        invalid_type_error: "Pilih jenis aktivitas" 
+    }),
     dateCreated: z.string().optional().or(z.literal("")),
     signingType: z.string().optional().or(z.literal("")),
     dateSigned: z.string().optional().or(z.literal("")),
@@ -104,7 +111,7 @@ const partnershipSchema = z.object({
     hasSoftcopy: z.boolean().default(false),
 })
 
-const AddPartnership = () => {
+const AddPartnership = ({ getPartnershipData }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [open, setOpen] = useState(false)
 
@@ -156,6 +163,7 @@ const AddPartnership = () => {
                     "ngrok-skip-browser-warning": true,
                 }
             })
+            getPartnershipData(1)
             toast.success("Mitra berhasil ditambahkan")
             form.reset()
             setOpen(false)
@@ -514,10 +522,9 @@ const AddPartnership = () => {
                                                     <p className="text-sm text-slate-500">Tersedia fisik di arsip?</p>
                                                 </div>
                                                 <FormControl>
-                                                    <input
-                                                        type="checkbox"
+                                                    <Checkbox
                                                         checked={field.value}
-                                                        onChange={(event) => field.onChange(event.target.checked)}
+                                                        onCheckedChange={field.onChange}
                                                         className="h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary"
                                                     />
                                                 </FormControl>
@@ -534,10 +541,9 @@ const AddPartnership = () => {
                                                     <p className="text-sm text-slate-500">Tersedia file digital?</p>
                                                 </div>
                                                 <FormControl>
-                                                    <input
-                                                        type="checkbox"
+                                                    <Checkbox
                                                         checked={field.value}
-                                                        onChange={(event) => field.onChange(event.target.checked)}
+                                                        onCheckedChange={field.onChange}
                                                         className="h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary"
                                                     />
                                                 </FormControl>

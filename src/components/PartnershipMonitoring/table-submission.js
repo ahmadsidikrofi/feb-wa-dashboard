@@ -158,7 +158,7 @@ const TableSubmission = () => {
               <SelectItem value="3000">Semua Data</SelectItem>
             </SelectContent>
           </Select>
-          <AddPartnership />
+          <AddPartnership getPartnershipData={getPartnershipData}/>
         </div>
 
         {isLoading && (

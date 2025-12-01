@@ -121,7 +121,7 @@ function TambahPenerimaPage() {
   return (
     <section className='space-y-6'>
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start mt-1 gap-3">
+        <div className="flex flex-col items-start mt-1 gap-3">
           <Contact2 className="size-10 text-emerald-600" />
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-emerald-600">Kumpulan Penerima Reminder</h1>
@@ -131,10 +131,10 @@ function TambahPenerimaPage() {
           </div>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <div className='flex gap-2'>
-            <Input className="w-full" placeholder="Cari kontak penerima" />
+          <div className='relative flex gap-2'>
+            {/* <Input className="w-full" placeholder="Cari kontak penerima" /> */}
             <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">+ Tambah kontak</Button>
+              <Button className=" sm:w-auto">+ Tambah kontak</Button>
             </DialogTrigger>
           </div>
 

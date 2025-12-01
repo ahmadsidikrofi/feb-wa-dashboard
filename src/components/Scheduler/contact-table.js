@@ -25,7 +25,7 @@ const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {
                         <TableRow>
                             <TableHead className="min-w-[160px]">Nama penerima</TableHead>
                             <TableHead className="sm:min-w-[120px] lg:min-w-[260px]">No tlp</TableHead>
-                            <TableHead className="sm:min-w-[120px] lg:min-w-[300px]">Catatan</TableHead>
+                            <TableHead className="max-sm:hidden sm:min-w-[120px] lg:min-w-[300px]">Catatan</TableHead>
                             <TableHead className="max-sm:hidden min-w-[120px] sm:hidden xl:table-cell">Kontak dibuat pada</TableHead>
                             <TableHead className="max-sm:hidden min-w-[120px] sm:hidden xl:table-cell">Diubah pada</TableHead>
                             <TableHead className="min-w-[80px] text-right">Aksi</TableHead>
@@ -44,7 +44,7 @@ const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {
                                         <span className="font-medium">+{contact.phoneNumber}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="flex flex-col">
+                                <TableCell className="flex flex-col max-sm:hidden">
                                     <p className="text-pretty">{contact.notes}</p>
                                 </TableCell>
                                 <TableCell className="max-sm:hidden sm:hidden xl:table-cell">
