@@ -115,8 +115,9 @@ const SubmissionDetailDrawer = ({ partnership }) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full border-primary text-primary hover:text-red-200">
-                    <CircleFadingArrowUpIcon className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="gap-2 w-full">
+                    <CircleFadingArrowUpIcon className="size-4 text-primary" />
+                    <span className="text-sm font-medium">Detail</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl p-0 sm:max-w-4xl">

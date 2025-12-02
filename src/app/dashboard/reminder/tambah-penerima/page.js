@@ -121,7 +121,7 @@ function TambahPenerimaPage() {
   return (
     <section className='space-y-6'>
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col items-start mt-1 gap-3">
+        <div className="flex max-sm:flex-col sm:flex-col lg:flex-row items-start mt-1 gap-3">
           <Contact2 className="size-10 text-emerald-600" />
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-emerald-600">Kumpulan Penerima Reminder</h1>

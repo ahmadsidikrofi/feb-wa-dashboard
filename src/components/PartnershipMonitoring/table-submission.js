@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, X } from "lucide-react"
+import { Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import {
   Pagination,
@@ -21,6 +21,9 @@ import SubmissionDetailDrawer from "./submission-detail-drawer"
 import { Button } from "../ui/button"
 import FilterTablePartnership from "./filter-table"
 import AddPartnership from "./addPartnership"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import EditSubmission from "./edit-submission"
+import EditApproval from "./edit-approval"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -153,8 +156,8 @@ const TableSubmission = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="15">15</SelectItem>
-              <SelectItem value="30">30</SelectItem>
+              <SelectItem value="15">15 baris</SelectItem>
+              <SelectItem value="30">30 baris</SelectItem>
               <SelectItem value="3000">Semua Data</SelectItem>
             </SelectContent>
           </Select>
@@ -197,7 +200,7 @@ const TableSubmission = () => {
                 <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Persetujuan Warek 1</TableHead>
                 <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Persetujuan Rektor</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Berlaku hingga</TableHead>
-                <TableHead>Detail</TableHead>
+                <TableHead>Kelola</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -222,8 +225,46 @@ const TableSubmission = () => {
                   <TableCell className="max-sm:hidden text-green-600 font-medium">
                     {formatDate(partnership.validUntil)}
                   </TableCell>
-                  <TableCell className="">
-                    <SubmissionDetailDrawer partnership={partnership} />
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="ghost">
+                          <Ellipsis />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent>
+                        <DropdownMenuItem asChild>
+                          <SubmissionDetailDrawer partnership={partnership} />
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <div className="flex flex-col gap-2">
+                          <DropdownMenuItem asChild>
+                            <EditSubmission 
+                              partnershipId={partnership.id} 
+                              partnership={partnership}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem asChild>
+                            <EditApproval 
+                              partnershipId={partnership.id} 
+                              partnership={partnership}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
+                        </div>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem>
+                          <Trash2 className="text-primary size-4"/> Hapus
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}

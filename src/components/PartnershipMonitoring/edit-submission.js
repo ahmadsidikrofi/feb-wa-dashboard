@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { LoaderIcon, PlusCircle } from 'lucide-react'
+import { FileEdit, LoaderIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -65,124 +65,120 @@ const activityTypeOptions = [
     }
 ]
 
-const partnershipSchema = z.object({
-    partnerName: z.string().min(1, "Nama mitra wajib diisi"),
-    yearIssued: z.string().min(4, "Tahun terbit tidak valid"),
-    docType: z.enum(["MoA", "MoU", "IA"], { required_error: "Pilih tipe dokumen" }),
-    scope: z.enum(["national", "international"], { required_error: "Pilih lingkup kerjasama" }),
-    picExternal: z.string().optional().or(z.literal("")),
-    picExternalPhone: z.string()
-        .optional()
-        .or(z.literal(""))
-        .refine((value) => {
-            if (!value) return true
-            return /^[0-9]{9,15}$/.test(value)
-        }, { message: "Nomor PIC eksternal harus 9-15 digit angka" }),
-    picInternal: z.string().optional().or(z.literal("")),
-    docNumberInternal: z.string().optional().or(z.literal("")),
-    docNumberExternal: z.string().optional().or(z.literal("")),
-    partnershipType: z.enum(["Akademik", "Penelitian", "Abdimas"], { 
-        required_error: "Pilih tipe kerjasama", 
-        invalid_type_error: "Pilih tipe kerjasama" 
-    }),
-    activityType: z.enum([
-        "JointDegree",
-        "DoubleDegree",
-        "JointClass",
-        "StudentExchange",
-        "VisitingProfessor",
-        "JointResearch",
-        "JointPublication",
-        "JointCommunityService",
-        "SocialProject",
-        "General"
-    ], { 
-        required_error: "Pilih jenis aktivitas", 
-        invalid_type_error: "Pilih jenis aktivitas" 
-    }),
-    dateCreated: z.string().optional().or(z.literal("")),
-    signingType: z.string().optional().or(z.literal("")),
-    dateSigned: z.string().optional().or(z.literal("")),
-    validUntil: z.string().optional().or(z.literal("")),
-    duration: z.string().optional().or(z.literal("")),
-    docLink: z.string().url("Link arsip tidak valid").optional().or(z.literal("")),
-    notes: z.string().min(1, "Catatan wajib diisi"),
-    hasHardcopy: z.boolean().default(false),
-    hasSoftcopy: z.boolean().default(false),
-})
-
-const AddPartnership = ({ getPartnershipData }) => {
+const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [open, setOpen] = useState(false)
 
+    const toDateInput = (isoString) => {
+        if (!isoString) return ""
+        return isoString.split("T")[0]
+    }
+
     const form = useForm({
-        resolver: zodResolver(partnershipSchema),
         defaultValues: {
-            partnerName: "",
-            yearIssued: new Date().getFullYear().toString(),
-            docType: undefined,
-            scope: undefined,
-            picExternal: "",
-            picExternalPhone: "",
-            picInternal: "",
-            docNumberInternal: "",
-            docNumberExternal: "",
-            partnershipType: undefined,
-            activityType: undefined,
-            dateCreated: "",
-            signingType: "",
-            dateSigned: "",
-            validUntil: "",
-            duration: "",
-            docLink: "",
-            notes: "",
-            hasHardcopy: false,
-            hasSoftcopy: false,
+            partnerName: partnership?.partnerName || "",
+            yearIssued: partnership?.yearIssued || new Date().getFullYear().toString(),
+            docType: partnership?.docType || undefined,
+            scope: partnership?.scope || undefined,
+            picExternal: partnership?.picExternal || "",
+            picExternalPhone: partnership?.picExternalPhone || "",
+            picInternal: partnership?.picInternal || "",
+            docNumberInternal: partnership?.docNumberInternal || "",
+            docNumberExternal: partnership?.docNumberExternal || "",
+            partnershipType: partnership?.partnershipType || undefined,
+            activityType: partnership?.activityType || undefined,
+            dateCreated: toDateInput(partnership?.dateCreated) || "",
+            signingType: partnership?.signingType || "",
+            dateSigned: toDateInput(partnership?.dateSigned) || "",
+            validUntil: toDateInput(partnership?.validUntil) || "",
+            duration: partnership?.duration || "",
+            docLink: partnership?.docLink || "",
+            notes: partnership?.notes || "",
+            hasHardcopy: partnership?.hasHardcopy || false,
+            hasSoftcopy: partnership?.hasSoftcopy || false,
         }
     })
 
-    const normalizeDate = (value) => {
-        if (!value) return null
-        const parsed = new Date(value)
-        return isNaN(parsed) ? null : parsed.toISOString()
-    }
-
     const handleSubmit = async (values) => {
-        const payload = {
-            ...values,
-            yearIssued: values.yearIssued ? Number(values.yearIssued) : null,
-            dateCreated: normalizeDate(values.dateCreated),
-            dateSigned: normalizeDate(values.dateSigned),
-            validUntil: normalizeDate(values.validUntil),
+        if (!partnership.id) {
+            toast.error("ID partnership tidak ditemukan")
+            return
+        }
+
+        const processValue = (value) => {
+            if (value === undefined) return undefined;
+            if (value === "") return null;
+            return value
+        }
+
+        const normalizeDate = (dateString) => {
+            if (!dateString) return null
+            const date = new Date(dateString)
+            if (isNaN(date.getTime())) return null 
+            return date.toISOString() // Mengubah "2024-01-01" jadi "2024-01-01T00:00:00.000Z"
         }
 
         try {
             setIsLoading(true)
-            await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, payload, {
+            const payload = {
+                yearIssued: values.yearIssued || undefined,
+                docType: values.docType || undefined,
+                partnerName: values.partnerName || "",
+                scope: values.scope || undefined,
+                picExternal: values.picExternal || "",
+                picExternalPhone: values.picExternalPhone || "",
+                picInternal: values.picInternal || "",
+
+                docNumberInternal: values.docNumberInternal || "",
+                docNumberExternal: values.docNumberExternal || "",
+
+                partnershipType: values.partnershipType || undefined,
+                activityType: values.activityType || undefined,
+
+                // --- Tanggal & Signing ---
+                dateCreated: normalizeDate(values.dateCreated),
+                signingType: processValue(values.signingType),
+                dateSigned: normalizeDate(values.dateSigned),
+                validUntil: normalizeDate(values.validUntil),
+                duration: processValue(values.duration),
+
+                // --- Arsip ---
+                docLink: processValue(values.docLink),
+                notes: values.notes,
+                hasHardcopy: values.hasHardcopy, // Boolean
+                hasSoftcopy: values.hasSoftcopy,
+            }
+
+            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`, payload, {
                 headers: {
                     "ngrok-skip-browser-warning": true,
                 }
             })
-            getPartnershipData(1)
-            toast.success("Mitra berhasil ditambahkan")
+            console.log(res);
+
+            toast.success("Approval berhasil diperbarui")
             form.reset()
             setOpen(false)
+
+            if (onSuccess) {
+                onSuccess()
+            }
         } catch (error) {
-            console.error("Gagal menambahkan mitra:", error)
-            toast.error(error?.response?.data?.message || "Gagal menambahkan mitra")
+            console.error("Gagal memperbarui approval:", error)
+            toast.error(error?.response?.data?.message || "Gagal memperbarui approval")
         } finally {
             setIsLoading(false)
         }
     }
-
+    
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto"><PlusCircle />Tambah Partnership</Button>
+                <Button className="w-full sm:w-auto" variant="ghost"><FileEdit />Edit Partnership</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-4xl w-full p-6">
                 <DialogHeader>
-                    <DialogTitle>Tambahkan mitra yang berencana untuk kerjasama</DialogTitle>
+                    <DialogTitle>Edit mitra yang sudah kamu tambahkan sebelumnya</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -194,7 +190,7 @@ const AddPartnership = ({ getPartnershipData }) => {
                         {/* Informasi dasar */}
                         <div className="space-y-3">
                             <h4 className="text-sm font-semibold text-slate-700">Informasi Dasar</h4>
-                            <div className="grid gap-2 md:grid-cols-2 space-y-2 items-center">
+                            <div className="grid gap-2 md:grid-cols-2 space-y-2">
                                 <FormField
                                     control={form.control}
                                     name="partnerName"
@@ -221,6 +217,7 @@ const AddPartnership = ({ getPartnershipData }) => {
                                         </FormItem>
                                     )}
                                 />
+
                                 <FormField
                                     control={form.control}
                                     name="docType"
@@ -285,9 +282,7 @@ const AddPartnership = ({ getPartnershipData }) => {
                                             <FormControl>
                                                 <Input placeholder="Nama PIC Eksternal" {...field} />
                                             </FormControl>
-                                            <div >
-                                                <FormMessage className="break-words whitespace-pre-line"/>
-                                            </div>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -565,9 +560,9 @@ const AddPartnership = ({ getPartnershipData }) => {
                     <Button type="submit" form="partnership-form" disabled={isLoading}>
                         {isLoading ?
                             <div className="flex justify-center items-center text-center gap-2 ">
-                                <LoaderIcon className="animate-spin size-4" /> <span>Menambahkan Mitra...</span>
+                                <LoaderIcon className="animate-spin size-4" /> <span>Mengubah data...</span>
                             </div>
-                            : "Tambahkan Mitra"}
+                            : "Edit data Mitra"}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -575,4 +570,4 @@ const AddPartnership = ({ getPartnershipData }) => {
     )
 }
 
-export default AddPartnership
+export default EditSubmission
