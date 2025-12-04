@@ -261,7 +261,7 @@ const TableSubmission = () => {
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                           <DeletePartnership 
                             partnershipId={partnership.id}
                             isLoading={isLoading}

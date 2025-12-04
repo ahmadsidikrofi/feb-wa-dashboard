@@ -77,25 +77,20 @@ const DeletePartnership = ({ partnershipId, onSuccess }) => {
                                 handleDeleteContact(partnershipId)
                             }
                         }}
-                        asChild
+                        disabled={isLoading}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 dark:text-white"
                     >
-                        <Button
-                            variant="destructive"
-                            className="dark:text-white"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <>
-                                    <LoaderIcon className="size-4 animate-spin mr-2" />
-                                    Menghapus...
-                                </>
-                            ) : (
-                                <>
-                                    <Trash2 className="size-4 mr-2" /> 
-                                    Lanjutkan
-                                </>
-                            )}
-                        </Button>
+                        {isLoading ? (
+                            <>
+                                <LoaderIcon className="size-4 animate-spin mr-2" />
+                                Menghapus...
+                            </>
+                        ) : (
+                            <>
+                                <Trash2 className="size-4 mr-2" /> 
+                                Lanjutkan
+                            </>
+                        )}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
