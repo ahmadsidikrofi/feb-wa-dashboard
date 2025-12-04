@@ -24,6 +24,7 @@ import AddPartnership from "./addPartnership"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import EditSubmission from "./edit-submission"
 import EditApproval from "./edit-approval"
+import DeletePartnership from "./delete-partnership"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -240,7 +241,7 @@ const TableSubmission = () => {
 
                         <DropdownMenuSeparator />
 
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 justify-start items-center">
                           <DropdownMenuItem asChild>
                             <EditSubmission 
                               partnershipId={partnership.id} 
@@ -261,7 +262,12 @@ const TableSubmission = () => {
                         <DropdownMenuSeparator />
 
                         <DropdownMenuItem>
-                          <Trash2 className="text-primary size-4"/> Hapus
+                          <DeletePartnership 
+                            partnershipId={partnership.id}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

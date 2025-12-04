@@ -1,6 +1,5 @@
 'use client'
 
-import ContactTable from '@/components/Scheduler/contact-table'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Contact2, LoaderIcon } from 'lucide-react'
@@ -13,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import axios from 'axios';
 import { toast } from 'sonner';
+import ContactTable from '@/components/Contact/contact-table';
 
 export const contactSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),

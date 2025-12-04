@@ -83,7 +83,7 @@ const ApprovalCard = ({ approval, value, onChange }) => {
 
 const ProgressBar = ({ approvals }) => {
   const total = approvals.length;
-  const approved = approvals.filter(a => a.value === 'approved').length;
+  const approved = approvals.filter(a => a.value?.toLowerCase() === 'approved').length;
   const percentage = total > 0 ? (approved / total) * 100 : 0;
 
   return (
@@ -209,7 +209,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
   return (
       <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto" variant="ghost"><CheckCircleIcon />Beri Approval</Button>
+              <Button className="w-full sm:w-auto text-left" variant="ghost"><CheckCircleIcon />Ubah Approval</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent dark:bg-transparent">
               <Form {...form}>

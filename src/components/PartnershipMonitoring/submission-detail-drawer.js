@@ -115,7 +115,7 @@ const SubmissionDetailDrawer = ({ partnership }) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 w-full">
+                <Button variant="ghost" size="sm" className="gap-2 w-full text-left sm:w-auto">
                     <CircleFadingArrowUpIcon className="size-4 text-primary" />
                     <span className="text-sm font-medium">Detail</span>
                 </Button>
