@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { Loader2, PackageOpenIcon, Search, SearchX, X } from "lucide-react"
+import { Ellipsis, Loader2, PackageOpenIcon, Search, SearchX, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import {
   Pagination,
@@ -17,6 +17,10 @@ import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDebounce } from "@/hooks/use-debounce"
 import ImplementationDetailDrawer from "./implementation-detail-drawer"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import EditApproval from "./edit-approval"
+import { Button } from "../ui/button"
+import EditStatusActivityPartnership from "./edit-status-activity-partnership"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -204,7 +208,35 @@ const TableImplementation = () => {
                     {formatDate(partnership.validUntil)}
                   </TableCell>
                   <TableCell className="">
-                    <ImplementationDetailDrawer partnership={partnership} />
+                    {/* <ImplementationDetailDrawer partnership={partnership} /> */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="ghost">
+                          <Ellipsis />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent>
+                        <div className="">
+                          <DropdownMenuItem asChild>
+                            <ImplementationDetailDrawer partnership={partnership} />
+                          </DropdownMenuItem>
+                        </div>
+
+                        <DropdownMenuSeparator />
+
+                        <div className="flex flex-col gap-2 justify-start items-center">
+                          <DropdownMenuItem asChild>
+                            <EditStatusActivityPartnership 
+                              partnershipId={partnership.id} 
+                              partnership={partnership}
+                              activities={partnership.activities}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
+                        </div>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}

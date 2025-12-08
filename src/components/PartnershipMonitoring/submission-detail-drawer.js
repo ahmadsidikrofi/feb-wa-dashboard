@@ -163,7 +163,25 @@ const SubmissionDetailDrawer = ({ partnership }) => {
                             </p>
 
                             {/* Quick Stats */}
-                            <div className="grid grid-cols-3 gap-4 mt-6">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 my-3">
+                                <p className="text-blue-100 text-xs mb-1">Aktivitas</p>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {Array.isArray(partnership.activities) && partnership.activities.length > 0 ? (
+                                        partnership.activities.map((act) => (
+                                            <span
+                                                key={act.id}
+                                                className="bg-red-100 text-red-900 px-2 py-1 rounded-full text-[12px] font-medium"
+                                            >
+                                                {act.type}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-white/70 text-sm">-</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 ">
                                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                                     <p className="text-blue-100 text-xs mb-1">Tahun Terbit</p>
                                     <p className="text-white text-xl lg:text-2xl max-sm:text-sm font-bold">
@@ -176,10 +194,6 @@ const SubmissionDetailDrawer = ({ partnership }) => {
                                         <CheckCircle2 className="w-4 h-4 text-emerald-300" />
                                         Active
                                     </p>
-                                </div>
-                                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                                    <p className="text-blue-100 text-xs mb-1">Aktivitas</p>
-                                    <p className="text-white text-sm font-medium">{partnership.activityType || "-"}</p>
                                 </div>
                             </div>
                         </div>

@@ -14,6 +14,7 @@ import axios from 'axios'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from "@/components/ui/checkbox"
+import { ActivityMultiSelect } from './activity-multi-select'
 
 const docTypeOptions = [
     { label: "MoA", value: "MoA" },
@@ -85,21 +86,11 @@ const partnershipSchema = z.object({
         required_error: "Pilih tipe kerjasama", 
         invalid_type_error: "Pilih tipe kerjasama" 
     }),
-    activityType: z.enum([
-        "JointDegree",
-        "DoubleDegree",
-        "JointClass",
-        "StudentExchange",
-        "VisitingProfessor",
-        "JointResearch",
-        "JointPublication",
-        "JointCommunityService",
-        "SocialProject",
-        "General"
-    ], { 
-        required_error: "Pilih jenis aktivitas", 
-        invalid_type_error: "Pilih jenis aktivitas" 
-    }),
+    activityType: z.array(z.enum([
+        "JointDegree", "DoubleDegree", "JointClass", "StudentExchange",
+        "VisitingProfessor", "JointResearch", "JointPublication",
+        "JointCommunityService", "SocialProject", "General"
+    ])).min(1, "Pilih minimal satu aktivitas"),
     dateCreated: z.string().optional().or(z.literal("")),
     signingType: z.string().optional().or(z.literal("")),
     dateSigned: z.string().optional().or(z.literal("")),
@@ -128,7 +119,7 @@ const AddPartnership = ({ getPartnershipData }) => {
             docNumberInternal: "",
             docNumberExternal: "",
             partnershipType: undefined,
-            activityType: undefined,
+            activityType: [],
             dateCreated: "",
             signingType: "",
             dateSigned: "",
@@ -388,23 +379,12 @@ const AddPartnership = ({ getPartnershipData }) => {
                                         <FormItem>
                                             <FormLabel>Jenis Aktivitas</FormLabel>
                                             <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih aktivitas" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {activityTypeOptions.map((group) => (
-                                                            <SelectGroup key={group.label}>
-                                                                <SelectLabel>{group.label}</SelectLabel>
-                                                                {group.options.map((option) => (
-                                                                    <SelectItem key={option.value} value={option.value}>
-                                                                        {option.label}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectGroup>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <ActivityMultiSelect 
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                    activityTypeOptions={activityTypeOptions}
+                                                    disabled={isLoading}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

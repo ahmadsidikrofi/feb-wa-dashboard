@@ -59,6 +59,8 @@ const TableSubmission = () => {
       archive: null,
     })
 
+    const [activityType, setActivityType] = useState([])
+
     const getPartnershipData = React.useCallback(async (page = 1) => {
       try {
         setIsLoading(true)
@@ -82,6 +84,7 @@ const TableSubmission = () => {
         if (res.data) {
           const { data = [], pagination: resPagination } = res.data
           setPartnershipData(Array.isArray(data) ? data : [])
+          
           if (resPagination) {
             setPagination(resPagination);
             setCurrentPage(resPagination.currentPage);
