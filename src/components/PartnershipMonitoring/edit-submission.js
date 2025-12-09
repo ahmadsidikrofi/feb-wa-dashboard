@@ -14,6 +14,7 @@ import axios from 'axios'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from "@/components/ui/checkbox"
+import { ActivityMultiSelect } from './activity-multi-select'
 
 const docTypeOptions = [
     { label: "MoA", value: "MoA" },
@@ -86,7 +87,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
             docNumberInternal: partnership?.docNumberInternal || "",
             docNumberExternal: partnership?.docNumberExternal || "",
             partnershipType: partnership?.partnershipType || undefined,
-            activityType: partnership?.activityType || undefined,
+            activityType: partnership?.activities?.map(a => a.type) || [],
             dateCreated: toDateInput(partnership?.dateCreated) || "",
             signingType: partnership?.signingType || "",
             dateSigned: toDateInput(partnership?.dateSigned) || "",
@@ -383,23 +384,12 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                                         <FormItem>
                                             <FormLabel>Jenis Aktivitas</FormLabel>
                                             <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih aktivitas" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {activityTypeOptions.map((group) => (
-                                                            <SelectGroup key={group.label}>
-                                                                <SelectLabel>{group.label}</SelectLabel>
-                                                                {group.options.map((option) => (
-                                                                    <SelectItem key={option.value} value={option.value}>
-                                                                        {option.label}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectGroup>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <ActivityMultiSelect
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                    activityTypeOptions={activityTypeOptions}
+                                                    disabled={isLoading}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

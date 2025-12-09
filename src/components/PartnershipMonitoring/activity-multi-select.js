@@ -15,10 +15,8 @@ export function ActivityMultiSelect({
 
   const getLabelByValue = (val) => {
     for (const group of activityTypeOptions) {
-        const found = group.options.find((opt) => opt.value === value)
-        if (found) {
-            return found.label
-        }
+      const found = group.options.find((opt) => opt.value === val)
+      if (found) return found.label
     }
     return val
   }
