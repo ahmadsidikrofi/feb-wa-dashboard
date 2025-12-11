@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
 import { Ellipsis, Loader2, PackageOpenIcon, Search, SearchX, X } from "lucide-react"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import {
   Pagination,
   PaginationContent,
@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import EditApproval from "./edit-approval"
 import { Button } from "../ui/button"
 import EditStatusActivityPartnership from "./edit-status-activity-partnership"
+import FilterTablePartnership from "./filter-table"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -32,6 +33,21 @@ const formatDate = (value) => {
     year: "numeric",
   })
   return formatter.format(date)
+}
+
+const formatRangeInfo = (pagination, currentPage) => {
+  const total = pagination?.totalItems ?? 0
+  const pageSize = pagination?.pageSize ?? 0
+
+  if (total === 0 || pageSize === 0) {
+    return "0–0 dari 0"
+  }
+
+  const safePage = Math.max(currentPage || 1, 1)
+  const start = (safePage - 1) * pageSize + 1
+  const end = Math.min(safePage * pageSize, total)
+
+  return `${start} – ${end} dari ${total} data`
 }
 
 const TableImplementation = () => {
@@ -48,6 +64,14 @@ const TableImplementation = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [rowFilter, setRowFilter] = useState(15)
     const debounceSearch = useDebounce(searchTerm, 500)
+    const [filters, setFilters] = useState({
+      scope: null,
+      docType: null,
+      status: null,
+      archive: null
+    })
+
+    const listRef = useRef(null)
 
     const getPartnershipData = React.useCallback(async (page = 1) => {
       try {
@@ -55,15 +79,15 @@ const TableImplementation = () => {
         const params = {
           page,
           limit: rowFilter,
-          search: debounceSearch || ""
+          search: debounceSearch || "",
+          scope: filters.scope,
+          docType: filters.docType,
+          status: filters.status,
+          archive: filters.archive
         }
 
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, {
-          params: {
-            page,
-            limit: rowFilter,
-            search: debounceSearch || ""
-          },
+          params: params,
           headers: {
             "ngrok-skip-browser-warning": true,
           },
@@ -95,12 +119,18 @@ const TableImplementation = () => {
       } finally {
         setIsLoading(false)
       }
-    }, [rowFilter, debounceSearch]);
+    }, [rowFilter, debounceSearch, filters]);
 
     useEffect(() => {
       console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
       getPartnershipData(1)
-    }, [rowFilter, debounceSearch, getPartnershipData])
+    }, [rowFilter, debounceSearch, getPartnershipData, filters])
+
+    useEffect(() => {
+      if (listRef.current) {
+        listRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }, [pagination.currentPage])
 
     const handlePageChange = (newPage) => {
       if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -112,9 +142,18 @@ const TableImplementation = () => {
       setSearchTerm('')
     }
 
+    const handleResetFilters = () => {
+      setFilters({ scope: null, docType: null, status: null, archive: null })
+    }
+
     return (
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4" ref={listRef}>
+          <FilterTablePartnership
+            filters={filters}
+            setFilter={setFilters}
+            onReset={handleResetFilters}
+          />
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -132,20 +171,22 @@ const TableImplementation = () => {
               </button>
             )}
           </div>
-          <Select
-            value={String(rowFilter)}
-            onValueChange={(value) => (setRowFilter(parseInt(value)))}
-          >
-            <SelectTrigger className="w-full sm:w-38 text-start">
-              <PackageOpenIcon className="w-4 h-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15">15</SelectItem>
-              <SelectItem value="30">30</SelectItem>
-              <SelectItem value="3000">Semua Data</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-4">
+            <Select
+              value={String(rowFilter)}
+              onValueChange={(value) => (setRowFilter(parseInt(value)))}
+            >
+              <SelectTrigger className="w-full sm:w-48 text-start">
+                {/* <PackageOpenIcon className="w-4 h-4" /> */}
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">Menampilkan 15 data</SelectItem>
+                <SelectItem value="30">Menampilkan 30 data</SelectItem>
+                <SelectItem value="3000">Semua Data</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {isLoading && (
@@ -243,6 +284,8 @@ const TableImplementation = () => {
             </TableBody>
           </Table>
         </div>
+        <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
+
         <div className="flex justify-start">
           <Pagination>
             <PaginationContent>
