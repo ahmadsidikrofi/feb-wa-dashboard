@@ -76,7 +76,7 @@ export function GrowthTrendByYearChart() {
       <CardHeader>
         <CardTitle>Tren Pertumbuhan Kerjasama per Tahun</CardTitle>
         <CardDescription>
-          Visualisasi pertumbuhan jumlah dokumen kerjasama yang telah diajukan dan disetujui pada setiap tahun.
+          Visualisasi pertumbuhan jumlah dokumen kerjasama yang telah diajukan dan disetujui pada setiap tahun. Data yang ditampilkan adalah tren perubahan yang terjadi selama periode beberapa tahun terakhir.
         </CardDescription>
       </CardHeader>
       <CardContent>

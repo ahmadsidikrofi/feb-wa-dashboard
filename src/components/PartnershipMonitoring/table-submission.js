@@ -38,6 +38,21 @@ const formatDate = (value) => {
   return formatter.format(date)
 }
 
+const formatRangeInfo = (pagination, currentPage) => {
+  const total = pagination?.totalItems ?? 0
+  const pageSize = pagination?.pageSize ?? 0
+
+  if (total === 0 || pageSize === 0) {
+    return "0–0 dari 0"
+  }
+
+  const safePage = Math.max(currentPage || 1, 1)
+  const start = (safePage - 1) * pageSize + 1
+  const end = Math.min(safePage * pageSize, total)
+
+  return `${start} – ${end} dari ${total} data`
+}
+
 const TableSubmission = () => {
     const [partnershipData, setPartnershipData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
@@ -151,20 +166,21 @@ const TableSubmission = () => {
               </button>
             )}
           </div>
-          <Select
-            value={String(rowFilter)}
-            onValueChange={(value) => (setRowFilter(parseInt(value)))}
-          >
-            <SelectTrigger className="w-full sm:w-38 text-start">
-              <PackageOpenIcon className="w-4 h-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15">15 baris</SelectItem>
-              <SelectItem value="30">30 baris</SelectItem>
-              <SelectItem value="3000">Semua Data</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-4">
+            <Select
+              value={String(rowFilter)}
+              onValueChange={(value) => (setRowFilter(parseInt(value)))}
+            >
+              <SelectTrigger className="w-full sm:w-48 text-start">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">Menampilkan 15 data</SelectItem>
+                <SelectItem value="30">Menampilkan 30 data</SelectItem>
+                <SelectItem value="3000">Semua Data</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <AddPartnership getPartnershipData={getPartnershipData}/>
         </div>
 
@@ -280,6 +296,9 @@ const TableSubmission = () => {
             </TableBody>
           </Table>
         </div>
+
+        <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
+
         <div className="flex justify-start">
           <Pagination>
             <PaginationContent>

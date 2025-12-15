@@ -100,7 +100,7 @@ export function ProportionPartnershipCategory() {
       <CardHeader className="items-center pb-0">
         <CardTitle>Proporsi Kategori Kerjasama</CardTitle>
         <CardDescription>
-          Visualisasi ini menunjukkan proporsi dokumen kerjasama berdasarkan kategori yang diajukan dan disetujui dalam periode tertentu, sehingga Anda dapat melihat penyebaran jenis kategori kerjasama yang paling banyak diimplementasikan.
+          Proporsi dokumen kerjasama menurut kategori dalam periode tertentu.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
