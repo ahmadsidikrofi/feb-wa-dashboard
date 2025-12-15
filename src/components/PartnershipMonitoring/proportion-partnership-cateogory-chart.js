@@ -47,10 +47,6 @@ const chartConfig = {
     label: "Abdimas",
     color: "var(--chart-3)",
   },
-  // edge: {
-  //   label: "Edge",
-  //   color: "var(--chart-4)",
-  // },
   other: {
     label: "Other",
     color: "var(--chart-5)",
@@ -58,46 +54,46 @@ const chartConfig = {
 }
 
 export function ProportionPartnershipCategory() {
-  const [chartData, setChartData] = useState([])
+  // const [chartData, setChartData] = useState([])
   const [growthPercentage, setGrowthPercentage] = useState(0)
 
-  const fetchData = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const rawData = res?.data?.data?.documentByCategory || []
-      const mapp = rawData.map((data) => ({
-        name: data.name,
-        value: data.value,
-      }))
-      // console.log(res.data.data);
+  // const fetchData = async () => {
+  //   try {
+  //     const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
+  //       headers: {
+  //         "ngrok-skip-browser-warning": true,
+  //       },
+  //     })
+  //     const rawData = res?.data?.data?.documentByCategory || []
+  //     const mapp = rawData.map((data) => ({
+  //       name: data.name,
+  //       value: data.value,
+  //     }))
+  //     // console.log(res.data.data);
 
-      setChartData(mapp)
-      if (mapp.length >= 2) {
-        const last = mapp[mapp.length - 1].value;
-        const prev = mapp[mapp.length - 2].value;
+  //     setChartData(mapp)
+  //     if (mapp.length >= 2) {
+  //       const last = mapp[mapp.length - 1].value;
+  //       const prev = mapp[mapp.length - 2].value;
 
-        if (prev > 0) {
-          const growth = ((last - prev) / prev) * 100;
-          setGrowthPercentage(growth);
-        } else {
-          setGrowthPercentage(0);
-        }
-      } else {
-        setGrowthPercentage(0);
-      }
+  //       if (prev > 0) {
+  //         const growth = ((last - prev) / prev) * 100;
+  //         setGrowthPercentage(growth);
+  //       } else {
+  //         setGrowthPercentage(0);
+  //       }
+  //     } else {
+  //       setGrowthPercentage(0);
+  //     }
       
-    } catch (error) {
-      console.error("Gagal memuat data:", error)
-    }
-  }
+  //   } catch (error) {
+  //     console.error("Gagal memuat data:", error)
+  //   }
+  // }
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  // useEffect(() => {
+  //   fetchData()
+  // }, [])
   
   return (
     <Card className="flex flex-col">

@@ -209,7 +209,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto text-left" variant="ghost"><CheckCircleIcon />Status Approval</Button>
+        <Button className="w-full sm:w-auto text-left" variant="ghost"><CheckCircleIcon className='text-yellow-500'/>Status Approval</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent dark:bg-transparent">
         <Form {...form}>

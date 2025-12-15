@@ -175,7 +175,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto text-left" variant="ghost"><FileEdit />Edit Partnership</Button>
+                <Button className="w-full sm:w-auto text-left" variant="ghost"><FileEdit className='text-emerald-500'/>Edit Partnership</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-4xl w-full p-6">
                 <DialogHeader>
