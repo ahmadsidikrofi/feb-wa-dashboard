@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton,
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown, ParkingMeter, Ellipsis, UserCog2 } from 'lucide-react'
+import { Home, Inbox, List, LogOut, Menu, ScreenShare, ScreenShareOff,Moon, Sun, AlarmClock, LoaderIcon, ChevronRightIcon, CornerRightDown, ParkingMeter, Ellipsis, UserCog2, TicketXIcon, Newspaper } from 'lucide-react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from "next-themes"
 
@@ -28,16 +28,15 @@ import { useAuth } from "@/hooks/use-auth"
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Ticket Archive', href: '/dashboard/ticket-archive', icon: List },
-  { name: 'Open Ticket', href: '/dashboard/tickets', icon: Inbox, disable: true },
+  { name: 'Ticket Management', href: '/dashboard/ticket-management', icon: TicketXIcon },
   { name: 'Reminder', href: "/dashboard/reminder", icon: AlarmClock },
   { name: 'Partnership Monitoring', href: "/dashboard/partnership-monitoring", icon: ParkingMeter },
+  { name: 'Kontrak Management', href: "/dashboard/kontrak-management", icon: Newspaper },
   { name: 'Fullscreen', action: "fullscreen", icon: ScreenShare },
 ]
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
-  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <DropdownMenu>
@@ -126,8 +125,49 @@ export default function DashboardLayout({ children }) {
           <SidebarContent>
             <SidebarMenu className="px-2 cursor-pointer">
               {navigation.map((item, index) => {
-                // Jika menu Reminder, render sebagai collapsible
-                if (item.name === 'Reminder') {
+                if (item.name === "Ticket Management") {
+                  const isTicketManagementActive =
+                    pathname?.startsWith('/dashboard/ticket-archive') ||
+                    pathname?.startsWith('/dashboard/tickets')
+
+                  return (
+                    <Collapsible key={item.name} defaultOpen className="group/collapsible">
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className={isTicketManagementActive ? 'bg-primary text-white font-semibold' : ''}
+                          >
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                            <span className="transition-transform duration-200 ml-auto group-data-[state=open]/collapsible:rotate-90">
+                              <ChevronRightIcon className="size-4 ml-auto transition-transform duration-200" />
+                            </span>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/ticket-management/ticket-archive')}
+                                isActive={pathname === '/dashboard/ticket-management/ticket-archive'}
+                              >
+                                Ticket Archive
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation('/dashboard/ticket-management/tickets')}
+                                isActive={pathname === '/dashboard/ticket-management/tickets'}
+                              >
+                                Tickets
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  )
+                } else if (item.name === 'Reminder') {
                   return (
                     <Collapsible key={item.name} defaultOpen className="group/collapsible">
                       <SidebarMenuItem>
