@@ -40,6 +40,9 @@ import {
   Newspaper,
   GraduationCap,
   Award,
+  Calendar,
+  FileText,
+  ClipboardList,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -78,9 +81,29 @@ const navigation = [
     icon: Newspaper,
   },
   {
+    name: "Laporan Management",
+    href: "/dashboard/laporan-management",
+    icon: ClipboardList,
+  },
+  {
+    name: "Daftar Agenda",
+    href: "/dashboard/monitoring-kegiatan",
+    icon: Calendar,
+  },
+  {
+    name: "Notulensi Rapat",
+    href: "/dashboard/notulensi-rapat",
+    icon: FileText,
+  },
+  {
     name: "Akreditasi LAMEMBA",
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
+  },
+  {
+    name: "Akreditasi AACSB",
+    href: "/dashboard/akreditasi-aacsb",
+    icon: Award,
   },
   { name: "Fullscreen", action: "fullscreen", icon: ScreenShare },
 ];
@@ -353,6 +376,21 @@ export default function DashboardLayout({ children }) {
                               <SidebarMenuSubButton
                                 onClick={() =>
                                   handleNavigation(
+                                    "/dashboard/partnership-monitoring/ajukan-kerjasama"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/partnership-monitoring/ajukan-kerjasama"
+                                }
+                              >
+                                Ajukan Kerjasama
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
                                     "/dashboard/partnership-monitoring/pengajuan"
                                   )
                                 }
@@ -543,6 +581,119 @@ export default function DashboardLayout({ children }) {
                               >
                                 <span className="text-xs">
                                   Penelitian & Pengabdian
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                } else if (item.name === "Akreditasi AACSB") {
+                  const isAkreditasiAACSBActive = pathname?.startsWith(
+                    "/dashboard/akreditasi-aacsb"
+                  );
+
+                  return (
+                    <Collapsible
+                      key={item.name}
+                      defaultOpen
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <div className="flex items-center">
+                          <SidebarMenuButton
+                            onClick={() => handleNavigation(item.href)}
+                            className={`flex-1 ${
+                              pathname === item.href
+                                ? "bg-primary text-white font-semibold"
+                                : ""
+                            }`}
+                          >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.name}</span>
+                          </SidebarMenuButton>
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 shrink-0"
+                            >
+                              <ChevronRightIcon className="size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </Button>
+                          </CollapsibleTrigger>
+                        </div>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-aacsb/strategic-management"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-aacsb/strategic-management"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Strategic Management
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-aacsb/participants"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-aacsb/participants"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Participants
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-aacsb/learning-teaching"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-aacsb/learning-teaching"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Learning & Teaching
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-aacsb/academic-engagement"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-aacsb/academic-engagement"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Academic & Professional Engagement
                                 </span>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
