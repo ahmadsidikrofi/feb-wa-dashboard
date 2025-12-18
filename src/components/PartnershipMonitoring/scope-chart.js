@@ -18,18 +18,17 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import axios from "axios"
 
 export const description = "A mixed bar chart"
 
 const chartConfig = {
   international: {
     label: "International",
-    color: "var(--chart-3)",
+    color: "#1e3a8a",
   },
   national: {
     label: "National",
-    color: "var(--chart-4)",
+    color: "#b91c1c",
   },
   value: {
     label: "Total",
@@ -37,48 +36,30 @@ const chartConfig = {
 }
 
 export function ScopeChart() {
-  const [chartData, setChartData] = useState([])
+  // Data dummy untuk jangkauan mitra
+  const dummyData = [
+    { name: "international", value: 42 },
+    { name: "national", value: 86 },
+  ]
+
+  const [chartData, setChartData] = useState(dummyData)
   const [growthPercentage, setGrowthPercentage] = useState(0)
 
-  const fetchData = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
+  useEffect(() => {
+    // Hitung growth percentage
+    if (chartData.length >= 2) {
+      const last = chartData[chartData.length - 1].value;
+      const prev = chartData[chartData.length - 2].value;
 
-      // Perhatikan response datanya, gunakan 'documentByScope'
-      const rawData = res?.data?.data?.documentByScope || []
-
-      // Gunakan key yang sesuai untuk dipakai di chart
-      const mapp = rawData.map((data) => ({
-        name: data.name,
-        value: data.value,
-      }))
-
-      setChartData(mapp)
-
-      if (mapp.length >= 2) {
-        const last = mapp[mapp.length - 1].value;
-        const prev = mapp[mapp.length - 2].value;
-
-        if (prev > 0) {
-          const growth = ((last - prev) / prev) * 100;
-          setGrowthPercentage(growth);
-        } else {
-          setGrowthPercentage(0);
-        }
+      if (prev > 0) {
+        const growth = ((last - prev) / prev) * 100;
+        setGrowthPercentage(growth);
       } else {
         setGrowthPercentage(0);
       }
-    } catch (error) {
-      console.error("Gagal memuat data:", error)
+    } else {
+      setGrowthPercentage(0);
     }
-  }
-
-  useEffect(() => {
-    fetchData()
   }, [])
   return (
     <Card>

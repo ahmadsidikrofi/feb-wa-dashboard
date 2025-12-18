@@ -19,7 +19,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import axios from "axios"
 
 export const description = "A donut chart with an active sector"
 
@@ -37,63 +36,41 @@ const chartConfig = {
   },
   akademik: {
     label: "Akademik",
-    color: "var(--chart-1)",
+    color: "#b91c1c",
   },
   penelitian: {
     label: "Penelitian",
-    color: "var(--chart-2)",
+    color: "#d1d5db",
   },
   abdimas: {
     label: "Abdimas",
-    color: "var(--chart-3)",
+    color: "#4b5563",
   },
   other: {
     label: "Other",
-    color: "var(--chart-5)",
+    color: "#ec4899",
   },
 }
 
 export function ProportionPartnershipCategory() {
-  // const [chartData, setChartData] = useState([])
   const [growthPercentage, setGrowthPercentage] = useState(0)
 
-  // const fetchData = async () => {
-  //   try {
-  //     const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
-  //       headers: {
-  //         "ngrok-skip-browser-warning": true,
-  //       },
-  //     })
-  //     const rawData = res?.data?.data?.documentByCategory || []
-  //     const mapp = rawData.map((data) => ({
-  //       name: data.name,
-  //       value: data.value,
-  //     }))
-  //     // console.log(res.data.data);
+  useEffect(() => {
+    // Hitung growth percentage dari data
+    if (chartData.length >= 2) {
+      const last = chartData[chartData.length - 1].visitors;
+      const prev = chartData[chartData.length - 2].visitors;
 
-  //     setChartData(mapp)
-  //     if (mapp.length >= 2) {
-  //       const last = mapp[mapp.length - 1].value;
-  //       const prev = mapp[mapp.length - 2].value;
-
-  //       if (prev > 0) {
-  //         const growth = ((last - prev) / prev) * 100;
-  //         setGrowthPercentage(growth);
-  //       } else {
-  //         setGrowthPercentage(0);
-  //       }
-  //     } else {
-  //       setGrowthPercentage(0);
-  //     }
-      
-  //   } catch (error) {
-  //     console.error("Gagal memuat data:", error)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchData()
-  // }, [])
+      if (prev > 0) {
+        const growth = ((last - prev) / prev) * 100;
+        setGrowthPercentage(growth);
+      } else {
+        setGrowthPercentage(0);
+      }
+    } else {
+      setGrowthPercentage(0);
+    }
+  }, [])
   
   return (
     <Card className="flex flex-col">
@@ -116,8 +93,8 @@ export function ProportionPartnershipCategory() {
             />
             <Pie
               data={chartData}
-              dataKey="value"
-              nameKey="name"
+              dataKey="visitors"
+              nameKey="browser"
               innerRadius={60}
               strokeWidth={5}
               activeIndex={0}

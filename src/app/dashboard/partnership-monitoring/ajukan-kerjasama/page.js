@@ -48,8 +48,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// Data dummy pengajuan yang sudah dibuat
-const dummySubmissions = [
+// Data dummy pengajuan yang sudah dibuat - dijadikan initial state
+const initialSubmissions = [
   {
     id: 1,
     tanggalPengajuan: "2024-12-01",
@@ -97,7 +97,25 @@ const dummySubmissions = [
   },
 ];
 
+// Fungsi untuk menyimpan data ke localStorage (simulasi database)
+const saveSubmissionToStorage = (submission) => {
+  if (typeof window !== 'undefined') {
+    const existingData = JSON.parse(localStorage.getItem('partnershipSubmissions') || '[]');
+    existingData.push(submission);
+    localStorage.setItem('partnershipSubmissions', JSON.stringify(existingData));
+  }
+};
+
+// Fungsi untuk mendapatkan semua submission dari localStorage
+const getSubmissionsFromStorage = () => {
+  if (typeof window !== 'undefined') {
+    return JSON.parse(localStorage.getItem('partnershipSubmissions') || '[]');
+  }
+  return [];
+};
+
 export default function AjukanKerjasamaPage() {
+  const [submissions, setSubmissions] = useState(initialSubmissions);
   const [formData, setFormData] = useState({
     namaInstansi: "",
     jenisKerjasama: "",
@@ -146,7 +164,34 @@ export default function AjukanKerjasamaPage() {
       return;
     }
 
-    // Simulasi submit
+    // Buat data pengajuan baru
+    const today = new Date().toISOString().split('T')[0];
+    const newSubmission = {
+      id: submissions.length + 1,
+      tanggalPengajuan: today,
+      namaInstansi: formData.namaInstansi,
+      jenisKerjasama: formData.jenisKerjasama,
+      ruangLingkup: formData.ruangLingkup,
+      deskripsi: formData.deskripsi,
+      tujuan: formData.tujuan,
+      manfaat: formData.manfaat,
+      durasi: formData.durasi,
+      kontak: formData.kontak,
+      email: formData.email,
+      telepon: formData.telepon,
+      status: "Pending",
+      keterangan: "Menunggu review dari Wadek II",
+      timeline: [
+        { tahap: "Pengajuan", tanggal: today, duration: null },
+      ],
+    };
+
+    // Tambahkan ke riwayat pengajuan
+    setSubmissions([newSubmission, ...submissions]);
+
+    // Simpan ke localStorage untuk bisa diakses di menu pengajuan
+    saveSubmissionToStorage(newSubmission);
+
     toast.success("Pengajuan kerjasama berhasil dikirim!");
 
     // Reset form
@@ -529,7 +574,25 @@ export default function AjukanKerjasamaPage() {
 
             {/* Submit Button */}
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline">
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => {
+                  setFormData({
+                    namaInstansi: "",
+                    jenisKerjasama: "",
+                    ruangLingkup: "",
+                    deskripsi: "",
+                    tujuan: "",
+                    manfaat: "",
+                    durasi: "",
+                    kontak: "",
+                    email: "",
+                    telepon: "",
+                  });
+                  setFile(null);
+                }}
+              >
                 Reset
               </Button>
               <Button type="submit">
@@ -565,7 +628,7 @@ export default function AjukanKerjasamaPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dummySubmissions.map((item) => (
+                {submissions.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>
                       {new Date(item.tanggalPengajuan).toLocaleDateString(

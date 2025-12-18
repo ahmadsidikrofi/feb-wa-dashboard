@@ -41,10 +41,22 @@ const mockData = [
   },
   {
     id: 2,
-    programStudi: "S1 Akuntansi",
+    programStudi: "S1 Administrasi Bisnis",
     fakultas: "Fakultas Ekonomi dan Bisnis",
     statusAkreditasi: "Unggul",
     nomorSK: "SK/LAMEMBA/2023/002",
+    tanggalBerlaku: "2023-02-10",
+    tanggalKadaluarsa: "2028-02-09",
+    peringkat: "A",
+    nilaiAkreditasi: 93,
+    keterangan: "Akreditasi berlaku 5 tahun",
+  },
+  {
+    id: 3,
+    programStudi: "S1 Akuntansi",
+    fakultas: "Fakultas Ekonomi dan Bisnis",
+    statusAkreditasi: "Unggul",
+    nomorSK: "SK/LAMEMBA/2023/003",
     tanggalBerlaku: "2023-03-20",
     tanggalKadaluarsa: "2028-03-19",
     peringkat: "A",
@@ -52,8 +64,8 @@ const mockData = [
     keterangan: "Akreditasi berlaku 5 tahun",
   },
   {
-    id: 3,
-    programStudi: "S1 Ekonomi Pembangunan",
+    id: 4,
+    programStudi: "S1 Leisure Management",
     fakultas: "Fakultas Ekonomi dan Bisnis",
     statusAkreditasi: "Baik Sekali",
     nomorSK: "SK/LAMEMBA/2022/089",
@@ -64,7 +76,19 @@ const mockData = [
     keterangan: "Akreditasi berlaku 5 tahun",
   },
   {
-    id: 4,
+    id: 5,
+    programStudi: "S1 Bisnis Digital",
+    fakultas: "Fakultas Ekonomi dan Bisnis",
+    statusAkreditasi: "Baik Sekali",
+    nomorSK: "SK/LAMEMBA/2024/012",
+    tanggalBerlaku: "2024-04-15",
+    tanggalKadaluarsa: "2029-04-14",
+    peringkat: "B",
+    nilaiAkreditasi: 87,
+    keterangan: "Program studi baru",
+  },
+  {
+    id: 6,
     programStudi: "S2 Manajemen",
     fakultas: "Fakultas Ekonomi dan Bisnis",
     statusAkreditasi: "Unggul",
@@ -76,8 +100,44 @@ const mockData = [
     keterangan: "Program pascasarjana",
   },
   {
-    id: 5,
-    programStudi: "S3 Ilmu Manajemen",
+    id: 7,
+    programStudi: "S2 Manajemen PJJ",
+    fakultas: "Fakultas Ekonomi dan Bisnis",
+    statusAkreditasi: "Baik Sekali",
+    nomorSK: "SK/LAMEMBA/2023/067",
+    tanggalBerlaku: "2023-08-20",
+    tanggalKadaluarsa: "2028-08-19",
+    peringkat: "B",
+    nilaiAkreditasi: 86,
+    keterangan: "Program pembelajaran jarak jauh",
+  },
+  {
+    id: 8,
+    programStudi: "S2 Administrasi Bisnis",
+    fakultas: "Fakultas Ekonomi dan Bisnis",
+    statusAkreditasi: "Unggul",
+    nomorSK: "SK/LAMEMBA/2023/054",
+    tanggalBerlaku: "2023-07-10",
+    tanggalKadaluarsa: "2028-07-09",
+    peringkat: "A",
+    nilaiAkreditasi: 91,
+    keterangan: "Program pascasarjana",
+  },
+  {
+    id: 9,
+    programStudi: "S2 Akuntansi",
+    fakultas: "Fakultas Ekonomi dan Bisnis",
+    statusAkreditasi: "Unggul",
+    nomorSK: "SK/LAMEMBA/2023/045",
+    tanggalBerlaku: "2023-06-15",
+    tanggalKadaluarsa: "2028-06-14",
+    peringkat: "A",
+    nilaiAkreditasi: 90,
+    keterangan: "Program pascasarjana",
+  },
+  {
+    id: 10,
+    programStudi: "S3 Manajemen",
     fakultas: "Fakultas Ekonomi dan Bisnis",
     statusAkreditasi: "Baik Sekali",
     nomorSK: "SK/LAMEMBA/2023/078",
@@ -119,15 +179,6 @@ export default function TableAkreditasiLamemba({
       Baik: "outline",
     };
     return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
-  };
-
-  const getPeringkatBadge = (peringkat) => {
-    const colors = {
-      A: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      B: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      C: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-    };
-    return <Badge className={colors[peringkat] || ""}>{peringkat}</Badge>;
   };
 
   const handleView = (item) => {
@@ -185,7 +236,6 @@ export default function TableAkreditasiLamemba({
               <TableHead>Program Studi</TableHead>
               <TableHead>Fakultas</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Peringkat</TableHead>
               <TableHead>Nomor SK</TableHead>
               <TableHead>Berlaku Hingga</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
@@ -195,7 +245,7 @@ export default function TableAkreditasiLamemba({
             {filteredData.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={6}
                   className="text-center text-muted-foreground"
                 >
                   Tidak ada data ditemukan
@@ -209,7 +259,6 @@ export default function TableAkreditasiLamemba({
                   </TableCell>
                   <TableCell>{item.fakultas}</TableCell>
                   <TableCell>{getStatusBadge(item.statusAkreditasi)}</TableCell>
-                  <TableCell>{getPeringkatBadge(item.peringkat)}</TableCell>
                   <TableCell className="font-mono text-sm">
                     {item.nomorSK}
                   </TableCell>

@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Button } from '../ui/button'
 import { Form } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
 import { toast } from 'sonner'
 
 const approvalStatusOptions = [
@@ -180,15 +179,78 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
         approvalRektor: values.approvalRektor || null,
       };
 
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`,
-        payload,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": true,
+      // Simpan ke localStorage untuk pengajuan dari form ajukan kerjasama
+      if (typeof window !== 'undefined') {
+        const submissions = JSON.parse(localStorage.getItem('partnershipSubmissions') || '[]');
+        const submissionId = partnershipId.toString().replace('submission-', '');
+        const index = submissions.findIndex(s => s.id === parseInt(submissionId));
+        
+        if (index !== -1) {
+          // Update approval status untuk pengajuan ini
+          submissions[index] = {
+            ...submissions[index],
+            ...payload,
+            // Update status berdasarkan approval terakhir
+            status: payload.approvalRektor === 'Approved' ? 'Approved' : 
+                   payload.approvalRektor === 'Returned' ? 'Rejected' : 'Pending',
+            keterangan: payload.approvalRektor === 'Approved' ? 'Disetujui oleh Rektor' :
+                       payload.approvalRektor === 'Returned' ? 'Ditolak' :
+                       payload.approvalDekan === 'Approved' ? 'Disetujui Dekan, menunggu approval universitas' :
+                       'Dalam proses review',
+          };
+          
+          localStorage.setItem('partnershipSubmissions', JSON.stringify(submissions));
+          
+          // Jika Rektor sudah approve, tambahkan ke menu penerapan
+          if (payload.approvalRektor === 'Approved') {
+            const implementations = JSON.parse(localStorage.getItem('partnershipImplementations') || '[]');
+            
+            // Cek apakah sudah ada di penerapan
+            const alreadyExists = implementations.some(impl => impl.id === `implementation-${submissions[index].id}`);
+            
+            if (!alreadyExists) {
+              const today = new Date().toISOString().split('T')[0];
+              const yearIssued = new Date(submissions[index].tanggalPengajuan).getFullYear();
+              
+              // Konversi pengajuan ke format penerapan
+              const newImplementation = {
+                id: implementations.length + 1,
+                originalId: `implementation-${submissions[index].id}`,
+                partnerName: submissions[index].namaInstansi,
+                scope: submissions[index].ruangLingkup,
+                docType: "MoU", // Default, bisa disesuaikan
+                docNumber: `${String(implementations.length + 1).padStart(3, '0')}/MoU/FEB/${yearIssued}`,
+                signedDate: today,
+                expiryDate: submissions[index].durasi ? 
+                  new Date(new Date(today).setFullYear(new Date(today).getFullYear() + parseInt(submissions[index].durasi))).toISOString().split('T')[0] : 
+                  new Date(new Date(today).setFullYear(new Date(today).getFullYear() + 3)).toISOString().split('T')[0],
+                status: "Aktif",
+                category: submissions[index].jenisKerjasama || "Akademik",
+                activities: [],
+                pic: "Admin FEB",
+                archive: false,
+                description: submissions[index].deskripsi,
+                purpose: submissions[index].tujuan,
+                benefit: submissions[index].manfaat,
+                duration: submissions[index].durasi,
+                contactName: submissions[index].kontak,
+                contactEmail: submissions[index].email,
+                contactPhone: submissions[index].telepon,
+              };
+              
+              implementations.push(newImplementation);
+              localStorage.setItem('partnershipImplementations', JSON.stringify(implementations));
+              
+              toast.success("Data berhasil ditambahkan ke menu Penerapan!", {
+                description: `Partnership dengan ${submissions[index].namaInstansi} telah disetujui lengkap`
+              });
+            }
           }
+          
+          // Trigger event untuk memberitahu komponen lain bahwa data telah berubah
+          window.dispatchEvent(new Event('partnershipDataChanged'));
         }
-      );
+      }
 
       toast.success("Approval berhasil diperbarui")
       form.reset()
@@ -200,7 +262,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
       }
     } catch (error) {
       console.error("Gagal memperbarui approval:", error)
-      toast.error(error?.response?.data?.message || "Gagal memperbarui approval")
+      toast.error("Gagal memperbarui approval")
     } finally {
       setIsLoading(false)
     }

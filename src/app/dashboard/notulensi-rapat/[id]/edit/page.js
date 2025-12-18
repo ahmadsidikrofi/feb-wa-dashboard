@@ -13,6 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Save, ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -25,18 +32,23 @@ const notulensiData = {
     tanggal: "2025-01-10",
     waktuMulai: "09:00",
     waktuSelesai: "11:00",
-    tempat: "Ruang Sidang Dekan",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pemimpin: "Wakil Dekan I",
     notulen: "Dr. Ahmad Susanto",
     peserta: [
-      "Dr. Siti Nurhaliza, M.M.",
-      "Prof. Budiman",
-      "Dr. Rina Kusuma",
+      "Dekan",
+      "Wakil Dekan I",
+      "Wakil Dekan II",
       "Kaprodi S1 Manajemen",
       "Kaprodi S1 Akuntansi",
       "Kaprodi S1 Administrasi Bisnis",
+      "Kaprodi S1 Leisure Management",
+      "Kaprodi S1 Bisnis Digital",
       "Kaprodi S2 Manajemen",
+      "Kaprodi S2 Manajemen PJJ",
+      "Kaprodi S2 Administrasi Bisnis",
       "Kaprodi S2 Akuntansi",
+      "Kaprodi S3 Manajemen",
     ],
     agendaRapat: [
       "Pembukaan dan pembacaan agenda",
@@ -52,6 +64,11 @@ const notulensiData = {
           "Tim kurikulum memaparkan hasil evaluasi kurikulum semester ganjil. Secara umum implementasi berjalan baik dengan tingkat kepuasan mahasiswa 85%. Beberapa mata kuliah perlu penyesuaian metode pembelajaran.",
         keputusan:
           "Menyetujui hasil evaluasi dan menugaskan masing-masing Kaprodi untuk melakukan perbaikan pada mata kuliah yang perlu ditingkatkan.",
+        tindakLanjut: {
+          tugas: "Perbaikan mata kuliah berdasarkan hasil evaluasi",
+          penanggungJawab: "Masing-masing Kaprodi",
+          deadline: "2025-01-31",
+        },
       },
       {
         agenda: "Pembahasan kurikulum semester genap 2024/2025",
@@ -59,6 +76,11 @@ const notulensiData = {
           "Dibahas jadwal perkuliahan semester genap, alokasi dosen pengampu, dan ketersediaan ruang kelas. Terdapat beberapa konflik jadwal yang perlu diselesaikan.",
         keputusan:
           "Menyetujui jadwal dengan penyesuaian untuk menghindari konflik. Koordinator jadwal akan melakukan finalisasi dalam 3 hari kerja.",
+        tindakLanjut: {
+          tugas: "Finalisasi jadwal perkuliahan semester genap",
+          penanggungJawab: "Koordinator Jadwal",
+          deadline: "2025-01-15",
+        },
       },
       {
         agenda: "Rencana pengembangan kurikulum berbasis MBKM",
@@ -66,28 +88,11 @@ const notulensiData = {
           "Wakil Dekan I memaparkan roadmap implementasi MBKM di fakultas. Target 80% program studi sudah menerapkan minimal 3 skema MBKM di tahun 2025.",
         keputusan:
           "Membentuk tim MBKM fakultas yang akan diketuai oleh Wakil Dekan I. Masing-masing prodi menunjuk 1 koordinator MBKM.",
-      },
-    ],
-    tindakLanjut: [
-      {
-        tugas: "Perbaikan mata kuliah berdasarkan hasil evaluasi",
-        penanggungJawab: "Masing-masing Kaprodi",
-        deadline: "2025-01-31",
-      },
-      {
-        tugas: "Finalisasi jadwal perkuliahan semester genap",
-        penanggungJawab: "Koordinator Jadwal",
-        deadline: "2025-01-15",
-      },
-      {
-        tugas: "Pembentukan tim MBKM fakultas",
-        penanggungJawab: "Wakil Dekan I",
-        deadline: "2025-01-20",
-      },
-      {
-        tugas: "Penunjukan koordinator MBKM prodi",
-        penanggungJawab: "Masing-masing Kaprodi",
-        deadline: "2025-01-25",
+        tindakLanjut: {
+          tugas: "Pembentukan tim MBKM fakultas dan penunjukan koordinator MBKM prodi",
+          penanggungJawab: "Wakil Dekan I dan Masing-masing Kaprodi",
+          deadline: "2025-01-25",
+        },
       },
     ],
     penutup:
@@ -99,7 +104,7 @@ const notulensiData = {
     tanggal: "2025-01-12",
     waktuMulai: "13:00",
     waktuSelesai: "15:30",
-    tempat: "Ruang Rapat Dekan",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pemimpin: "Dekan",
     notulen: "Siti Nurhaliza, M.M.",
     peserta: [
@@ -123,6 +128,11 @@ const notulensiData = {
           "Kaur SDM Keuangan mempresentasikan capaian kinerja fakultas. Realisasi mencapai 87.5% dari target dengan 142 dari 156 indikator tercapai.",
         keputusan:
           "Menerima laporan capaian kinerja Triwulan IV dan mengapresiasi kerja keras seluruh unit.",
+        tindakLanjut: {
+          tugas: "Dokumentasi dan publikasi capaian kinerja",
+          penanggungJawab: "Kaur Sekretariat Dekan",
+          deadline: "2025-01-25",
+        },
       },
       {
         agenda: "Evaluasi target dan realisasi",
@@ -130,18 +140,11 @@ const notulensiData = {
           "Diidentifikasi 14 indikator yang belum tercapai, sebagian besar terkait publikasi internasional dan kerjasama industri.",
         keputusan:
           "Menugaskan Wakil Dekan II untuk menyusun action plan percepatan pencapaian indikator yang tertinggal.",
-      },
-    ],
-    tindakLanjut: [
-      {
-        tugas: "Penyusunan action plan percepatan indikator",
-        penanggungJawab: "Wakil Dekan II",
-        deadline: "2025-01-20",
-      },
-      {
-        tugas: "Sosialisasi strategi peningkatan publikasi",
-        penanggungJawab: "Semua Kaprodi",
-        deadline: "2025-02-01",
+        tindakLanjut: {
+          tugas: "Penyusunan action plan percepatan indikator dan sosialisasi strategi peningkatan publikasi",
+          penanggungJawab: "Wakil Dekan II dan Semua Kaprodi",
+          deadline: "2025-02-01",
+        },
       },
     ],
     penutup:
@@ -162,6 +165,7 @@ export default function EditNotulensiPage({ params }) {
     waktuMulai: "",
     waktuSelesai: "",
     tempat: "",
+    tempatLainnya: "",
     pemimpin: "",
     notulen: "",
   });
@@ -169,10 +173,16 @@ export default function EditNotulensiPage({ params }) {
   const [pesertaList, setPesertaList] = useState([""]);
   const [agendaList, setAgendaList] = useState([""]);
   const [pembahasanList, setPembahasanList] = useState([
-    { agenda: "", pembahasan: "", keputusan: "" },
-  ]);
-  const [tindakLanjutList, setTindakLanjutList] = useState([
-    { tugas: "", penanggungJawab: "", deadline: "" },
+    { 
+      agenda: "", 
+      pembahasan: "", 
+      keputusan: "",
+      tindakLanjut: {
+        tugas: "",
+        penanggungJawab: "",
+        deadline: ""
+      }
+    },
   ]);
   const [penutup, setPenutup] = useState("");
 
@@ -192,12 +202,16 @@ export default function EditNotulensiPage({ params }) {
       setAgendaList(existingData.agendaRapat || [""]);
       setPembahasanList(
         existingData.pembahasanKeputusan || [
-          { agenda: "", pembahasan: "", keputusan: "" },
-        ]
-      );
-      setTindakLanjutList(
-        existingData.tindakLanjut || [
-          { tugas: "", penanggungJawab: "", deadline: "" },
+          { 
+            agenda: "", 
+            pembahasan: "", 
+            keputusan: "",
+            tindakLanjut: {
+              tugas: "",
+              penanggungJawab: "",
+              deadline: ""
+            }
+          },
         ]
       );
       setPenutup(existingData.penutup || "");
@@ -243,27 +257,28 @@ export default function EditNotulensiPage({ params }) {
   const handleAddPembahasan = () =>
     setPembahasanList([
       ...pembahasanList,
-      { agenda: "", pembahasan: "", keputusan: "" },
+      { 
+        agenda: "", 
+        pembahasan: "", 
+        keputusan: "",
+        tindakLanjut: {
+          tugas: "",
+          penanggungJawab: "",
+          deadline: ""
+        }
+      },
     ]);
   const handleRemovePembahasan = (index) =>
     setPembahasanList(pembahasanList.filter((_, i) => i !== index));
   const handlePembahasanChange = (index, field, value) => {
     const newList = [...pembahasanList];
-    newList[index][field] = value;
+    if (field.startsWith('tindakLanjut.')) {
+      const tindakLanjutField = field.split('.')[1];
+      newList[index].tindakLanjut[tindakLanjutField] = value;
+    } else {
+      newList[index][field] = value;
+    }
     setPembahasanList(newList);
-  };
-
-  const handleAddTindakLanjut = () =>
-    setTindakLanjutList([
-      ...tindakLanjutList,
-      { tugas: "", penanggungJawab: "", deadline: "" },
-    ]);
-  const handleRemoveTindakLanjut = (index) =>
-    setTindakLanjutList(tindakLanjutList.filter((_, i) => i !== index));
-  const handleTindakLanjutChange = (index, field, value) => {
-    const newList = [...tindakLanjutList];
-    newList[index][field] = value;
-    setTindakLanjutList(newList);
   };
 
   const handleSubmit = (e) => {
@@ -278,8 +293,7 @@ export default function EditNotulensiPage({ params }) {
       ...formData,
       peserta: pesertaList.filter((p) => p.trim() !== ""),
       agenda: agendaList.filter((a) => a.trim() !== ""),
-      pembahasan: pembahasanList.filter((p) => p.agenda.trim() !== ""),
-      tindakLanjut: tindakLanjutList.filter((t) => t.tugas.trim() !== ""),
+      pembahasanKeputusan: pembahasanList.filter((p) => p.agenda.trim() !== ""),
       penutup,
     };
 
@@ -377,14 +391,38 @@ export default function EditNotulensiPage({ params }) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="tempat">Tempat *</Label>
-                  <Input
-                    id="tempat"
+                  <Select
                     value={formData.tempat}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tempat: e.target.value })
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, tempat: value, tempatLainnya: "" })
                     }
                     required
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih ruangan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ruang Rapat Manterawu lt. 2">Ruang Rapat Manterawu lt. 2</SelectItem>
+                      <SelectItem value="Ruang Rapat Miossu lt. 1">Ruang Rapat Miossu lt. 1</SelectItem>
+                      <SelectItem value="Ruang Rapat Miossu lt. 2">Ruang Rapat Miossu lt. 2</SelectItem>
+                      <SelectItem value="Ruang Rapat Maratua lt. 1">Ruang Rapat Maratua lt. 1</SelectItem>
+                      <SelectItem value="Aula FEB">Aula FEB</SelectItem>
+                      <SelectItem value="Aula Manterawu">Aula Manterawu</SelectItem>
+                      <SelectItem value="Lainnya">Lainnya</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.tempat === "Lainnya" && (
+                    <Input
+                      id="tempatLainnya"
+                      value={formData.tempatLainnya}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tempatLainnya: e.target.value })
+                      }
+                      required
+                      placeholder="Masukkan nama tempat"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="pemimpin">Pemimpin Rapat *</Label>
@@ -596,97 +634,57 @@ export default function EditNotulensiPage({ params }) {
                         rows={3}
                       />
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Tindak Lanjut */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Tindak Lanjut</CardTitle>
-                <CardDescription>
-                  Tugas dan tanggung jawab hasil rapat
-                </CardDescription>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddTindakLanjut}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Tambah Tindak Lanjut
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {tindakLanjutList.map((item, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">Tugas {index + 1}</span>
-                    {tindakLanjutList.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemoveTindakLanjut(index)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Hapus
-                      </Button>
-                    )}
-                  </div>
+                    {/* Tindak Lanjut untuk Agenda ini */}
+                    <div className="border-t pt-4 mt-4">
+                      <Label className="text-sm font-semibold text-muted-foreground mb-3 block">
+                        Tindak Lanjut Agenda Ini
+                      </Label>
+                      <div className="space-y-3 bg-muted/50 p-3 rounded-lg">
+                        <div className="grid gap-2">
+                          <Label className="text-sm">Tugas</Label>
+                          <Input
+                            value={item.tindakLanjut?.tugas || ""}
+                            onChange={(e) =>
+                              handlePembahasanChange(
+                                index,
+                                "tindakLanjut.tugas",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Tugas yang harus dilakukan..."
+                          />
+                        </div>
 
-                  <div className="grid gap-4">
-                    <div className="grid gap-2">
-                      <Label>Tugas</Label>
-                      <Input
-                        value={item.tugas}
-                        onChange={(e) =>
-                          handleTindakLanjutChange(
-                            index,
-                            "tugas",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Deskripsi tugas..."
-                      />
-                    </div>
+                        <div className="grid gap-2">
+                          <Label className="text-sm">Penanggung Jawab</Label>
+                          <Input
+                            value={item.tindakLanjut?.penanggungJawab || ""}
+                            onChange={(e) =>
+                              handlePembahasanChange(
+                                index,
+                                "tindakLanjut.penanggungJawab",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Nama penanggung jawab..."
+                          />
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="grid gap-2">
-                        <Label>Penanggung Jawab</Label>
-                        <Input
-                          value={item.penanggungJawab}
-                          onChange={(e) =>
-                            handleTindakLanjutChange(
-                              index,
-                              "penanggungJawab",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Nama/Unit penanggung jawab"
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label>Deadline</Label>
-                        <Input
-                          type="date"
-                          value={item.deadline}
-                          onChange={(e) =>
-                            handleTindakLanjutChange(
-                              index,
-                              "deadline",
-                              e.target.value
-                            )
-                          }
-                        />
+                        <div className="grid gap-2">
+                          <Label className="text-sm">Deadline</Label>
+                          <Input
+                            type="date"
+                            value={item.tindakLanjut?.deadline || ""}
+                            onChange={(e) =>
+                              handlePembahasanChange(
+                                index,
+                                "tindakLanjut.deadline",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -695,6 +693,8 @@ export default function EditNotulensiPage({ params }) {
             </div>
           </CardContent>
         </Card>
+
+
 
         {/* Penutup */}
         <Card>

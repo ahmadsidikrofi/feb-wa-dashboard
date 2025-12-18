@@ -11,49 +11,98 @@ import { DailyTrenChart } from '@/components/daily-tren-chart'
 import { TicketPerCategoryChart } from '@/components/ticket-per-category-chart'
 
 export default function Dashboard() {
-  const [statusData, setStatusData] = useState({
-    openTickets: 0,
-    inProgress: 0,
-    resolvedToday: 0,
-    totalUsers: 0
-  })
-  const [recentTickets, setRecentTickets] = useState([])
-  const [loading, setLoading] = useState(true)
+  // Data dummy untuk dashboard
+  const dummyStatusData = {
+    openTickets: 12,
+    inProgressTickets: 8,
+    resolvedToday: 15,
+    totalUsers: 245
+  }
+
+  const dummyRecentTickets = [
+    {
+      id: 1,
+      message: {
+        conversation: {
+          id: 'conv-001',
+          user: {
+            name: 'Ahmad Rizki',
+            identifier: '1302210001'
+          }
+        },
+        message_text: 'Bagaimana cara mengakses sistem informasi akademik?'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
+      status: 'open'
+    },
+    {
+      id: 2,
+      message: {
+        conversation: {
+          id: 'conv-002',
+          user: {
+            name: 'Siti Nurhaliza',
+            identifier: '1302210002'
+          }
+        },
+        message_text: 'Jadwal ujian semester genap sudah keluar?'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+      status: 'open'
+    },
+    {
+      id: 3,
+      message: {
+        conversation: {
+          id: 'conv-003',
+          user: {
+            name: 'Budi Santoso',
+            identifier: '1302210003'
+          }
+        },
+        message_text: 'Mohon informasi tentang beasiswa tahun ini'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 minutes ago
+      status: 'open'
+    },
+    {
+      id: 4,
+      message: {
+        conversation: {
+          id: 'conv-004',
+          user: {
+            name: 'Dewi Lestari',
+            identifier: '1302210004'
+          }
+        },
+        message_text: 'Kapan pembukaan pendaftaran MBKM?'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
+      status: 'open'
+    },
+    {
+      id: 5,
+      message: {
+        conversation: {
+          id: 'conv-005',
+          user: {
+            name: 'Eko Prasetyo',
+            identifier: '1302210005'
+          }
+        },
+        message_text: 'Link untuk download sertifikat seminar?'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(), // 1.5 hours ago
+      status: 'open'
+    }
+  ]
+
+  const [statusData, setStatusData] = useState(dummyStatusData)
+  const [recentTickets, setRecentTickets] = useState(dummyRecentTickets)
+  const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState(null)
   const router = useRouter()
-
-  useEffect(() => {
-    fetchDashboardData()
-  }, [])
-
-  const fetchDashboardData = async () => {
-    try {
-      const token = localStorage.getItem('auth_token')
-      
-      // Fetch summary data
-      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const status = await statsResponse.json()
-      setStatusData(status)
-
-      // Fetch recent tickets
-      const ticketsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const tickets = await ticketsResponse.json()
-      setRecentTickets(tickets.slice(0, 5))
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-      setLoading(false)
-    }
-  }
 
   const handleTicketClick = (ticketId) => {
     setSelected(ticketId)

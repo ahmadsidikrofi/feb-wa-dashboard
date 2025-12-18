@@ -25,6 +25,8 @@ import {
   Target,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Dummy notulensi data
 const notulensiData = {
@@ -33,18 +35,23 @@ const notulensiData = {
     judulRapat: "Rapat Koordinasi Kurikulum Semester Genap",
     tanggal: "2025-01-10",
     waktu: "09:00 - 11:00",
-    tempat: "Ruang Sidang Dekan",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pemimpin: "Wakil Dekan I",
     notulen: "Dr. Ahmad Susanto",
     peserta: [
-      "Dr. Siti Nurhaliza, M.M.",
-      "Prof. Budiman",
-      "Dr. Rina Kusuma",
+      "Dekan",
+      "Wakil Dekan I",
+      "Wakil Dekan II",
       "Kaprodi S1 Manajemen",
       "Kaprodi S1 Akuntansi",
       "Kaprodi S1 Administrasi Bisnis",
+      "Kaprodi S1 Leisure Management",
+      "Kaprodi S1 Bisnis Digital",
       "Kaprodi S2 Manajemen",
+      "Kaprodi S2 Manajemen PJJ",
+      "Kaprodi S2 Administrasi Bisnis",
       "Kaprodi S2 Akuntansi",
+      "Kaprodi S3 Manajemen",
     ],
     agendaRapat: [
       "Pembukaan dan pembacaan agenda",
@@ -60,6 +67,11 @@ const notulensiData = {
           "Tim kurikulum memaparkan hasil evaluasi kurikulum semester ganjil. Secara umum implementasi berjalan baik dengan tingkat kepuasan mahasiswa 85%. Beberapa mata kuliah perlu penyesuaian metode pembelajaran.",
         keputusan:
           "Menyetujui hasil evaluasi dan menugaskan masing-masing Kaprodi untuk melakukan perbaikan pada mata kuliah yang perlu ditingkatkan.",
+        tindakLanjut: {
+          tugas: "Perbaikan mata kuliah berdasarkan hasil evaluasi",
+          penanggungJawab: "Masing-masing Kaprodi",
+          deadline: "2025-01-31",
+        },
       },
       {
         agenda: "Pembahasan kurikulum semester genap 2024/2025",
@@ -67,6 +79,11 @@ const notulensiData = {
           "Dibahas jadwal perkuliahan semester genap, alokasi dosen pengampu, dan ketersediaan ruang kelas. Terdapat beberapa konflik jadwal yang perlu diselesaikan.",
         keputusan:
           "Menyetujui jadwal dengan penyesuaian untuk menghindari konflik. Koordinator jadwal akan melakukan finalisasi dalam 3 hari kerja.",
+        tindakLanjut: {
+          tugas: "Finalisasi jadwal perkuliahan semester genap",
+          penanggungJawab: "Koordinator Jadwal",
+          deadline: "2025-01-15",
+        },
       },
       {
         agenda: "Rencana pengembangan kurikulum berbasis MBKM",
@@ -74,28 +91,11 @@ const notulensiData = {
           "Wakil Dekan I memaparkan roadmap implementasi MBKM di fakultas. Target 80% program studi sudah menerapkan minimal 3 skema MBKM di tahun 2025.",
         keputusan:
           "Membentuk tim MBKM fakultas yang akan diketuai oleh Wakil Dekan I. Masing-masing prodi menunjuk 1 koordinator MBKM.",
-      },
-    ],
-    tindakLanjut: [
-      {
-        tugas: "Perbaikan mata kuliah berdasarkan hasil evaluasi",
-        penanggungJawab: "Masing-masing Kaprodi",
-        deadline: "2025-01-31",
-      },
-      {
-        tugas: "Finalisasi jadwal perkuliahan semester genap",
-        penanggungJawab: "Koordinator Jadwal",
-        deadline: "2025-01-15",
-      },
-      {
-        tugas: "Pembentukan tim MBKM fakultas",
-        penanggungJawab: "Wakil Dekan I",
-        deadline: "2025-01-20",
-      },
-      {
-        tugas: "Penunjukan koordinator MBKM prodi",
-        penanggungJawab: "Masing-masing Kaprodi",
-        deadline: "2025-01-25",
+        tindakLanjut: {
+          tugas: "Pembentukan tim MBKM fakultas dan penunjukan koordinator MBKM prodi",
+          penanggungJawab: "Wakil Dekan I dan Masing-masing Kaprodi",
+          deadline: "2025-01-25",
+        },
       },
     ],
     penutup:
@@ -106,7 +106,7 @@ const notulensiData = {
     judulRapat: "Evaluasi Kinerja Triwulan IV",
     tanggal: "2025-01-12",
     waktu: "13:00 - 15:30",
-    tempat: "Ruang Rapat Dekan",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pemimpin: "Dekan",
     notulen: "Siti Nurhaliza, M.M.",
     peserta: [
@@ -130,6 +130,11 @@ const notulensiData = {
           "Kaur SDM Keuangan mempresentasikan capaian kinerja fakultas. Realisasi mencapai 87.5% dari target dengan 142 dari 156 indikator tercapai.",
         keputusan:
           "Menerima laporan capaian kinerja Triwulan IV dan mengapresiasi kerja keras seluruh unit.",
+        tindakLanjut: {
+          tugas: "Dokumentasi dan publikasi capaian kinerja",
+          penanggungJawab: "Kaur Sekretariat Dekan",
+          deadline: "2025-01-25",
+        },
       },
       {
         agenda: "Evaluasi target dan realisasi",
@@ -137,18 +142,11 @@ const notulensiData = {
           "Diidentifikasi 14 indikator yang belum tercapai, sebagian besar terkait publikasi internasional dan kerjasama industri.",
         keputusan:
           "Menugaskan Wakil Dekan II untuk menyusun action plan percepatan pencapaian indikator yang tertinggal.",
-      },
-    ],
-    tindakLanjut: [
-      {
-        tugas: "Penyusunan action plan percepatan indikator",
-        penanggungJawab: "Wakil Dekan II",
-        deadline: "2025-01-20",
-      },
-      {
-        tugas: "Sosialisasi strategi peningkatan publikasi",
-        penanggungJawab: "Semua Kaprodi",
-        deadline: "2025-02-01",
+        tindakLanjut: {
+          tugas: "Penyusunan action plan percepatan indikator dan sosialisasi strategi peningkatan publikasi",
+          penanggungJawab: "Wakil Dekan II dan Semua Kaprodi",
+          deadline: "2025-02-01",
+        },
       },
     ],
     penutup:
@@ -162,6 +160,127 @@ export default function NotulensiDetailPage({ params }) {
   const { id } = resolvedParams;
 
   const notulensi = notulensiData[id];
+
+  const exportToPDF = () => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    
+    // Header dengan border
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.rect(10, 10, pageWidth - 20, 30);
+    
+    // Logo dan Judul (simulasi)
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TELKOM UNIVERSITY', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Jl. Telekomunikasi No. 1 Ters. BuahBatu Bandung 40257', pageWidth / 2, 26, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Risalah Rapat Tinjauan Manajemen Pimpinan', pageWidth / 2, 34, { align: 'center' });
+    
+    // No. Form Info (kanan atas)
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('No. Form: ITT-IT-REK-BPM-FM-017/006', pageWidth - 15, 15, { align: 'right' });
+    doc.text('Revisi: 01', pageWidth - 15, 19, { align: 'right' });
+    doc.text(`Berlaku: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth - 15, 23, { align: 'right' });
+    doc.text('Hal.: 1', pageWidth - 15, 27, { align: 'right' });
+    
+    // Informasi Rapat
+    let yPos = 50;
+    autoTable(doc, {
+      startY: yPos,
+      head: [],
+      body: [
+        ['Hari/Tanggal/Waktu', `: ${new Date(notulensi.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} / ${notulensi.waktu} WIB`],
+        ['Tempat', `: ${notulensi.tempat}`],
+        ['Pemimpin Rapat', `: ${notulensi.pemimpin}`],
+        ['Notulen', `: ${notulensi.notulen}`],
+      ],
+      theme: 'plain',
+      styles: { fontSize: 10, cellPadding: 2 },
+      columnStyles: {
+        0: { cellWidth: 50, fontStyle: 'bold' },
+        1: { cellWidth: pageWidth - 70 }
+      },
+      margin: { left: margin, right: margin }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 5;
+    
+    // Agenda
+    autoTable(doc, {
+      startY: yPos,
+      head: [],
+      body: [
+        ['Agenda', `: ${notulensi.agendaRapat.map((a, i) => `${i + 1}. ${a}`).join('\n   ')}`],
+      ],
+      theme: 'plain',
+      styles: { fontSize: 10, cellPadding: 2 },
+      columnStyles: {
+        0: { cellWidth: 50, fontStyle: 'bold', valign: 'top' },
+        1: { cellWidth: pageWidth - 70 }
+      },
+      margin: { left: margin, right: margin }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    
+    // Tabel Pembahasan dengan Tindak Lanjut
+    const tableData = [];
+    notulensi.pembahasanKeputusan.forEach((item, index) => {
+      const tindakLanjut = item.tindakLanjut || {};
+      tableData.push([
+        (index + 1).toString(),
+        item.agenda,
+        item.pembahasan,
+        item.keputusan,
+        tindakLanjut.penanggungJawab || '-',
+        tindakLanjut.deadline ? new Date(tindakLanjut.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '-',
+        tindakLanjut.deadline && new Date(tindakLanjut.deadline) > new Date() ? 'Open' : 'Closed'
+      ]);
+    });
+    
+    autoTable(doc, {
+      startY: yPos,
+      head: [['No.', 'Topik', 'Pembahasan/Permasalahan', 'RencanaTindakan/Perbaikan', 'PIC', 'Target', 'Status']],
+      body: tableData,
+      theme: 'grid',
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 2,
+        valign: 'top',
+        lineColor: [0, 0, 0],
+        lineWidth: 0.1
+      },
+      headStyles: { 
+        fillColor: [220, 220, 220],
+        textColor: [0, 0, 0],
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 45 },
+        4: { cellWidth: 25 },
+        5: { cellWidth: 15, halign: 'center' },
+        6: { cellWidth: 15, halign: 'center' }
+      },
+      margin: { left: margin, right: margin }
+    });
+    
+    // Simpan PDF
+    const fileName = `Risalah_Rapat_${notulensi.judulRapat.replace(/\s+/g, '_')}_${notulensi.tanggal}.pdf`;
+    doc.save(fileName);
+  };
 
   if (!notulensi) {
     return (
@@ -215,9 +334,14 @@ export default function NotulensiDetailPage({ params }) {
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={exportToPDF}
+            className="bg-[#e31e25] hover:bg-[#c41a20] text-white"
+          >
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            Export to PDF
           </Button>
         </div>
       </div>
@@ -326,7 +450,7 @@ export default function NotulensiDetailPage({ params }) {
         </CardContent>
       </Card>
 
-      {/* Pembahasan dan Keputusan */}
+      {/* Pembahasan, Keputusan, dan Tindak Lanjut */}
       <Card>
         <CardHeader>
           <CardTitle>Pembahasan dan Keputusan</CardTitle>
@@ -364,6 +488,40 @@ export default function NotulensiDetailPage({ params }) {
                       </p>
                     </div>
                   </div>
+
+                  {item.tindakLanjut && (
+                    <div>
+                      <h4 className="font-medium text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                        <Target className="h-4 w-4" />
+                        Tindak Lanjut:
+                      </h4>
+                      <div className="border rounded-lg p-3 bg-muted/50">
+                        <p className="text-sm font-medium mb-2">{item.tindakLanjut.tugas}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <User className="h-4 w-4" />
+                            <span>{item.tindakLanjut.penanggungJawab}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                              Deadline:{" "}
+                              {new Date(item.tindakLanjut.deadline).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                          </div>
+                          <Badge variant="secondary" className="ml-auto">
+                            {new Date(item.tindakLanjut.deadline) > new Date()
+                              ? "Open"
+                              : "Terlambat"}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               {index < notulensi.pembahasanKeputusan.length - 1 && (
@@ -371,54 +529,6 @@ export default function NotulensiDetailPage({ params }) {
               )}
             </div>
           ))}
-        </CardContent>
-      </Card>
-
-      {/* Tindak Lanjut */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Tindak Lanjut
-          </CardTitle>
-          <CardDescription>
-            Tugas dan tanggung jawab hasil rapat
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {notulensi.tindakLanjut.map((item, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-2">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.tugas}</h4>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span>{item.penanggungJawab}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          Deadline:{" "}
-                          {new Date(item.deadline).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">
-                    {new Date(item.deadline) > new Date()
-                      ? "Aktif"
-                      : "Terlambat"}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
         </CardContent>
       </Card>
 

@@ -45,6 +45,27 @@ export function LoginForm({ className, ...props }) {
 
   const onSubmit = async (data) => {
     setApiError(null);
+    
+    // TEMPORARY: Bypass authentication for frontend development
+    // TODO: Connect to backend API later
+    try {
+      // Simulate successful login
+      const mockToken = "mock-jwt-token-for-development";
+      const mockAdmin = {
+        id: 1,
+        username: data.username,
+        name: data.username,
+        role: "admin"
+      };
+      
+      login(mockToken, mockAdmin);
+      toast.success(`Halo ${data.username}, selamat datang di MIRA FEB`);
+    } catch (error) {
+      setApiError("Terjadi kesalahan. Silakan coba lagi.");
+      console.error("Login failed:", error);
+    }
+    
+    /* ORIGINAL CODE - Will be used when backend is ready
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/sign-in`,
@@ -67,6 +88,7 @@ export function LoginForm({ className, ...props }) {
       }
       console.error("Login failed:", error);
     }
+    */
   };
 
   return (

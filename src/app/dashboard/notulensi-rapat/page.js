@@ -51,6 +51,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Dummy data for meetings
 const dummyMeetings = [
@@ -59,7 +61,7 @@ const dummyMeetings = [
     judulRapat: "Rapat Koordinasi Kurikulum Semester Genap",
     tanggal: "2025-01-10",
     waktu: "09:00 - 11:00",
-    tempat: "Ruang Sidang Dekan",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pemimpin: "Wakil Dekan I",
     peserta: 15,
     status: "Selesai",
@@ -71,7 +73,7 @@ const dummyMeetings = [
     judulRapat: "Evaluasi Kinerja Triwulan IV",
     tanggal: "2025-01-12",
     waktu: "13:00 - 15:30",
-    tempat: "Ruang Rapat Dekan",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pemimpin: "Dekan",
     peserta: 25,
     status: "Selesai",
@@ -83,7 +85,7 @@ const dummyMeetings = [
     judulRapat: "Rapat Persiapan Akreditasi AACSB",
     tanggal: "2025-01-15",
     waktu: "08:00 - 12:00",
-    tempat: "Aula Fakultas",
+    tempat: "Aula FEB",
     pemimpin: "Dekan",
     peserta: 40,
     status: "Selesai",
@@ -95,7 +97,7 @@ const dummyMeetings = [
     judulRapat: "Rapat Koordinasi Program Studi S1",
     tanggal: "2025-01-17",
     waktu: "10:00 - 12:00",
-    tempat: "Ruang Seminar A",
+    tempat: "Ruang Rapat Miossu lt. 2",
     pemimpin: "Wakil Dekan I",
     peserta: 20,
     status: "Selesai",
@@ -164,10 +166,93 @@ export default function NotulensiRapatPage() {
     waktuMulai: "",
     waktuSelesai: "",
     tempat: "",
+    tempatLainnya: "",
     pemimpin: "",
     notulen: "",
     keterangan: "",
   });
+
+  const exportLaporanToPDF = () => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    
+    // Header
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TELKOM UNIVERSITY', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Fakultas Ekonomi dan Bisnis', pageWidth / 2, 26, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Laporan Rekapitulasi Notulensi Rapat', pageWidth / 2, 36, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Periode: ${new Date().getFullYear()}`, pageWidth / 2, 42, { align: 'center' });
+    doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageWidth / 2, 48, { align: 'center' });
+    
+    // Statistik
+    const stats = [
+      ['Total Rapat', totalMeetings.toString()],
+      ['Rapat Selesai', completedMeetings.toString()],
+      ['Rapat Terjadwal', scheduledMeetings.toString()],
+      ['Tingkat Penyelesaian', `${Math.round((completedMeetings / totalMeetings) * 100)}%`]
+    ];
+    
+    autoTable(doc, {
+      startY: 55,
+      head: [['Keterangan', 'Jumlah']],
+      body: stats,
+      theme: 'grid',
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [227, 30, 37], textColor: [255, 255, 255], fontStyle: 'bold' },
+      margin: { left: margin, right: margin }
+    });
+    
+    // Daftar Rapat
+    const meetingData = filteredMeetings.map((meeting, index) => [
+      (index + 1).toString(),
+      meeting.judulRapat,
+      new Date(meeting.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      meeting.waktu,
+      meeting.tempat,
+      meeting.pemimpin,
+      meeting.notulen,
+      meeting.status
+    ]);
+    
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 10,
+      head: [['No', 'Judul Rapat', 'Tanggal', 'Waktu', 'Tempat', 'Pimpinan', 'Notulen', 'Status']],
+      body: meetingData,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [227, 30, 37], textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 45 },
+        2: { cellWidth: 23 },
+        3: { cellWidth: 23 },
+        4: { cellWidth: 30 },
+        5: { cellWidth: 25 },
+        6: { cellWidth: 25 },
+        7: { cellWidth: 20, halign: 'center' }
+      },
+      margin: { left: margin, right: margin }
+    });
+    
+    // Footer
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(9);
+    doc.text(`Dicetak oleh: Admin FEB`, margin, finalY);
+    doc.text(`Halaman 1 dari 1`, pageWidth - margin, finalY, { align: 'right' });
+    
+    doc.save(`Laporan_Notulensi_Rapat_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success('Laporan berhasil diexport ke PDF');
+  };
 
   // Calculate stats
   const totalMeetings = meetings.length;
@@ -229,7 +314,7 @@ export default function NotulensiRapatPage() {
       judulRapat: formData.judulRapat,
       tanggal: formData.tanggal,
       waktu: `${formData.waktuMulai} - ${formData.waktuSelesai}`,
-      tempat: formData.tempat,
+      tempat: formData.tempat === "Lainnya" ? formData.tempatLainnya : formData.tempat,
       pemimpin: formData.pemimpin,
       peserta: 0,
       status: "Terjadwal",
@@ -248,6 +333,7 @@ export default function NotulensiRapatPage() {
       waktuMulai: "",
       waktuSelesai: "",
       tempat: "",
+      tempatLainnya: "",
       pemimpin: "",
       notulen: "",
       keterangan: "",
@@ -267,7 +353,11 @@ export default function NotulensiRapatPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={exportLaporanToPDF}
+          >
             <Download className="h-4 w-4 mr-2" />
             Export Laporan
           </Button>
@@ -347,15 +437,38 @@ export default function NotulensiRapatPage() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="tempat">Tempat *</Label>
-                    <Input
-                      id="tempat"
+                    <Select
                       value={formData.tempat}
-                      onChange={(e) =>
-                        setFormData({ ...formData, tempat: e.target.value })
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, tempat: value, tempatLainnya: "" })
                       }
                       required
-                      placeholder="Contoh: Ruang Sidang Dekan"
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih ruangan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ruang Rapat Manterawu lt. 2">Ruang Rapat Manterawu lt. 2</SelectItem>
+                        <SelectItem value="Ruang Rapat Miossu lt. 1">Ruang Rapat Miossu lt. 1</SelectItem>
+                        <SelectItem value="Ruang Rapat Miossu lt. 2">Ruang Rapat Miossu lt. 2</SelectItem>
+                        <SelectItem value="Ruang Rapat Maratua lt. 1">Ruang Rapat Maratua lt. 1</SelectItem>
+                        <SelectItem value="Aula FEB">Aula FEB</SelectItem>
+                        <SelectItem value="Aula Manterawu">Aula Manterawu</SelectItem>
+                        <SelectItem value="Lainnya">Lainnya</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formData.tempat === "Lainnya" && (
+                      <Input
+                        id="tempatLainnya"
+                        value={formData.tempatLainnya}
+                        onChange={(e) =>
+                          setFormData({ ...formData, tempatLainnya: e.target.value })
+                        }
+                        required
+                        placeholder="Masukkan nama tempat"
+                        className="mt-2"
+                      />
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -393,6 +506,36 @@ export default function NotulensiRapatPage() {
                           </SelectItem>
                           <SelectItem value="Kaur Kemahasiswaan">
                             Kaur Kemahasiswaan
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S1 Manajemen">
+                            Kaprodi S1 Manajemen
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S1 Administrasi Bisnis">
+                            Kaprodi S1 Administrasi Bisnis
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S1 Akuntansi">
+                            Kaprodi S1 Akuntansi
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S1 Leisure Management">
+                            Kaprodi S1 Leisure Management
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S1 Bisnis Digital">
+                            Kaprodi S1 Bisnis Digital
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S2 Manajemen">
+                            Kaprodi S2 Manajemen
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S2 Manajemen PJJ">
+                            Kaprodi S2 Manajemen PJJ
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S2 Administrasi Bisnis">
+                            Kaprodi S2 Administrasi Bisnis
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S2 Akuntansi">
+                            Kaprodi S2 Akuntansi
+                          </SelectItem>
+                          <SelectItem value="Kaprodi S3 Manajemen">
+                            Kaprodi S3 Manajemen
                           </SelectItem>
                         </SelectContent>
                       </Select>

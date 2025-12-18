@@ -13,22 +13,45 @@ const Pengajuan = () => {
         totalMoA: 0,
         totalMoU: 0,
         totalIA: 0,
+        totalPengajuan: 0,
         activePartnerGroup: 0
     })
 
     const fetchDashboardData = async () => {
-        // Fetch summary data
-        const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/stats`, {
-            headers: {
-                "ngrok-skip-browser-warning": true,
-            },
+        // Ambil data pengajuan dari localStorage
+        let submissions = [];
+        if (typeof window !== 'undefined') {
+            submissions = JSON.parse(localStorage.getItem('partnershipSubmissions') || '[]');
+        }
+
+        // Hitung jumlah pengajuan
+        const totalPengajuan = submissions.length;
+
+        // Update status data dengan data dari localStorage
+        setStatusData({
+            totalMoA: 0,
+            totalMoU: 0,
+            totalIA: 0,
+            totalPengajuan: totalPengajuan,
+            activePartnerGroup: 0
         })
-        const status = await statsResponse.json()
-        setStatusData(status.data)
     }
 
     useEffect(() => {
         fetchDashboardData()
+        
+        // Refresh data setiap kali halaman menjadi visible
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchDashboardData();
+            }
+        };
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [])
 
     return (
@@ -49,6 +72,19 @@ const Pengajuan = () => {
 
             {/* Summary Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 max-sm:grid-cols-2">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Pengajuan</CardTitle>
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{statusData.totalPengajuan}</div>
+                        <p className="text-xs text-muted-foreground">
+                            Dokumen yang diajukan
+                        </p>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Jumlah MoA</CardTitle>
@@ -84,19 +120,6 @@ const Pengajuan = () => {
                         <div className="text-2xl font-bold">{statusData.totalIA}</div>
                         <p className="text-xs text-muted-foreground">
                             Surat Keputusan Kerjasama
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Mitra Aktif</CardTitle>
-                        <Globe2 className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{statusData.activePartnerGroup}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Total mitra yang masih berlaku
                         </p>
                     </CardContent>
                 </Card>

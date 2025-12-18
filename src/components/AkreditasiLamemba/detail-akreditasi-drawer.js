@@ -34,17 +34,6 @@ export default function DetailAkreditasiDrawer({ open, onOpenChange, data }) {
     return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
   };
 
-  const getPeringkatBadge = (peringkat) => {
-    const colors = {
-      A: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      B: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      C: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-    };
-    return (
-      <Badge className={colors[peringkat] || ""}>Peringkat {peringkat}</Badge>
-    );
-  };
-
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
@@ -68,7 +57,6 @@ export default function DetailAkreditasiDrawer({ open, onOpenChange, data }) {
               </div>
               <div className="flex gap-2 flex-wrap">
                 {getStatusBadge(data.statusAkreditasi)}
-                {getPeringkatBadge(data.peringkat)}
                 {data.nilaiAkreditasi && (
                   <Badge variant="outline">
                     <Award className="h-3 w-3 mr-1" />
@@ -120,13 +108,6 @@ export default function DetailAkreditasiDrawer({ open, onOpenChange, data }) {
                     Status Akreditasi
                   </div>
                   <p className="font-medium">{data.statusAkreditasi}</p>
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">
-                    Peringkat
-                  </div>
-                  <p className="font-medium text-2xl">{data.peringkat}</p>
                 </div>
 
                 {data.nilaiAkreditasi && (

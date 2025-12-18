@@ -10,26 +10,53 @@ import TableImplementation from "@/components/PartnershipMonitoring/table-implem
 
 const Penerapan = () => {
     const [statusData, setStatusData] = useState({
-        totalMoA: 0,
-        totalMoU: 0,
-        totalIA: 0,
-        activePartnerGroup: 0
+        totalMoA: 42,
+        totalMoU: 38,
+        totalIA: 15,
+        activePartnerGroup: 67
     })
 
-    const fetchDashboardData = async () => {
-        // Fetch summary data
-        const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/stats`, {
-            headers: {
-                "ngrok-skip-browser-warning": true,
-            },
-        })
-        const status = await statsResponse.json()
-        setStatusData(status.data)
+    const updateStatusData = () => {
+        if (typeof window !== 'undefined') {
+            const implementations = JSON.parse(localStorage.getItem('partnershipImplementations') || '[]');
+            
+            // Hitung berdasarkan docType
+            const moa = implementations.filter(impl => impl.docType === 'MoA').length;
+            const mou = implementations.filter(impl => impl.docType === 'MoU').length;
+            const ia = implementations.filter(impl => impl.docType === 'IA').length;
+            const active = implementations.filter(impl => impl.status === 'Aktif').length;
+            
+            setStatusData({
+                totalMoA: 42 + moa,
+                totalMoU: 38 + mou,
+                totalIA: 15 + ia,
+                activePartnerGroup: 67 + active
+            });
+        }
     }
 
     useEffect(() => {
-        fetchDashboardData()
-      }, [])
+        updateStatusData();
+        
+        // Refresh ketika ada perubahan data
+        const handleDataChange = () => {
+            updateStatusData();
+        };
+        
+        const handleStorageChange = (e) => {
+            if (e.key === 'partnershipImplementations' || !e.key) {
+                updateStatusData();
+            }
+        };
+        
+        window.addEventListener('partnershipDataChanged', handleDataChange);
+        window.addEventListener('storage', handleStorageChange);
+        
+        return () => {
+            window.removeEventListener('partnershipDataChanged', handleDataChange);
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [])
     return (
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">

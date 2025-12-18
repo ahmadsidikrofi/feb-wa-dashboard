@@ -23,7 +23,7 @@ import axios from "axios"
 const chartConfig = {
   count: {
     label: "Tickets",
-    color: "hsl(var(--chart-1))",
+    color: "#1e3a8a",
   },
 }
 

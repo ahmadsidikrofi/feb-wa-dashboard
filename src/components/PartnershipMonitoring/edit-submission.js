@@ -10,7 +10,6 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import axios from 'axios'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from "@/components/ui/checkbox"
@@ -150,14 +149,31 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 hasSoftcopy: values.hasSoftcopy,
             }
 
-            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`, payload, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
+            // Simpan ke localStorage untuk pengajuan dari form ajukan kerjasama
+            if (typeof window !== 'undefined') {
+                const submissions = JSON.parse(localStorage.getItem('partnershipSubmissions') || '[]');
+                const submissionId = partnershipId.toString().replace('submission-', '');
+                const index = submissions.findIndex(s => s.id === parseInt(submissionId));
+                
+                if (index !== -1) {
+                    // Update data pengajuan
+                    submissions[index] = {
+                        ...submissions[index],
+                        namaInstansi: payload.partnerName,
+                        ruangLingkup: payload.scope === 'national' ? 'Nasional' : 
+                                     payload.scope === 'international' ? 'Internasional' : payload.scope,
+                        jenisKerjasama: payload.partnershipType || submissions[index].jenisKerjasama,
+                        durasi: payload.duration || submissions[index].durasi,
+                    };
+                    
+                    localStorage.setItem('partnershipSubmissions', JSON.stringify(submissions));
+                    
+                    // Trigger event untuk memberitahu komponen lain bahwa data telah berubah
+                    window.dispatchEvent(new Event('partnershipDataChanged'));
                 }
-            })
-            console.log(res);
+            }
 
-            toast.success("Approval berhasil diperbarui")
+            toast.success("Data berhasil diperbarui")
             form.reset()
             setOpen(false)
 
@@ -165,8 +181,8 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 onSuccess()
             }
         } catch (error) {
-            console.error("Gagal memperbarui approval:", error)
-            toast.error(error?.response?.data?.message || "Gagal memperbarui approval")
+            console.error("Gagal memperbarui data:", error)
+            toast.error("Gagal memperbarui data")
         } finally {
             setIsLoading(false)
         }

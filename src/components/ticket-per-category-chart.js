@@ -32,24 +32,54 @@ const chartConfig = {
 
 const getBarColor = (category) => {
     switch (category) {
-        case "Sidang":
-            return "#ef4444" // biru
-        case "Keuangan":
-            return "#fbbf24" // Kuning
-        case "Wisuda":
-            return "#22C55E" // ungu
-        case "Sekretariat":
-            return "#14b8a6" // Teal
+        case "Dekan":
+            return "#b91c1c" // Brick Red
+        case "Wakil Dekan I":
         case "Wadek1":
-            return "#4ade80" // Green light
+            return "#d1d5db" // Light Gray
+        case "Wakil Dekan II":
         case "Wadek2":
-            return "#16a34a" // Green dark
+            return "#4b5563" // Dark Gray
+        case "Urusan Sekretariat Dekan":
+        case "Sekretariat":
+            return "#ec4899" // Pink
+        case "Urusan Layanan Akademik":
+            return "#1e3a8a" // Dark Blue
+        case "Urusan Laboratorium":
+            return "#60a5fa" // Light Blue
+        case "Urusan SDM Keuangan":
+        case "Keuangan":
+            return "#b91c1c" // Brick Red
+        case "Urusan Kemahasiswaan":
+            return "#d1d5db" // Light Gray
+        case "Prodi S1 Manajemen":
         case "Prodi1":
-            return "#a3e635" // Lime light
+            return "#4b5563" // Dark Gray
+        case "Prodi S1 Administrasi Bisnis":
+            return "#ec4899" // Pink
+        case "Prodi S1 Akuntansi":
+            return "#1e3a8a" // Dark Blue
+        case "Prodi S1 Leisure Management":
+            return "#60a5fa" // Light Blue
+        case "Prodi S1 Bisnis Digital":
+            return "#b91c1c" // Brick Red
+        case "Prodi S2 Manajemen":
+            return "#d1d5db" // Light Gray
+        case "Prodi S2 Manajemen PJJ":
+            return "#4b5563" // Dark Gray
+        case "Prodi S2 Administrasi Bisnis":
         case "Prodi2":
-            return "#65a30d" // Lime dark
+            return "#ec4899" // Pink
+        case "Prodi S2 Akuntansi":
+            return "#1e3a8a" // Dark Blue
+        case "Prodi S3 Manajemen":
+            return "#60a5fa" // Light Blue
+        case "Sidang":
+            return "#b91c1c" // Brick Red
+        case "Wisuda":
+            return "#4b5563" // Dark Gray
         default:
-            return "#1e293b" // Slate
+            return "#1e293b" // Slate Darker
     }
 }
 

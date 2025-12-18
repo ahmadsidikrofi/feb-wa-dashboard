@@ -39,7 +39,6 @@ export default function AddAkreditasiDialog({ open, onOpenChange, onSuccess }) {
     nomorSK: "",
     tanggalBerlaku: null,
     tanggalKadaluarsa: null,
-    peringkat: "",
     nilaiAkreditasi: "",
     keterangan: "",
   });
@@ -58,7 +57,6 @@ export default function AddAkreditasiDialog({ open, onOpenChange, onSuccess }) {
       nomorSK: "",
       tanggalBerlaku: null,
       tanggalKadaluarsa: null,
-      peringkat: "",
       nilaiAkreditasi: "",
       keterangan: "",
     });
@@ -118,26 +116,6 @@ export default function AddAkreditasiDialog({ open, onOpenChange, onSuccess }) {
                   <SelectItem value="Unggul">Unggul</SelectItem>
                   <SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
                   <SelectItem value="Baik">Baik</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="peringkat">Peringkat *</Label>
-              <Select
-                value={formData.peringkat}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, peringkat: value })
-                }
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih peringkat" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="A">A</SelectItem>
-                  <SelectItem value="B">B</SelectItem>
-                  <SelectItem value="C">C</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -123,26 +123,6 @@ export default function EditAkreditasiDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="peringkat">Peringkat *</Label>
-              <Select
-                value={formData.peringkat}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, peringkat: value })
-                }
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="A">A</SelectItem>
-                  <SelectItem value="B">B</SelectItem>
-                  <SelectItem value="C">C</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="nomorSK">Nomor SK *</Label>
               <Input
                 id="nomorSK"

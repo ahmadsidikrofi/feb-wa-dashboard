@@ -93,14 +93,13 @@ const prodiList = [
 ];
 
 const rooms = [
-  "Aula Utama",
-  "Ruang Sidang 1",
-  "Ruang Sidang 2",
-  "Ruang Seminar A",
-  "Ruang Seminar B",
-  "Lab Komputer 1",
-  "Lab Komputer 2",
-  "Auditorium",
+  "Ruang Rapat Manterawu lt. 2",
+  "Ruang Rapat Miossu lt. 1",
+  "Ruang Rapat Miossu lt. 2",
+  "Ruang Rapat Maratua lt. 1",
+  "Aula FEB",
+  "Aula Manterawu",
+  "Lainnya",
 ];
 
 const officials = [
@@ -134,7 +133,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Dekan",
     prodi: "S1 Bisnis Digital",
-    ruangan: "Aula Utama",
+    tempat: "Aula FEB",
     pejabat: ["Dekan", "Wakil Dekan I"],
     jumlahPeserta: 200,
     status: "Terjadwal",
@@ -149,7 +148,7 @@ const dummyActivities = [
     waktuSelesai: "11:00",
     unit: "Wakil Dekan I",
     prodi: "S1 Akuntansi",
-    ruangan: "Ruang Seminar A",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pejabat: ["Wakil Dekan I", "Kaprodi S1 Akuntansi"],
     jumlahPeserta: 50,
     status: "Terjadwal",
@@ -165,7 +164,7 @@ const dummyActivities = [
     waktuSelesai: "15:00",
     unit: "Wakil Dekan I",
     prodi: "S1 Manajemen",
-    ruangan: "Ruang Sidang 1",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pejabat: ["Wakil Dekan I", "Kaprodi S1 Manajemen"],
     jumlahPeserta: 15,
     status: "Terjadwal",
@@ -180,7 +179,7 @@ const dummyActivities = [
     waktuSelesai: "16:00",
     unit: "Prodi S2 Manajemen",
     prodi: "S2 Manajemen",
-    ruangan: "Lab Komputer 1",
+    tempat: "Ruang Rapat Miossu lt. 2",
     pejabat: ["Kaprodi S2 Manajemen"],
     jumlahPeserta: 30,
     status: "Terjadwal",
@@ -195,7 +194,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Urusan Layanan Akademik",
     prodi: "S1 Akuntansi",
-    ruangan: "Ruang Sidang 2",
+    tempat: "Ruang Rapat Maratua lt. 1",
     pejabat: ["Kaprodi S1 Akuntansi"],
     jumlahPeserta: 10,
     status: "Terjadwal",
@@ -210,7 +209,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Dekan",
     prodi: "-",
-    ruangan: "Auditorium",
+    tempat: "Aula Manterawu",
     pejabat: [
       "Dekan",
       "Wakil Dekan I",
@@ -230,7 +229,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Prodi S1 Administrasi Bisnis",
     prodi: "S1 Administrasi Bisnis",
-    ruangan: "Ruang Seminar B",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pejabat: ["Kaprodi S1 Administrasi Bisnis"],
     jumlahPeserta: 25,
     status: "Terjadwal",
@@ -246,7 +245,7 @@ const dummyActivities = [
     waktuSelesai: "15:00",
     unit: "Urusan Kemahasiswaan",
     prodi: "-",
-    ruangan: "Aula Utama",
+    tempat: "Aula FEB",
     pejabat: ["Kaur Kemahasiswaan"],
     jumlahPeserta: 100,
     status: "Terjadwal",
@@ -261,7 +260,7 @@ const dummyActivities = [
     waktuSelesai: "15:00",
     unit: "Prodi S1 Leisure Management",
     prodi: "S1 Leisure Management",
-    ruangan: "Ruang Seminar A",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pejabat: ["Kaprodi S1 Leisure Management"],
     jumlahPeserta: 45,
     status: "Terjadwal",
@@ -276,7 +275,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Urusan Laboratorium",
     prodi: "-",
-    ruangan: "Lab Komputer 2",
+    tempat: "Ruang Rapat Miossu lt. 2",
     pejabat: ["Kaur Laboratorium"],
     jumlahPeserta: 8,
     status: "Terjadwal",
@@ -301,7 +300,8 @@ export default function MonitoringKegiatanPage() {
     waktuSelesai: "",
     unit: "",
     prodi: "",
-    ruangan: "",
+    tempat: "",
+    tempatLainnya: "",
     pejabat: [],
     jumlahPeserta: "",
     keterangan: "",
@@ -341,8 +341,8 @@ export default function MonitoringKegiatanPage() {
           Konflik{" "}
           {activity.conflictType === "pejabat"
             ? "Pejabat"
-            : activity.conflictType === "ruangan"
-            ? "Ruangan"
+            : activity.conflictType === "tempat"
+            ? "Tempat"
             : "Waktu"}
         </Badge>
       );
@@ -366,7 +366,16 @@ export default function MonitoringKegiatanPage() {
 
     const newActivity = {
       id: activities.length + 1,
-      ...formData,
+      namaKegiatan: formData.namaKegiatan,
+      tanggal: formData.tanggal,
+      waktuMulai: formData.waktuMulai,
+      waktuSelesai: formData.waktuSelesai,
+      unit: formData.unit,
+      prodi: formData.prodi || "-",
+      tempat: formData.tempat === "Lainnya" ? formData.tempatLainnya : formData.tempat,
+      pejabat: formData.pejabat,
+      jumlahPeserta: formData.jumlahPeserta,
+      keterangan: formData.keterangan,
       status: "Terjadwal",
       hasConflict: conflicts.hasConflict,
       conflictType: conflicts.type,
@@ -391,7 +400,8 @@ export default function MonitoringKegiatanPage() {
       waktuSelesai: "",
       unit: "",
       prodi: "",
-      ruangan: "",
+      tempat: "",
+      tempatLainnya: "",
       pejabat: [],
       jumlahPeserta: "",
       keterangan: "",
@@ -406,7 +416,7 @@ export default function MonitoringKegiatanPage() {
     const details = `
 Unit: ${activity.unit}
 Prodi: ${activity.prodi}
-Ruangan: ${activity.ruangan}
+Tempat: ${activity.tempat}
 Pejabat: ${activity.pejabat.join(", ")}
 Jumlah Peserta: ${activity.jumlahPeserta}
 
@@ -418,7 +428,7 @@ ${activity.keterangan}`;
       /[-:]/g,
       ""
     )}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(
-      activity.ruangan
+      activity.tempat
     )}`;
 
     window.open(googleCalendarUrl, "_blank");
@@ -454,7 +464,7 @@ ${activity.keterangan}`;
     const roomConflict = activities.find(
       (a) =>
         a.tanggal === newActivity.tanggal &&
-        a.ruangan === newActivity.ruangan &&
+        a.tempat === newActivity.tempat &&
         ((newActivity.waktuMulai >= a.waktuMulai &&
           newActivity.waktuMulai < a.waktuSelesai) ||
           (newActivity.waktuSelesai > a.waktuMulai &&
@@ -464,8 +474,8 @@ ${activity.keterangan}`;
     if (roomConflict) {
       return {
         hasConflict: true,
-        type: "ruangan",
-        message: `Ruangan ${newActivity.ruangan} sudah digunakan untuk "${roomConflict.namaKegiatan}"`,
+        type: "tempat",
+        message: `Tempat ${newActivity.tempat} sudah digunakan untuk "${roomConflict.namaKegiatan}"`,
       };
     }
 
@@ -645,16 +655,16 @@ ${activity.keterangan}`;
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="ruangan">Ruangan *</Label>
+                    <Label htmlFor="tempat">Tempat *</Label>
                     <Select
-                      value={formData.ruangan}
+                      value={formData.tempat}
                       onValueChange={(value) =>
-                        setFormData({ ...formData, ruangan: value })
+                        setFormData({ ...formData, tempat: value, tempatLainnya: "" })
                       }
                       required
                     >
-                      <SelectTrigger id="ruangan">
-                        <SelectValue placeholder="Pilih ruangan" />
+                      <SelectTrigger id="tempat">
+                        <SelectValue placeholder="Pilih tempat" />
                       </SelectTrigger>
                       <SelectContent>
                         {rooms.map((room) => (
@@ -664,6 +674,18 @@ ${activity.keterangan}`;
                         ))}
                       </SelectContent>
                     </Select>
+                    {formData.tempat === "Lainnya" && (
+                      <Input
+                        id="tempatLainnya"
+                        value={formData.tempatLainnya}
+                        onChange={(e) =>
+                          setFormData({ ...formData, tempatLainnya: e.target.value })
+                        }
+                        required
+                        placeholder="Masukkan nama tempat"
+                        className="mt-2"
+                      />
+                    )}
                   </div>
 
                   <div className="grid gap-2">
@@ -892,7 +914,7 @@ ${activity.keterangan}`;
                       <TableHead>Nama Kegiatan</TableHead>
                       <TableHead>Unit</TableHead>
                       <TableHead>Prodi</TableHead>
-                      <TableHead>Ruangan</TableHead>
+                      <TableHead>Tempat</TableHead>
                       <TableHead>Pejabat</TableHead>
                       <TableHead>Peserta</TableHead>
                       <TableHead>Status</TableHead>
@@ -956,7 +978,7 @@ ${activity.keterangan}`;
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-muted-foreground" />
                               <span className="text-sm">
-                                {activity.ruangan}
+                                {activity.tempat}
                               </span>
                             </div>
                           </TableCell>
@@ -1093,7 +1115,7 @@ ${activity.keterangan}`;
                               </div>
                               <div className="flex items-center gap-2 text-sm">
                                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                                <span>{activity.ruangan}</span>
+                                <span>{activity.tempat}</span>
                               </div>
                               <div className="flex items-center gap-2 text-sm">
                                 <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -1158,7 +1180,7 @@ ${activity.keterangan}`;
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <MapPin className="h-4 w-4" />
-              Ruangan Tersibuk
+              Tempat Tersibuk
             </CardTitle>
           </CardHeader>
           <CardContent>

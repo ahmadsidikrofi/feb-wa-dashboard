@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -10,12 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Download, Upload, Microscope } from "lucide-react";
+import { Plus, Search, Download, Upload, Microscope, ArrowLeft } from "lucide-react";
 import TableKriteriaData from "@/components/AkreditasiLamemba/table-kriteria-data";
 import AddKriteriaDialog from "@/components/AkreditasiLamemba/add-kriteria-dialog";
 import { toast } from "sonner";
 
 export default function PenelitianPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -103,8 +105,15 @@ export default function PenelitianPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-6">      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push("/dashboard/akreditasi-lamemba")}
+        className="mb-2"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Kembali ke Akreditasi LAMEMBA
+      </Button>      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <kriteriaInfo.icon className="h-8 w-8" />

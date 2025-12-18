@@ -56,7 +56,7 @@ const statsData = [
   },
 ];
 
-// Data dummy kinerja per unit
+// Data dummy kinerja per unit - 18 Units
 const unitPerformance = [
   {
     unit: "Dekan",
@@ -80,25 +80,109 @@ const unitPerformance = [
     status: "Good",
   },
   {
-    unit: "Urusan SDM dan Keuangan",
+    unit: "Urusan Sekretariat Dekan",
+    totalResponsibility: 28,
+    avgPencapaian: 86.4,
+    totalNilai: 875,
+    status: "Good",
+  },
+  {
+    unit: "Urusan Layanan Akademik",
+    totalResponsibility: 32,
+    avgPencapaian: 84.7,
+    totalNilai: 921,
+    status: "Good",
+  },
+  {
+    unit: "Urusan Laboratorium",
+    totalResponsibility: 26,
+    avgPencapaian: 83.2,
+    totalNilai: 798,
+    status: "Satisfactory",
+  },
+  {
+    unit: "Urusan SDM Keuangan",
     totalResponsibility: 41,
     avgPencapaian: 84.2,
     totalNilai: 955,
     status: "Satisfactory",
   },
   {
-    unit: "S1 Manajemen",
+    unit: "Urusan Kemahasiswaan",
+    totalResponsibility: 30,
+    avgPencapaian: 87.1,
+    totalNilai: 932,
+    status: "Good",
+  },
+  {
+    unit: "Prodi S1 Manajemen",
     totalResponsibility: 36,
     avgPencapaian: 89.1,
     totalNilai: 1020,
     status: "Good",
   },
   {
-    unit: "S1 Akuntansi",
+    unit: "Prodi S1 Administrasi Bisnis",
+    totalResponsibility: 31,
+    avgPencapaian: 86.5,
+    totalNilai: 945,
+    status: "Good",
+  },
+  {
+    unit: "Prodi S1 Akuntansi",
     totalResponsibility: 34,
     avgPencapaian: 87.8,
     totalNilai: 968,
     status: "Good",
+  },
+  {
+    unit: "Prodi S1 Leisure Management",
+    totalResponsibility: 24,
+    avgPencapaian: 82.3,
+    totalNilai: 765,
+    status: "Satisfactory",
+  },
+  {
+    unit: "Prodi S1 Bisnis Digital",
+    totalResponsibility: 27,
+    avgPencapaian: 85.9,
+    totalNilai: 854,
+    status: "Good",
+  },
+  {
+    unit: "Prodi S2 Manajemen",
+    totalResponsibility: 29,
+    avgPencapaian: 88.7,
+    totalNilai: 978,
+    status: "Good",
+  },
+  {
+    unit: "Prodi S2 Manajemen PJJ",
+    totalResponsibility: 22,
+    avgPencapaian: 81.4,
+    totalNilai: 712,
+    status: "Satisfactory",
+  },
+  {
+    unit: "Prodi S2 Administrasi Bisnis",
+    totalResponsibility: 25,
+    avgPencapaian: 84.6,
+    totalNilai: 823,
+    status: "Satisfactory",
+  },
+  {
+    unit: "Prodi S2 Akuntansi",
+    totalResponsibility: 26,
+    avgPencapaian: 86.2,
+    totalNilai: 867,
+    status: "Good",
+  },
+  {
+    unit: "Prodi S3 Manajemen",
+    totalResponsibility: 20,
+    avgPencapaian: 90.3,
+    totalNilai: 798,
+    status: "Excellent",
   },
 ];
 

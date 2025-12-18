@@ -18,57 +18,45 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import axios from "axios"
 
 export const description = "A bar chart with a label"
 
 const chartConfig = {
   desktop: {
     label: "Desktop",
-    color: "var(--chart-1)",
+    color: "#60a5fa",
   },
 }
 
 export function GrowthTrendByYearChart() {
-  const [chartData, setChartData] = useState([])
+  // Data dummy untuk pertumbuhan kerjasama per tahun
+  const dummyData = [
+    { tahun: "2020", jumlah: 45 },
+    { tahun: "2021", jumlah: 58 },
+    { tahun: "2022", jumlah: 72 },
+    { tahun: "2023", jumlah: 89 },
+    { tahun: "2024", jumlah: 105 },
+    { tahun: "2025", jumlah: 128 },
+  ]
+
+  const [chartData, setChartData] = useState(dummyData)
   const [growthPercentage, setGrowthPercentage] = useState(0)
 
-  const fetchData = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const rawData = res?.data?.data?.documentsByYear || []
-      
-      const mapp = rawData.map((data) => ({
-        tahun: data.name,
-        jumlah: data.value,
-      }))
-
-      setChartData(mapp)
-
-      if (mapp.length >= 2) {
-        const last = mapp[mapp.length - 1].jumlah;
-        const prev = mapp[mapp.length - 2].jumlah;
-      
-        if (prev > 0) {
-          const growth = ((last - prev) / prev) * 100;
-          setGrowthPercentage(growth);
-        } else {
-          setGrowthPercentage(0);
-        }
+  useEffect(() => {
+    // Hitung growth percentage
+    if (chartData.length >= 2) {
+      const last = chartData[chartData.length - 1].jumlah;
+      const prev = chartData[chartData.length - 2].jumlah;
+    
+      if (prev > 0) {
+        const growth = ((last - prev) / prev) * 100;
+        setGrowthPercentage(growth);
       } else {
         setGrowthPercentage(0);
       }
-    } catch (error) {
-      console.error("Gagal memuat data kategori tiket:", error)
+    } else {
+      setGrowthPercentage(0);
     }
-  }
-
-  useEffect(() => {
-    fetchData()
   }, [])
 
   return (
