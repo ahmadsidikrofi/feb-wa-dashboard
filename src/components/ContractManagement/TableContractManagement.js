@@ -20,6 +20,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import FilterTablePartnership from "../PartnershipMonitoring/filter-table"
+import AddContract from "./add-contract"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -174,6 +175,8 @@ const TableContractManagement = () => {
               </SelectContent>
             </Select>
           </div>
+
+          <AddContract getContractData={getContractData}/>
         </div>
 
         {isLoading && (
