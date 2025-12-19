@@ -103,13 +103,13 @@ const navigation = [
     ],
   },
   {
-    name: "Kontrak Management",
-    href: "/dashboard/kontrak-management",
+    name: "Kontrak Manajemen",
+    href: "/dashboard/kontrak-manajemen",
     icon: Newspaper,
   },
   {
-    name: "Laporan Management",
-    href: "/dashboard/laporan-management",
+    name: "Laporan Manajemen",
+    href: "/dashboard/laporan-manajemen",
     icon: Newspaper,
   },
   {

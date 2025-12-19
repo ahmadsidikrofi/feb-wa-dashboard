@@ -461,6 +461,7 @@ const TableImplementation = () => {
                 <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Tingkat</TableHead>
                 <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Jenis Kerjasama</TableHead>
                 <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">PIC</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Status Implementasi</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Berlaku hingga</TableHead>
                 <TableHead>Detail</TableHead>
               </TableRow>
@@ -483,6 +484,27 @@ const TableImplementation = () => {
                   <TableCell className="max-sm:hidden capitalize">{partnership.scope || "-"}</TableCell>
                   <TableCell className="max-sm:hidden">{partnership.partnershipType || "-"}</TableCell>
                   <TableCell className="max-sm:hidden capitalize">{partnership.picInternal || "-"}</TableCell>
+                  <TableCell className="max-sm:hidden">
+                    {(() => {
+                      const activities = partnership.activities || [];
+                      const completedActivities = activities.filter(a => 
+                        typeof a === 'object' ? a.status === 'completed' : false
+                      ).length;
+                      const totalActivities = activities.length;
+                      const pendingActivities = totalActivities - completedActivities;
+                      
+                      return (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-green-600 font-medium">
+                            ✓ {completedActivities} Terlaksana
+                          </span>
+                          <span className="text-xs text-orange-600 font-medium">
+                            ○ {pendingActivities} Belum Terlaksana
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </TableCell>
                   <TableCell className="max-sm:hidden text-green-600 font-medium">
                     {formatDate(partnership.validUntil)}
                   </TableCell>

@@ -536,20 +536,20 @@ const AddPartnership = ({ getPartnershipData }) => {
                             </div>
                         </div>
                     </form>
-                </Form>
 
-                <DialogFooter className="gap-2">
-                    <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-                        Batal
-                    </Button>
-                    <Button type="submit" form="partnership-form" disabled={isLoading}>
-                        {isLoading ?
-                            <div className="flex justify-center items-center text-center gap-2 ">
-                                <LoaderIcon className="animate-spin size-4" /> <span>Menambahkan Mitra...</span>
-                            </div>
-                            : "Tambahkan Mitra"}
-                    </Button>
-                </DialogFooter>
+                    <DialogFooter className="gap-2">
+                        <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
+                            Batal
+                        </Button>
+                        <Button type="submit" form="partnership-form" disabled={isLoading}>
+                            {isLoading ?
+                                <div className="flex justify-center items-center text-center gap-2 ">
+                                    <LoaderIcon className="animate-spin size-4" /> <span>Menambahkan Mitra...</span>
+                                </div>
+                                : "Tambahkan Mitra"}
+                        </Button>
+                    </DialogFooter>
+                </Form>
             </DialogContent>
         </Dialog>
     )

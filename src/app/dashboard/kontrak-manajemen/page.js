@@ -212,7 +212,7 @@ export default function KontrakManagementPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
-            Kontrak Management
+            Kontrak Manajemen
           </h1>
           <p className="text-muted-foreground">
             Dashboard kinerja kontrak kerja yang ditugaskan kepada fakultas

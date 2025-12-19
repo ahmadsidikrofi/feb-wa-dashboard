@@ -18,7 +18,6 @@ import {
     ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import axios from "axios"
 
 const chartConfig = {
     total: {
@@ -84,39 +83,34 @@ const getBarColor = (category) => {
 }
 
 export function TicketPerCategoryChart() {
-    const [chartData, setChartData] = useState([])
+    // Data dummy untuk tiket per kategori
+    const dummyData = [
+        { name: "Dekan", total: 45 },
+        { name: "Wadek1", total: 32 },
+        { name: "Wadek2", total: 28 },
+        { name: "Sekretariat", total: 56 },
+        { name: "Urusan Layanan Akademik", total: 72 },
+        { name: "Urusan Laboratorium", total: 23 },
+        { name: "Keuangan", total: 41 },
+        { name: "Urusan Kemahasiswaan", total: 38 },
+        { name: "Prodi1", total: 67 },
+        { name: "Prodi S1 Administrasi Bisnis", total: 29 },
+        { name: "Prodi S1 Akuntansi", total: 54 },
+        { name: "Prodi S1 Bisnis Digital", total: 31 },
+        { name: "Prodi S2 Manajemen", total: 48 },
+        { name: "Prodi2", total: 19 },
+    ]
+
+    const [chartData, setChartData] = useState(dummyData)
     const [topCategory, setTopCategory] = useState('')
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-categories`, {
-                    headers: {
-                        "ngrok-skip-browser-warning": true,
-                      },
-                })
-                const data = res.data
-                console.log("Response data:", data);
-                setChartData(data)
-
-                if (Array.isArray(data)) {
-                    setChartData(data);
-
-                    if (data.length > 0) {
-                        const maxCategory = data.reduce((prev, curr) =>
-                            curr.total > prev.total ? curr : prev
-                        );
-                        setTopCategory(maxCategory.name)
-                    }
-                } else {
-                    console.warn("Data bukan array:", data)
-                    setChartData([])
-                }
-            } catch (error) {
-                console.error("Gagal memuat data kategori tiket:", error)
-            }
+        if (dummyData.length > 0) {
+            const maxCategory = dummyData.reduce((prev, curr) =>
+                curr.total > prev.total ? curr : prev
+            );
+            setTopCategory(maxCategory.name)
         }
-        fetchData()
     }, [])
     return (
         <Card>

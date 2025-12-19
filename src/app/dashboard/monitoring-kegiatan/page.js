@@ -54,6 +54,7 @@ import {
   CalendarPlus,
   LayoutGrid,
   CalendarDays,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -103,6 +104,11 @@ const rooms = [
 ];
 
 const officials = [
+  "Rektor",
+  "Wakil Rektor 1",
+  "Wakil Rektor 2",
+  "Wakil Rektor 3",
+  "Wakil Rektor 4",
   "Dekan",
   "Wakil Dekan I",
   "Wakil Dekan II",
@@ -335,15 +341,41 @@ export default function MonitoringKegiatanPage() {
 
   const getStatusBadge = (activity) => {
     if (activity.hasConflict) {
+      // Deteksi konflik tempat dan pejabat
+      const roomConflict = activities.find(
+        (a) =>
+          a.id !== activity.id &&
+          a.tanggal === activity.tanggal &&
+          a.tempat === activity.tempat &&
+          ((a.waktuMulai >= activity.waktuMulai &&
+            a.waktuMulai < activity.waktuSelesai) ||
+            (a.waktuSelesai > activity.waktuMulai &&
+              a.waktuSelesai <= activity.waktuSelesai) ||
+            (a.waktuMulai <= activity.waktuMulai &&
+              a.waktuSelesai >= activity.waktuSelesai))
+      );
+
+      const officialConflict = activities.find(
+        (a) =>
+          a.id !== activity.id &&
+          a.tanggal === activity.tanggal &&
+          a.pejabat.some((p) => activity.pejabat.includes(p)) &&
+          ((a.waktuMulai >= activity.waktuMulai &&
+            a.waktuMulai < activity.waktuSelesai) ||
+            (a.waktuSelesai > activity.waktuMulai &&
+              a.waktuSelesai <= activity.waktuSelesai) ||
+            (a.waktuMulai <= activity.waktuMulai &&
+              a.waktuSelesai >= activity.waktuSelesai))
+      );
+
+      const conflicts = [];
+      if (roomConflict) conflicts.push("Tempat");
+      if (officialConflict) conflicts.push("Pejabat");
+
       return (
         <Badge variant="destructive" className="gap-1">
           <AlertTriangle className="h-3 w-3" />
-          Konflik{" "}
-          {activity.conflictType === "pejabat"
-            ? "Pejabat"
-            : activity.conflictType === "tempat"
-            ? "Tempat"
-            : "Waktu"}
+          Konflik {conflicts.join(" & ")}
         </Badge>
       );
     }
@@ -516,7 +548,7 @@ ${activity.keterangan}`;
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
-            Daftar Agenda
+            Daftar Kegiatan
           </h1>
           <p className="text-muted-foreground">
             Pantau dan kelola agenda kegiatan unit dan program studi untuk
@@ -632,29 +664,6 @@ ${activity.keterangan}`;
                       </Select>
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="prodi">Program Studi</Label>
-                      <Select
-                        value={formData.prodi}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, prodi: value })
-                        }
-                      >
-                        <SelectTrigger id="prodi">
-                          <SelectValue placeholder="Pilih prodi" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="-">Tidak ada</SelectItem>
-                          {prodiList.map((prodi) => (
-                            <SelectItem key={prodi} value={prodi}>
-                              {prodi}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
                     <Label htmlFor="tempat">Tempat *</Label>
                     <Select
                       value={formData.tempat}
@@ -686,6 +695,7 @@ ${activity.keterangan}`;
                         className="mt-2"
                       />
                     )}
+                  </div>
                   </div>
 
                   <div className="grid gap-2">
@@ -843,11 +853,11 @@ ${activity.keterangan}`;
               <TabsList>
                 <TabsTrigger value="table" className="gap-2">
                   <LayoutGrid className="h-4 w-4" />
-                  Tabel
+                  Table
                 </TabsTrigger>
                 <TabsTrigger value="calendar" className="gap-2">
                   <CalendarDays className="h-4 w-4" />
-                  Kalender
+                  Board
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -912,8 +922,8 @@ ${activity.keterangan}`;
                       <TableHead>Tanggal</TableHead>
                       <TableHead>Waktu</TableHead>
                       <TableHead>Nama Kegiatan</TableHead>
-                      <TableHead>Unit</TableHead>
-                      <TableHead>Prodi</TableHead>
+                      <TableHead>Unit / Prodi</TableHead>
+                      {/* <TableHead>Prodi</TableHead> */}
                       <TableHead>Tempat</TableHead>
                       <TableHead>Pejabat</TableHead>
                       <TableHead>Peserta</TableHead>
@@ -971,9 +981,9 @@ ${activity.keterangan}`;
                               <span className="text-sm">{activity.unit}</span>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          {/* <TableCell>
                             <Badge variant="outline">{activity.prodi}</Badge>
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-muted-foreground" />
@@ -1005,15 +1015,43 @@ ${activity.keterangan}`;
                           </TableCell>
                           <TableCell>{getStatusBadge(activity)}</TableCell>
                           <TableCell className="text-center">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => exportToGoogleCalendar(activity)}
-                              className="gap-1"
-                            >
-                              <CalendarPlus className="h-3 w-3" />
-                              Sync
-                            </Button>
+                            <div className="flex items-center justify-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  // Set form data untuk edit
+                                  setFormData({
+                                    namaKegiatan: activity.namaKegiatan,
+                                    tanggal: activity.tanggal,
+                                    waktuMulai: activity.waktuMulai,
+                                    waktuSelesai: activity.waktuSelesai,
+                                    unit: activity.unit,
+                                    prodi: activity.prodi,
+                                    tempat: activity.tempat === "Lainnya" ? "Lainnya" : activity.tempat,
+                                    tempatLainnya: activity.tempat === "Lainnya" ? "" : "",
+                                    pejabat: activity.pejabat,
+                                    jumlahPeserta: activity.jumlahPeserta,
+                                    keterangan: activity.keterangan,
+                                  });
+                                  setIsDialogOpen(true);
+                                  toast.info("Mode edit kegiatan");
+                                }}
+                                className="gap-1"
+                              >
+                                <Pencil className="h-3 w-3" />
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => exportToGoogleCalendar(activity)}
+                                className="gap-1"
+                              >
+                                <CalendarPlus className="h-3 w-3" />
+                                Sync
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
@@ -1180,7 +1218,7 @@ ${activity.keterangan}`;
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <MapPin className="h-4 w-4" />
-              Tempat Tersibuk
+              Penggunaan Tempat
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -1232,7 +1270,7 @@ ${activity.keterangan}`;
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <UserCheck className="h-4 w-4" />
-              Pejabat Tersibuk
+              Kegiatan Pejabat
             </CardTitle>
           </CardHeader>
           <CardContent>

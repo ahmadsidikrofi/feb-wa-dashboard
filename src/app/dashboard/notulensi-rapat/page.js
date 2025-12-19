@@ -49,10 +49,22 @@ import {
   Download,
   Plus,
   TrendingUp,
+  FileEdit,
+  Settings,
+  MoreHorizontal,
+  Edit,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Dummy data for meetings
 const dummyMeetings = [
@@ -160,6 +172,9 @@ export default function NotulensiRapatPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [formData, setFormData] = useState({
     judulRapat: "",
     tanggal: "",
@@ -304,6 +319,30 @@ export default function NotulensiRapatPage() {
 
   const handleCreateNotulensi = () => {
     router.push("/dashboard/notulensi-rapat/buat");
+  };
+
+  const handleEditMeeting = (meeting) => {
+    setSelectedMeeting(meeting);
+    setFormData({
+      judulRapat: meeting.judulRapat,
+      tanggal: meeting.tanggal,
+      waktuMulai: meeting.waktu.split(" - ")[0],
+      waktuSelesai: meeting.waktu.split(" - ")[1],
+      tempat: meeting.tempat,
+      tempatLainnya: "",
+      pemimpin: meeting.pemimpin,
+      notulen: meeting.notulen,
+      keterangan: "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateStatus = (meeting, newStatus) => {
+    const updatedMeetings = meetings.map((m) =>
+      m.id === meeting.id ? { ...m, status: newStatus } : m
+    );
+    setMeetings(updatedMeetings);
+    toast.success(`Status rapat diubah menjadi ${newStatus}`);
   };
 
   const handleSubmit = (e) => {
@@ -765,28 +804,70 @@ export default function NotulensiRapatPage() {
                       </TableCell>
                       <TableCell>{getStatusBadge(meeting.status)}</TableCell>
                       <TableCell className="text-center">
-                        {meeting.hasNotulensi ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleViewNotulensi(meeting.id)}
-                            className="gap-1"
-                          >
-                            <Eye className="h-3 w-3" />
-                            Lihat
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleCreateNotulensi}
-                            className="gap-1"
-                            disabled={meeting.status === "Terjadwal"}
-                          >
-                            <FileText className="h-3 w-3" />
-                            Buat
-                          </Button>
-                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Kelola Rapat</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            
+                            {/* Ubah Status */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                  <Settings className="h-4 w-4 mr-2" />
+                                  Ubah Status
+                                </DropdownMenuItem>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent side="left">
+                                <DropdownMenuItem
+                                  onClick={() => handleUpdateStatus(meeting, "Terjadwal")}
+                                >
+                                  Terjadwal
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleUpdateStatus(meeting, "Berlangsung")}
+                                >
+                                  Berlangsung
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleUpdateStatus(meeting, "Selesai")}
+                                >
+                                  Selesai
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {/* Edit Rapat */}
+                            <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Rapat
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            {/* Buat/Lihat Notulen */}
+                            {meeting.hasNotulensi ? (
+                              <DropdownMenuItem
+                                onClick={() => handleViewNotulensi(meeting.id)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Lihat Notulen
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={handleCreateNotulensi}
+                                disabled={meeting.status === "Terjadwal"}
+                              >
+                                <FileEdit className="h-4 w-4 mr-2" />
+                                Buat Notulen
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))

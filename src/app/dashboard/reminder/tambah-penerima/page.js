@@ -10,7 +10,6 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import axios from 'axios';
 import { toast } from 'sonner';
 import ContactTable from '@/components/Contact/contact-table';
 
@@ -29,29 +28,23 @@ export const contactSchema = z.object({
 function TambahPenerimaPage() {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [contacts, setContacts] = useState([])
+  
+  // Data dummy kontak
+  const dummyContacts = [
+    { id: 1, name: "Prof. Dr. Budiman", phoneNumber: "6281234567890@c.us", notes: "Dekan FEB", title: "Dekan" },
+    { id: 2, name: "Dr. Siti Nurhaliza", phoneNumber: "6281234567891@c.us", notes: "Wadek I", title: "Wakil Dekan I" },
+    { id: 3, name: "Ahmad Susanto, M.M.", phoneNumber: "6281234567892@c.us", notes: "Wadek II", title: "Wakil Dekan II" },
+    { id: 4, name: "Dr. Lina Marlina", phoneNumber: "6281234567893@c.us", notes: "Kepala Prodi S1 Manajemen", title: "Kaprodi" },
+    { id: 5, name: "Prof. Dr. Eko Prasetyo", phoneNumber: "6281234567894@c.us", notes: "Kepala Prodi S2 Manajemen", title: "Kaprodi" },
+  ]
+  
+  const [contacts, setContacts] = useState(dummyContacts)
 
-  const getContacts = async () => {
-    setIsLoading(true)
-      try {
-          const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
-              headers: {
-                  "ngrok-skip-browser-warning": true,
-              },
-          })
-          const data = res.data
-          if (Array.isArray(data)) {
-              setContacts(data)
-          } else {
-              console.warn("Unexpected API response:", data)
-              setContacts([])
-          }
-      } catch (err) {
-          console.error("Gagal fetch contacts:", err)
-          setContacts([])
-      }
-    finally {
-      setIsLoading(false)
+  const getContacts = () => {
+    // Ambil dari localStorage
+    if (typeof window !== 'undefined') {
+      const storedContacts = JSON.parse(localStorage.getItem('reminderContacts') || '[]');
+      setContacts([...dummyContacts, ...storedContacts]);
     }
   }
 
@@ -71,18 +64,34 @@ function TambahPenerimaPage() {
     
     try {
       setIsLoading(true)
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
-        name: values.name,
-        phoneNumber: formattedPhoneNumber,
-        notes: values.notes,
-        title: values.title
-      }, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const data = res.data
-      if (res.status === 201 || data.id) {
+      
+      // Simpan ke localStorage
+      if (typeof window !== 'undefined') {
+        const storedContacts = JSON.parse(localStorage.getItem('reminderContacts') || '[]');
+        
+        // Cek duplikasi
+        const isDuplicate = storedContacts.some(contact => contact.phoneNumber === formattedPhoneNumber) ||
+                           dummyContacts.some(contact => contact.phoneNumber === formattedPhoneNumber);
+        
+        if (isDuplicate) {
+          toast.error("Kontak dengan nomor telepon ini sudah ada.", {
+            style: { background: "#fee2e2", color: "#991b1b" },
+            className: "border border-red-500"
+          })
+          return;
+        }
+        
+        const newContact = {
+          id: Date.now(),
+          name: values.name,
+          phoneNumber: formattedPhoneNumber,
+          notes: values.notes,
+          title: values.title
+        };
+        
+        storedContacts.push(newContact);
+        localStorage.setItem('reminderContacts', JSON.stringify(storedContacts));
+        
         getContacts()
         form.reset()
         setOpen(false)
@@ -90,25 +99,13 @@ function TambahPenerimaPage() {
           style: { background: "#059669", color: "#d1fae5" },
           className: "border border-emerald-500"
         })
-      } else {
-        toast.error("Kontak gagal ditambahkan", {
-          style: { background: "#fee2e2", color: "#991b1b" },
-          className: "border border-red-500"
-        })
       }
     } catch (error) {
       console.log("Error creating contact:", error)
-      if (error.response?.data?.message?.includes("Unique constraint failed on the fields: (`phone_number`)")) {
-        toast.error("Kontak dengan nomor telepon ini sudah ada.", {
-          style: { background: "#fee2e2", color: "#991b1b" },
-          className: "border border-red-500"
-        })
-      } else {
-        toast.error(error.response?.data?.message || "Kontak gagal ditambahkan", {
-          style: { background: "#fee2e2", color: "#991b1b" },
-          className: "border border-red-500"
-        })
-      }
+      toast.error("Kontak gagal ditambahkan", {
+        style: { background: "#fee2e2", color: "#991b1b" },
+        className: "border border-red-500"
+      })
     } finally {
       setIsLoading(false)
     }
