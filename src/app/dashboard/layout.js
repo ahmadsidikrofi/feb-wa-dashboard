@@ -78,14 +78,6 @@ const navigation = [
     icon: Newspaper,
   },
   {
-<<<<<<< HEAD
-    name: "Laporan Manajemen",
-    href: "/dashboard/laporan-manajemen",
-    icon: Newspaper,
-  },
-  {
-=======
->>>>>>> a5984b96d65ac044b05a78e0a8e64d83f526195e
     name: "Akreditasi LAMEMBA",
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
