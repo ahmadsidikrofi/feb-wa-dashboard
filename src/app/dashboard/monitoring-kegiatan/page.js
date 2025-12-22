@@ -54,6 +54,7 @@ import {
   CalendarPlus,
   LayoutGrid,
   CalendarDays,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -296,6 +297,7 @@ export default function MonitoringKegiatanPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState("table");
+  const [editingId, setEditingId] = useState(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -365,27 +367,45 @@ export default function MonitoringKegiatanPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check for conflicts
-    const conflicts = detectConflicts(formData);
+    // Check for conflicts (exclude current activity if editing)
+    const conflicts = detectConflicts(formData, editingId);
 
-    const newActivity = {
-      id: activities.length + 1,
+    const activityData = {
       ...formData,
       status: "Terjadwal",
       hasConflict: conflicts.hasConflict,
       conflictType: conflicts.type,
     };
 
-    setActivities([newActivity, ...activities]);
-    setIsDialogOpen(false);
-
-    if (conflicts.hasConflict) {
-      toast.warning("Kegiatan ditambahkan dengan konflik", {
-        description: conflicts.message,
-      });
+    if (editingId) {
+      // Update existing activity
+      setActivities(
+        activities.map((activity) =>
+          activity.id === editingId
+            ? { ...activity, ...activityData, tempat: undefined } // Normalize: use ruangan only
+            : activity
+        )
+      );
+      toast.success("Kegiatan berhasil diupdate");
     } else {
-      toast.success("Kegiatan berhasil ditambahkan");
+      // Add new activity
+      const newActivity = {
+        id: activities.length + 1,
+        ...activityData,
+      };
+      setActivities([newActivity, ...activities]);
+      
+      if (conflicts.hasConflict) {
+        toast.warning("Kegiatan ditambahkan dengan konflik", {
+          description: conflicts.message,
+        });
+      } else {
+        toast.success("Kegiatan berhasil ditambahkan");
+      }
     }
+
+    setIsDialogOpen(false);
+    setEditingId(null);
 
     // Reset form
     setFormData({
@@ -407,10 +427,12 @@ export default function MonitoringKegiatanPage() {
     const startDateTime = `${activity.tanggal}T${activity.waktuMulai}:00`;
     const endDateTime = `${activity.tanggal}T${activity.waktuSelesai}:00`;
 
+    const ruangan = activity.ruangan || activity.tempat || "";
+    
     const details = `
 Unit: ${activity.unit}
 Prodi: ${activity.prodi}
-Ruangan: ${activity.ruangan}
+Ruangan: ${ruangan}
 Pejabat: ${activity.pejabat.join(", ")}
 Jumlah Peserta: ${activity.jumlahPeserta}
 
@@ -422,7 +444,7 @@ ${activity.keterangan}`;
       /[-:]/g,
       ""
     )}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(
-      activity.ruangan
+      ruangan
     )}`;
 
     window.open(googleCalendarUrl, "_blank");
@@ -453,12 +475,17 @@ ${activity.keterangan}`;
     });
   };
 
-  const detectConflicts = (newActivity) => {
+  const detectConflicts = (newActivity, excludeId = null) => {
+    // Filter out the activity being edited from conflict detection
+    const activitiesToCheck = excludeId
+      ? activities.filter((a) => a.id !== excludeId)
+      : activities;
+
     // Check for room conflicts
-    const roomConflict = activities.find(
+    const roomConflict = activitiesToCheck.find(
       (a) =>
         a.tanggal === newActivity.tanggal &&
-        a.ruangan === newActivity.ruangan &&
+        (a.ruangan === newActivity.ruangan || a.tempat === newActivity.ruangan) &&
         ((newActivity.waktuMulai >= a.waktuMulai &&
           newActivity.waktuMulai < a.waktuSelesai) ||
           (newActivity.waktuSelesai > a.waktuMulai &&
@@ -474,7 +501,7 @@ ${activity.keterangan}`;
     }
 
     // Check for official conflicts
-    const officialConflict = activities.find((a) => {
+    const officialConflict = activitiesToCheck.find((a) => {
       if (a.tanggal !== newActivity.tanggal) return false;
 
       const timeOverlap =
@@ -535,10 +562,13 @@ ${activity.keterangan}`;
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Tambah Kegiatan Baru</DialogTitle>
+                <DialogTitle>
+                  {editingId ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}
+                </DialogTitle>
                 <DialogDescription>
-                  Isi form di bawah untuk menambahkan kegiatan. Sistem akan
-                  mendeteksi konflik otomatis.
+                  {editingId
+                    ? "Edit informasi kegiatan di bawah. Sistem akan mendeteksi konflik otomatis."
+                    : "Isi form di bawah untuk menambahkan kegiatan. Sistem akan mendeteksi konflik otomatis."}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -738,7 +768,22 @@ ${activity.keterangan}`;
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                      setEditingId(null);
+                      setFormData({
+                        namaKegiatan: "",
+                        tanggal: "",
+                        waktuMulai: "",
+                        waktuSelesai: "",
+                        unit: "",
+                        prodi: "",
+                        ruangan: "",
+                        pejabat: [],
+                        jumlahPeserta: "",
+                        keterangan: "",
+                      });
+                    }}
                   >
                     Batal
                   </Button>
@@ -746,7 +791,7 @@ ${activity.keterangan}`;
                     type="submit"
                     className="bg-[#e31e25] hover:bg-[#c41a20]"
                   >
-                    Simpan Kegiatan
+                    {editingId ? "Update Kegiatan" : "Simpan Kegiatan"}
                   </Button>
                 </DialogFooter>
               </form>
@@ -960,7 +1005,7 @@ ${activity.keterangan}`;
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-muted-foreground" />
                               <span className="text-sm">
-                                {activity.ruangan}
+                                {activity.ruangan || activity.tempat}
                               </span>
                             </div>
                           </TableCell>
@@ -987,15 +1032,42 @@ ${activity.keterangan}`;
                           </TableCell>
                           <TableCell>{getStatusBadge(activity)}</TableCell>
                           <TableCell className="text-center">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => exportToGoogleCalendar(activity)}
-                              className="gap-1"
-                            >
-                              <CalendarPlus className="h-3 w-3" />
-                              Sync
-                            </Button>
+                            <div className="flex items-center justify-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  // Set form data untuk edit
+                                  setFormData({
+                                    namaKegiatan: activity.namaKegiatan,
+                                    tanggal: activity.tanggal,
+                                    waktuMulai: activity.waktuMulai,
+                                    waktuSelesai: activity.waktuSelesai,
+                                    unit: activity.unit,
+                                    prodi: activity.prodi,
+                                    ruangan: activity.tempat || activity.ruangan,
+                                    pejabat: activity.pejabat,
+                                    jumlahPeserta: activity.jumlahPeserta,
+                                    keterangan: activity.keterangan,
+                                  });
+                                  setEditingId(activity.id);
+                                  setIsDialogOpen(true);
+                                }}
+                                className="gap-1"
+                              >
+                                <Pencil className="h-3 w-3" />
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => exportToGoogleCalendar(activity)}
+                                className="gap-1"
+                              >
+                                <CalendarPlus className="h-3 w-3" />
+                                Sync
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
@@ -1097,7 +1169,7 @@ ${activity.keterangan}`;
                               </div>
                               <div className="flex items-center gap-2 text-sm">
                                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                                <span>{activity.ruangan}</span>
+                                <span>{activity.ruangan || activity.tempat}</span>
                               </div>
                               <div className="flex items-center gap-2 text-sm">
                                 <Building2 className="h-4 w-4 text-muted-foreground" />
