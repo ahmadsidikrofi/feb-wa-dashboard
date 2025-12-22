@@ -109,7 +109,7 @@ const navigation = [
   },
   {
     name: "Laporan Manajemen",
-    href: "/dashboard/laporan-manajemen",
+    href: "/dashboard/laporan-management",
     icon: Newspaper,
   },
   {

@@ -336,6 +336,77 @@ export default function LaporanManagementPage() {
         </Card>
       </div>
 
+            {/* Progress Summary */}
+            <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Progress TW 1
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {Math.round((completedTW1 / totalIndicators) * 100)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {completedTW1} dari {totalIndicators} indikator
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Progress TW 2
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {Math.round((completedTW2 / totalIndicators) * 100)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {completedTW2} dari {totalIndicators} indikator
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Progress TW 3
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {Math.round((completedTW3 / totalIndicators) * 100)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {completedTW3} dari {totalIndicators} indikator
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Progress TW 4
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {Math.round((completedTW4 / totalIndicators) * 100)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {completedTW4} dari {totalIndicators} indikator
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Search */}
       <Card>
         <CardContent className="pt-6">
@@ -461,77 +532,6 @@ export default function LaporanManagementPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Progress Summary */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Progress TW 1
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {Math.round((completedTW1 / totalIndicators) * 100)}%
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {completedTW1} dari {totalIndicators} indikator
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Progress TW 2
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {Math.round((completedTW2 / totalIndicators) * 100)}%
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {completedTW2} dari {totalIndicators} indikator
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Progress TW 3
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {Math.round((completedTW3 / totalIndicators) * 100)}%
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {completedTW3} dari {totalIndicators} indikator
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Progress TW 4
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {Math.round((completedTW4 / totalIndicators) * 100)}%
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {completedTW4} dari {totalIndicators} indikator
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

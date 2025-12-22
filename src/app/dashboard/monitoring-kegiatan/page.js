@@ -93,17 +93,21 @@ const prodiList = [
 ];
 
 const rooms = [
-  "Aula Utama",
-  "Ruang Sidang 1",
-  "Ruang Sidang 2",
-  "Ruang Seminar A",
-  "Ruang Seminar B",
-  "Lab Komputer 1",
-  "Lab Komputer 2",
-  "Auditorium",
+  "Ruang Rapat Manterawu lt. 2",
+  "Ruang Rapat Miossu lt. 1",
+  "Ruang Rapat Miossu lt. 2",
+  "Ruang Rapat Maratua lt. 1",
+  "Aula FEB",
+  "Aula Manterawu",
+  "Lainnya",
 ];
 
 const officials = [
+  "Rektor",
+  "Wakil Rektor 1",
+  "Wakil Rektor 2",
+  "Wakil Rektor 3",
+  "Wakil Rektor 4",
   "Dekan",
   "Wakil Dekan I",
   "Wakil Dekan II",
@@ -134,7 +138,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Dekan",
     prodi: "S1 Bisnis Digital",
-    ruangan: "Aula Utama",
+    tempat: "Aula FEB",
     pejabat: ["Dekan", "Wakil Dekan I"],
     jumlahPeserta: 200,
     status: "Terjadwal",
@@ -149,7 +153,7 @@ const dummyActivities = [
     waktuSelesai: "11:00",
     unit: "Wakil Dekan I",
     prodi: "S1 Akuntansi",
-    ruangan: "Ruang Seminar A",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pejabat: ["Wakil Dekan I", "Kaprodi S1 Akuntansi"],
     jumlahPeserta: 50,
     status: "Terjadwal",
@@ -165,7 +169,7 @@ const dummyActivities = [
     waktuSelesai: "15:00",
     unit: "Wakil Dekan I",
     prodi: "S1 Manajemen",
-    ruangan: "Ruang Sidang 1",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pejabat: ["Wakil Dekan I", "Kaprodi S1 Manajemen"],
     jumlahPeserta: 15,
     status: "Terjadwal",
@@ -180,7 +184,7 @@ const dummyActivities = [
     waktuSelesai: "16:00",
     unit: "Prodi S2 Manajemen",
     prodi: "S2 Manajemen",
-    ruangan: "Lab Komputer 1",
+    tempat: "Ruang Rapat Miossu lt. 2",
     pejabat: ["Kaprodi S2 Manajemen"],
     jumlahPeserta: 30,
     status: "Terjadwal",
@@ -195,7 +199,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Urusan Layanan Akademik",
     prodi: "S1 Akuntansi",
-    ruangan: "Ruang Sidang 2",
+    tempat: "Ruang Rapat Maratua lt. 1",
     pejabat: ["Kaprodi S1 Akuntansi"],
     jumlahPeserta: 10,
     status: "Terjadwal",
@@ -210,7 +214,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Dekan",
     prodi: "-",
-    ruangan: "Auditorium",
+    tempat: "Aula Manterawu",
     pejabat: [
       "Dekan",
       "Wakil Dekan I",
@@ -230,7 +234,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Prodi S1 Administrasi Bisnis",
     prodi: "S1 Administrasi Bisnis",
-    ruangan: "Ruang Seminar B",
+    tempat: "Ruang Rapat Manterawu lt. 2",
     pejabat: ["Kaprodi S1 Administrasi Bisnis"],
     jumlahPeserta: 25,
     status: "Terjadwal",
@@ -246,7 +250,7 @@ const dummyActivities = [
     waktuSelesai: "15:00",
     unit: "Urusan Kemahasiswaan",
     prodi: "-",
-    ruangan: "Aula Utama",
+    tempat: "Aula FEB",
     pejabat: ["Kaur Kemahasiswaan"],
     jumlahPeserta: 100,
     status: "Terjadwal",
@@ -261,7 +265,7 @@ const dummyActivities = [
     waktuSelesai: "15:00",
     unit: "Prodi S1 Leisure Management",
     prodi: "S1 Leisure Management",
-    ruangan: "Ruang Seminar A",
+    tempat: "Ruang Rapat Miossu lt. 1",
     pejabat: ["Kaprodi S1 Leisure Management"],
     jumlahPeserta: 45,
     status: "Terjadwal",
@@ -276,7 +280,7 @@ const dummyActivities = [
     waktuSelesai: "12:00",
     unit: "Urusan Laboratorium",
     prodi: "-",
-    ruangan: "Lab Komputer 2",
+    tempat: "Ruang Rapat Miossu lt. 2",
     pejabat: ["Kaur Laboratorium"],
     jumlahPeserta: 8,
     status: "Terjadwal",
@@ -913,7 +917,7 @@ ${activity.keterangan}`;
                       filteredActivities.map((activity) => (
                         <TableRow
                           key={activity.id}
-                          className={activity.hasConflict ? "bg-red-50" : ""}
+                          className={activity.hasConflict ? "bg-red-50 dark:bg-red-800" : ""}
                         >
                           <TableCell className="font-medium">
                             {new Date(activity.tanggal).toLocaleDateString(
