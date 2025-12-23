@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -10,34 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Calendar,
   AlertTriangle,
@@ -57,6 +31,10 @@ import {
   Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
+import TableActivityMonitoring from "@/components/ActivityMonitoring/table-activity-monitoring";
+import { useDebounce } from "@/hooks/use-debounce";
+import AddActivity from "@/components/ActivityMonitoring/add-activity";
+import { formatCamelCaseLabel } from "@/lib/utils";
 
 // Data dummy untuk unit dan prodi
 const units = [
@@ -127,179 +105,27 @@ const officials = [
   "Kaprodi S2 Administrasi Bisnis",
   "Kaprodi S2 Akuntansi",
   "Kaprodi S3 Manajemen",
-];
-
-// Data dummy kegiatan
-const dummyActivities = [
-  {
-    id: 1,
-    namaKegiatan: "Seminar Nasional Bisnis Digital",
-    tanggal: "2025-01-15",
-    waktuMulai: "08:00",
-    waktuSelesai: "12:00",
-    unit: "Dekan",
-    prodi: "S1 Bisnis Digital",
-    tempat: "Aula FEB",
-    pejabat: ["Dekan", "Wakil Dekan I"],
-    jumlahPeserta: 200,
-    status: "Terjadwal",
-    keterangan: "Tema: Transformasi Digital Indonesia",
-    hasConflict: false,
-  },
-  {
-    id: 2,
-    namaKegiatan: "Workshop Akuntansi Forensik",
-    tanggal: "2025-01-15",
-    waktuMulai: "09:00",
-    waktuSelesai: "11:00",
-    unit: "Wakil Dekan I",
-    prodi: "S1 Akuntansi",
-    tempat: "Ruang Rapat Manterawu lt. 2",
-    pejabat: ["Wakil Dekan I", "Kaprodi S1 Akuntansi"],
-    jumlahPeserta: 50,
-    status: "Terjadwal",
-    keterangan: "Pembicara: Prof. Ahmad",
-    hasConflict: true,
-    conflictType: "pejabat",
-  },
-  {
-    id: 3,
-    namaKegiatan: "Rapat Koordinasi Kurikulum",
-    tanggal: "2025-01-16",
-    waktuMulai: "13:00",
-    waktuSelesai: "15:00",
-    unit: "Wakil Dekan I",
-    prodi: "S1 Manajemen",
-    tempat: "Ruang Rapat Miossu lt. 1",
-    pejabat: ["Wakil Dekan I", "Kaprodi S1 Manajemen"],
-    jumlahPeserta: 15,
-    status: "Terjadwal",
-    keterangan: "Review kurikulum semester genap",
-    hasConflict: false,
-  },
-  {
-    id: 4,
-    namaKegiatan: "Pelatihan Penelitian",
-    tanggal: "2025-01-17",
-    waktuMulai: "08:00",
-    waktuSelesai: "16:00",
-    unit: "Prodi S2 Manajemen",
-    prodi: "S2 Manajemen",
-    tempat: "Ruang Rapat Miossu lt. 2",
-    pejabat: ["Kaprodi S2 Manajemen"],
-    jumlahPeserta: 30,
-    status: "Terjadwal",
-    keterangan: "Pelatihan SPSS dan Stata",
-    hasConflict: false,
-  },
-  {
-    id: 5,
-    namaKegiatan: "Sidang Skripsi Gelombang 1",
-    tanggal: "2025-01-17",
-    waktuMulai: "08:00",
-    waktuSelesai: "12:00",
-    unit: "Urusan Layanan Akademik",
-    prodi: "S1 Akuntansi",
-    tempat: "Ruang Rapat Maratua lt. 1",
-    pejabat: ["Kaprodi S1 Akuntansi"],
-    jumlahPeserta: 10,
-    status: "Terjadwal",
-    keterangan: "10 mahasiswa",
-    hasConflict: false,
-  },
-  {
-    id: 6,
-    namaKegiatan: "Yudisium Fakultas",
-    tanggal: "2025-01-20",
-    waktuMulai: "09:00",
-    waktuSelesai: "12:00",
-    unit: "Dekan",
-    prodi: "-",
-    tempat: "Aula Manterawu",
-    pejabat: [
-      "Dekan",
-      "Wakil Dekan I",
-      "Wakil Dekan II",
-      "Kaur Sekretariat Dekan",
-    ],
-    jumlahPeserta: 150,
-    status: "Terjadwal",
-    keterangan: "Wisuda periode Januari 2025",
-    hasConflict: false,
-  },
-  {
-    id: 7,
-    namaKegiatan: "Focus Group Discussion Tracer Study",
-    tanggal: "2025-01-20",
-    waktuMulai: "10:00",
-    waktuSelesai: "12:00",
-    unit: "Prodi S1 Administrasi Bisnis",
-    prodi: "S1 Administrasi Bisnis",
-    tempat: "Ruang Rapat Manterawu lt. 2",
-    pejabat: ["Kaprodi S1 Administrasi Bisnis"],
-    jumlahPeserta: 25,
-    status: "Terjadwal",
-    keterangan: "FGD Tracer Study",
-    hasConflict: true,
-    conflictType: "waktu",
-  },
-  {
-    id: 8,
-    namaKegiatan: "Sosialisasi Beasiswa",
-    tanggal: "2025-01-22",
-    waktuMulai: "13:00",
-    waktuSelesai: "15:00",
-    unit: "Urusan Kemahasiswaan",
-    prodi: "-",
-    tempat: "Aula FEB",
-    pejabat: ["Kaur Kemahasiswaan"],
-    jumlahPeserta: 100,
-    status: "Terjadwal",
-    keterangan: "Beasiswa tahun 2025",
-    hasConflict: false,
-  },
-  {
-    id: 9,
-    namaKegiatan: "Workshop Leisure Management Industry",
-    tanggal: "2025-01-23",
-    waktuMulai: "09:00",
-    waktuSelesai: "15:00",
-    unit: "Prodi S1 Leisure Management",
-    prodi: "S1 Leisure Management",
-    tempat: "Ruang Rapat Miossu lt. 1",
-    pejabat: ["Kaprodi S1 Leisure Management"],
-    jumlahPeserta: 45,
-    status: "Terjadwal",
-    keterangan: "Kolaborasi dengan industri pariwisata",
-    hasConflict: false,
-  },
-  {
-    id: 10,
-    namaKegiatan: "Rapat Evaluasi Lab",
-    tanggal: "2025-01-24",
-    waktuMulai: "10:00",
-    waktuSelesai: "12:00",
-    unit: "Urusan Laboratorium",
-    prodi: "-",
-    tempat: "Ruang Rapat Miossu lt. 2",
-    pejabat: ["Kaur Laboratorium"],
-    jumlahPeserta: 8,
-    status: "Terjadwal",
-    keterangan: "Evaluasi fasilitas dan peralatan",
-    hasConflict: false,
-  },
-];
+]
 
 export default function MonitoringKegiatanPage() {
-  const [activities, setActivities] = useState(dummyActivities);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterUnit, setFilterUnit] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("table");
-  const [editingId, setEditingId] = useState(null);
+  const [activities, setActivities] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const debounceSearch = useDebounce(searchQuery, 500)
+  const [filterUnit, setFilterUnit] = useState("all")
+  const [filterStatus, setFilterStatus] = useState("all")
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [viewMode, setViewMode] = useState("table")
+  const [editingId, setEditingId] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState({
+    totalItems: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 10
+  })
+  const pageSize = 10
 
-  // Form state
   const [formData, setFormData] = useState({
     namaKegiatan: "",
     tanggal: "",
@@ -311,33 +137,100 @@ export default function MonitoringKegiatanPage() {
     pejabat: [],
     jumlahPeserta: "",
     keterangan: "",
-  });
+  })
+
+  const mapApiDataToComponent = (apiData) => {
+    return apiData.map((item) => {
+      const date = new Date(item.date)
+      const startTime = new Date(item.startTime)
+      const endTime = new Date(item.endTime)
+      
+      return {
+        id: item.id,
+        namaKegiatan: item.title,
+        keterangan: item.description,
+        tanggal: date.toISOString().split("T")[0],
+        waktuMulai: startTime.toTimeString().slice(0, 5),
+        waktuSelesai: endTime.toTimeString().slice(0, 5),
+        unit: formatCamelCaseLabel(item.unit),
+        prodi: formatCamelCaseLabel(item.prodi),
+        ruangan: formatCamelCaseLabel(item.room),
+        tempat: formatCamelCaseLabel(item.room),
+        pejabat: (item.officials || []).map(formatCamelCaseLabel),
+        jumlahPeserta: item.participants || 0,
+        status: item.status || "Terjadwal",
+        hasConflict: item.status !== "Normal",
+        conflictType: item.status !== "Normal" ? "waktu" : null,
+      }
+    })
+  }
+
+  const fetchActivities = useCallback(async (page = 1) => {
+    try {
+      setIsLoading(true)
+      
+      const params = {
+        page,
+        limit: pageSize,
+        search: debounceSearch || "",
+        unit: filterUnit !== "all" ? filterUnit : undefined,
+        status: filterStatus !== "all" ? filterStatus : undefined,
+      }
+
+      // Remove undefined params
+      Object.keys(params).forEach(key => params[key] === undefined && delete params[key])
+
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring`,
+        {
+          params,
+          headers: {
+            "ngrok-skip-browser-warning": true,
+          },
+        }
+      )
+
+      if (res.data?.success) {
+        const mappedData = mapApiDataToComponent(res.data.data || [])
+        setActivities(mappedData)
+
+        if (res.data.pagination) {
+          setPagination(res.data.pagination)
+          setCurrentPage(res.data.pagination.currentPage)
+        }
+      }
+    } catch (err) {
+      console.error("Gagal fetch data:", err)
+      toast.error("Gagal memuat data kegiatan")
+      setActivities([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [debounceSearch, filterUnit, filterStatus, pageSize])
+
+  useEffect(() => {
+    setCurrentPage(1)
+    fetchActivities(1)
+  }, [debounceSearch, filterUnit, filterStatus])
+
+  // Fetch data when page changes
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+    fetchActivities(page)
+  }
 
   // Stats calculation
-  const totalActivities = activities.length;
+  const totalActivities = pagination.totalItems || 0
   const upcomingActivities = activities.filter(
     (a) => new Date(a.tanggal) >= new Date()
-  ).length;
-  const conflictActivities = activities.filter((a) => a.hasConflict).length;
+  ).length
+  const conflictActivities = activities.filter((a) => a.hasConflict).length
   const todayActivities = activities.filter((a) => {
-    const today = new Date().toISOString().split("T")[0];
-    return a.tanggal === today;
-  }).length;
+    const today = new Date().toISOString().split("T")[0]
+    return a.tanggal === today
+  }).length
 
-  // Filter activities
-  const filteredActivities = activities.filter((activity) => {
-    const matchesSearch =
-      activity.namaKegiatan.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.unit.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.prodi.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesUnit = filterUnit === "all" || activity.unit === filterUnit;
-    const matchesStatus =
-      filterStatus === "all" ||
-      (filterStatus === "conflict" && activity.hasConflict) ||
-      (filterStatus === "normal" && !activity.hasConflict);
-
-    return matchesSearch && matchesUnit && matchesStatus;
-  });
+  const filteredActivities = activities
 
   const getStatusBadge = (activity) => {
     if (activity.hasConflict) {
@@ -351,7 +244,7 @@ export default function MonitoringKegiatanPage() {
             ? "Ruangan"
             : "Waktu"}
         </Badge>
-      );
+      )
     }
     return (
       <Badge
@@ -378,17 +271,15 @@ export default function MonitoringKegiatanPage() {
     };
 
     if (editingId) {
-      // Update existing activity
       setActivities(
         activities.map((activity) =>
           activity.id === editingId
-            ? { ...activity, ...activityData, tempat: undefined } // Normalize: use ruangan only
+            ? { ...activity, ...activityData, tempat: undefined }
             : activity
         )
       );
       toast.success("Kegiatan berhasil diupdate");
     } else {
-      // Add new activity
       const newActivity = {
         id: activities.length + 1,
         ...activityData,
@@ -407,7 +298,6 @@ export default function MonitoringKegiatanPage() {
     setIsDialogOpen(false);
     setEditingId(null);
 
-    // Reset form
     setFormData({
       namaKegiatan: "",
       tanggal: "",
@@ -420,7 +310,10 @@ export default function MonitoringKegiatanPage() {
       jumlahPeserta: "",
       keterangan: "",
     });
-  };
+
+    // Refresh data from API
+    fetchActivities(currentPage);
+  }
 
   // Function to export to Google Calendar
   const exportToGoogleCalendar = (activity) => {
@@ -497,7 +390,7 @@ ${activity.keterangan}`;
         hasConflict: true,
         type: "ruangan",
         message: `Ruangan ${newActivity.ruangan} sudah digunakan untuk "${roomConflict.namaKegiatan}"`,
-      };
+      }
     }
 
     // Check for official conflicts
@@ -553,250 +446,20 @@ ${activity.keterangan}`;
             <CalendarPlus className="h-4 w-4" />
             Export ke Google Calendar
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#e31e25] hover:bg-[#c41a20]">
-                <Plus className="h-4 w-4 mr-2" />
-                Tambah Kegiatan
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingId ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingId
-                    ? "Edit informasi kegiatan di bawah. Sistem akan mendeteksi konflik otomatis."
-                    : "Isi form di bawah untuk menambahkan kegiatan. Sistem akan mendeteksi konflik otomatis."}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="namaKegiatan">Nama Kegiatan *</Label>
-                    <Input
-                      id="namaKegiatan"
-                      value={formData.namaKegiatan}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          namaKegiatan: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="tanggal">Tanggal *</Label>
-                      <Input
-                        id="tanggal"
-                        type="date"
-                        value={formData.tanggal}
-                        onChange={(e) =>
-                          setFormData({ ...formData, tanggal: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="waktuMulai">Waktu Mulai *</Label>
-                      <Input
-                        id="waktuMulai"
-                        type="time"
-                        value={formData.waktuMulai}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            waktuMulai: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="waktuSelesai">Waktu Selesai *</Label>
-                      <Input
-                        id="waktuSelesai"
-                        type="time"
-                        value={formData.waktuSelesai}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            waktuSelesai: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="unit">Unit Penyelenggara *</Label>
-                      <Select
-                        value={formData.unit}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, unit: value })
-                        }
-                        required
-                      >
-                        <SelectTrigger id="unit">
-                          <SelectValue placeholder="Pilih unit" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit} value={unit}>
-                              {unit}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="prodi">Program Studi</Label>
-                      <Select
-                        value={formData.prodi}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, prodi: value })
-                        }
-                      >
-                        <SelectTrigger id="prodi">
-                          <SelectValue placeholder="Pilih prodi" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="-">Tidak ada</SelectItem>
-                          {prodiList.map((prodi) => (
-                            <SelectItem key={prodi} value={prodi}>
-                              {prodi}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="ruangan">Ruangan *</Label>
-                    <Select
-                      value={formData.ruangan}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, ruangan: value })
-                      }
-                      required
-                    >
-                      <SelectTrigger id="ruangan">
-                        <SelectValue placeholder="Pilih ruangan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rooms.map((room) => (
-                          <SelectItem key={room} value={room}>
-                            {room}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label>Pejabat yang Hadir *</Label>
-                    <div className="grid grid-cols-2 gap-2 p-3 border rounded-md max-h-40 overflow-y-auto">
-                      {officials.map((official) => (
-                        <label
-                          key={official}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.pejabat.includes(official)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFormData({
-                                  ...formData,
-                                  pejabat: [...formData.pejabat, official],
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  pejabat: formData.pejabat.filter(
-                                    (p) => p !== official
-                                  ),
-                                });
-                              }
-                            }}
-                            className="rounded"
-                          />
-                          <span className="text-sm">{official}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="jumlahPeserta">Jumlah Peserta</Label>
-                    <Input
-                      id="jumlahPeserta"
-                      type="number"
-                      value={formData.jumlahPeserta}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          jumlahPeserta: e.target.value,
-                        })
-                      }
-                      placeholder="Estimasi jumlah peserta"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="keterangan">Keterangan</Label>
-                    <Textarea
-                      id="keterangan"
-                      value={formData.keterangan}
-                      onChange={(e) =>
-                        setFormData({ ...formData, keterangan: e.target.value })
-                      }
-                      placeholder="Informasi tambahan tentang kegiatan"
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setIsDialogOpen(false);
-                      setEditingId(null);
-                      setFormData({
-                        namaKegiatan: "",
-                        tanggal: "",
-                        waktuMulai: "",
-                        waktuSelesai: "",
-                        unit: "",
-                        prodi: "",
-                        ruangan: "",
-                        pejabat: [],
-                        jumlahPeserta: "",
-                        keterangan: "",
-                      });
-                    }}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-[#e31e25] hover:bg-[#c41a20]"
-                  >
-                    {editingId ? "Update Kegiatan" : "Simpan Kegiatan"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <AddActivity 
+            isDialogOpen={isDialogOpen}
+            setIsDialogOpen={setIsDialogOpen}
+            editingId={editingId}
+            handleSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            units={units}
+            prodiList={prodiList}
+            rooms={rooms}
+            officials={officials}
+            onSuccess={() => fetchActivities(currentPage)}
+          />
         </div>
       </div>
 
@@ -862,371 +525,40 @@ ${activity.keterangan}`;
       </div>
 
       {/* View Toggle and Filters */}
-      <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-4">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Filter & Tampilan</CardTitle>
-              <TabsList>
-                <TabsTrigger value="table" className="gap-2">
-                  <LayoutGrid className="h-4 w-4" />
-                  Tabel
-                </TabsTrigger>
-                <TabsTrigger value="calendar" className="gap-2">
-                  <CalendarDays className="h-4 w-4" />
-                  Kalender
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Cari kegiatan, unit, atau prodi..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Select value={filterUnit} onValueChange={setFilterUnit}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Semua Unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua Unit</SelectItem>
-                    {units.map((unit) => (
-                      <SelectItem key={unit} value={unit}>
-                        {unit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Semua Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua Status</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="conflict">Ada Konflik</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Table View */}
-        <TabsContent value="table" className="mt-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Daftar Kegiatan</CardTitle>
-              <CardDescription>
-                Monitoring kegiatan unit dan program studi dengan deteksi
-                konflik otomatis
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tanggal</TableHead>
-                      <TableHead>Waktu</TableHead>
-                      <TableHead>Nama Kegiatan</TableHead>
-                      <TableHead>Unit</TableHead>
-                      <TableHead>Prodi</TableHead>
-                      <TableHead>Ruangan</TableHead>
-                      <TableHead>Pejabat</TableHead>
-                      <TableHead>Peserta</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-center">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredActivities.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={10}
-                          className="text-center text-muted-foreground py-8"
-                        >
-                          Tidak ada kegiatan ditemukan
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredActivities.map((activity) => (
-                        <TableRow
-                          key={activity.id}
-                          className={activity.hasConflict ? "bg-red-50 dark:bg-red-800" : ""}
-                        >
-                          <TableCell className="font-medium">
-                            {new Date(activity.tanggal).toLocaleDateString(
-                              "id-ID",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1 text-sm">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              {activity.waktuMulai} - {activity.waktuSelesai}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">
-                                {activity.namaKegiatan}
-                              </div>
-                              {activity.keterangan && (
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {activity.keterangan}
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Building2 className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-sm">{activity.unit}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{activity.prodi}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-sm">
-                                {activity.ruangan || activity.tempat}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col gap-1">
-                              {activity.pejabat.map((p, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex items-center gap-1"
-                                >
-                                  <UserCheck className="h-3 w-3 text-muted-foreground" />
-                                  <span className="text-xs">{p}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Users className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-sm">
-                                {activity.jumlahPeserta}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getStatusBadge(activity)}</TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  // Set form data untuk edit
-                                  setFormData({
-                                    namaKegiatan: activity.namaKegiatan,
-                                    tanggal: activity.tanggal,
-                                    waktuMulai: activity.waktuMulai,
-                                    waktuSelesai: activity.waktuSelesai,
-                                    unit: activity.unit,
-                                    prodi: activity.prodi,
-                                    ruangan: activity.tempat || activity.ruangan,
-                                    pejabat: activity.pejabat,
-                                    jumlahPeserta: activity.jumlahPeserta,
-                                    keterangan: activity.keterangan,
-                                  });
-                                  setEditingId(activity.id);
-                                  setIsDialogOpen(true);
-                                }}
-                                className="gap-1"
-                              >
-                                <Pencil className="h-3 w-3" />
-                                Edit
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => exportToGoogleCalendar(activity)}
-                                className="gap-1"
-                              >
-                                <CalendarPlus className="h-3 w-3" />
-                                Sync
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Calendar View */}
-        <TabsContent value="calendar" className="mt-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Kalender Kegiatan</CardTitle>
-              <CardDescription>
-                Tampilan kalender agenda kegiatan fakultas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Group activities by date */}
-                {Object.entries(
-                  filteredActivities.reduce((acc, activity) => {
-                    const date = new Date(activity.tanggal).toLocaleDateString(
-                      "id-ID",
-                      {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    );
-                    if (!acc[date]) acc[date] = [];
-                    acc[date].push(activity);
-                    return acc;
-                  }, {})
-                )
-                  .sort(([dateA], [dateB]) => {
-                    const a = filteredActivities.find(
-                      (act) =>
-                        new Date(act.tanggal).toLocaleDateString("id-ID", {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        }) === dateA
-                    );
-                    const b = filteredActivities.find(
-                      (act) =>
-                        new Date(act.tanggal).toLocaleDateString("id-ID", {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        }) === dateB
-                    );
-                    return new Date(a.tanggal) - new Date(b.tanggal);
-                  })
-                  .map(([date, dayActivities]) => (
-                    <div key={date} className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-[#e31e25] text-white px-3 py-1 rounded-md">
-                          <CalendarDays className="h-4 w-4" />
-                        </div>
-                        <h3 className="font-semibold text-lg">{date}</h3>
-                        <Badge variant="secondary">
-                          {dayActivities.length} kegiatan
-                        </Badge>
-                      </div>
-                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                        {dayActivities.map((activity) => (
-                          <Card
-                            key={activity.id}
-                            className={
-                              activity.hasConflict ? "border-red-500" : ""
-                            }
-                          >
-                            <CardHeader className="pb-3">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <CardTitle className="text-base">
-                                    {activity.namaKegiatan}
-                                  </CardTitle>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    {getStatusBadge(activity)}
-                                  </div>
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
-                              <div className="flex items-center gap-2 text-sm">
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                                <span>
-                                  {activity.waktuMulai} -{" "}
-                                  {activity.waktuSelesai}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <MapPin className="h-4 w-4 text-muted-foreground" />
-                                <span>{activity.ruangan || activity.tempat}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Building2 className="h-4 w-4 text-muted-foreground" />
-                                <span>{activity.unit}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Users className="h-4 w-4 text-muted-foreground" />
-                                <span>{activity.jumlahPeserta} peserta</span>
-                              </div>
-                              {activity.pejabat.length > 0 && (
-                                <div className="pt-2 border-t">
-                                  <p className="text-xs text-muted-foreground mb-1">
-                                    Pejabat:
-                                  </p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {activity.pejabat.map((p, idx) => (
-                                      <Badge
-                                        key={idx}
-                                        variant="outline"
-                                        className="text-xs"
-                                      >
-                                        {p}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              <div className="pt-2 flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    exportToGoogleCalendar(activity)
-                                  }
-                                  className="flex-1 gap-1"
-                                >
-                                  <CalendarPlus className="h-3 w-3" />
-                                  Sync
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                {filteredActivities.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Tidak ada kegiatan ditemukan</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <TableActivityMonitoring 
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filterUnit={filterUnit}
+        setFilterUnit={setFilterUnit}
+        units={units}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filteredActivities={filteredActivities}
+        isLoading={isLoading}
+        pagination={pagination}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        getStatusBadge={getStatusBadge}
+        exportToGoogleCalendar={exportToGoogleCalendar}
+        onEdit={(activity) => {
+          setFormData({
+            namaKegiatan: activity.namaKegiatan,
+            tanggal: activity.tanggal,
+            waktuMulai: activity.waktuMulai,
+            waktuSelesai: activity.waktuSelesai,
+            unit: activity.unit,
+            prodi: activity.prodi,
+            ruangan: activity.ruangan || activity.tempat,
+            pejabat: activity.pejabat,
+            jumlahPeserta: activity.jumlahPeserta,
+            keterangan: activity.keterangan,
+          })
+          setEditingId(activity.id)
+          setIsDialogOpen(true)
+        }}
+      />
 
       {/* Quick Stats by Resource */}
       <div className="grid gap-4 md:grid-cols-3">
