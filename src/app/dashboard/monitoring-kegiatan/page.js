@@ -542,6 +542,7 @@ ${activity.keterangan}`;
         onPageChange={handlePageChange}
         getStatusBadge={getStatusBadge}
         exportToGoogleCalendar={exportToGoogleCalendar}
+        onSuccess={() => fetchActivities(currentPage)}
         onEdit={(activity) => {
           setFormData({
             namaKegiatan: activity.namaKegiatan,
@@ -579,7 +580,7 @@ ${activity.keterangan}`;
                   >
                     <span>{room}</span>
                     <Badge variant="secondary">
-                      {Math.floor(Math.random() * 10) + 5} kegiatan
+                      {2} kegiatan
                     </Badge>
                   </div>
                 )
@@ -605,7 +606,7 @@ ${activity.keterangan}`;
                   >
                     <span>{unit}</span>
                     <Badge variant="secondary">
-                      {Math.floor(Math.random() * 15) + 8} kegiatan
+                      {2} kegiatan
                     </Badge>
                   </div>
                 )
@@ -631,7 +632,7 @@ ${activity.keterangan}`;
                   >
                     <span>{official}</span>
                     <Badge variant="secondary">
-                      {Math.floor(Math.random() * 12) + 6} kegiatan
+                      {2} kegiatan
                     </Badge>
                   </div>
                 )

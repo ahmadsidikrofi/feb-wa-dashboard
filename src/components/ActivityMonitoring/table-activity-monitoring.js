@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, CalendarPlus, LayoutGrid, Search, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, Trash2 } from "lucide-react";
 import { Input } from "../ui/input";
+import DeleteActivity from "./delete-activity";
 
 const formatRangeInfo = (pagination, currentPage) => {
     const total = pagination?.totalItems ?? 0
@@ -69,7 +70,8 @@ const TableActivityMonitoring = ({
     onPageChange,
     getStatusBadge,
     exportToGoogleCalendar,
-    onEdit
+    onEdit,
+    onSuccess
 }) => {
     return (
         <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-4">
@@ -255,24 +257,20 @@ const TableActivityMonitoring = ({
                                                 <TableCell>{getStatusBadge ? getStatusBadge(activity) : null}</TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex items-center justify-center gap-2">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => onEdit(activity)}
-                                                            className="gap-1"
-                                                        >
-                                                            <Trash2 className="h-3 w-3" />
-                                                            Delete
-                                                        </Button>
+                                                        <DeleteActivity
+                                                            activityId={activity.id}
+                                                            onSuccess={onSuccess}
+                                                        />
+
                                                         {onEdit && (
                                                             <Button
-                                                                size="sm"
+                                                                size="icon"
                                                                 variant="outline"
                                                                 onClick={() => onEdit(activity)}
-                                                                className="gap-1"
+                                                                className=""
                                                             >
-                                                                <Pencil className="h-3 w-3" />
-                                                                Edit
+                                                                <Pencil className="size-4" />
+                                                                {/* Edit */}
                                                             </Button>
                                                         )}
                                                         {exportToGoogleCalendar && (

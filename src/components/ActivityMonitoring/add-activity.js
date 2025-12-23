@@ -1,3 +1,5 @@
+'use client'
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -83,9 +85,9 @@ const AddActivity = ({
             onSuccess()
         } catch (err) {
             console.error(err);
-            toast.error("Gagal menyimpan kegiatan");
+            toast.error("Gagal menyimpan kegiatan")
         }
-    };
+    }
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -288,7 +290,7 @@ const AddActivity = ({
                             <Label htmlFor="keterangan">Keterangan</Label>
                             <Textarea
                                 id="keterangan"
-                                value={formData.keterangan}
+                                value={formData.keterangan || "Isi keterangan singkat"}
                                 onChange={(e) =>
                                     setFormData({ ...formData, keterangan: e.target.value })
                                 }
