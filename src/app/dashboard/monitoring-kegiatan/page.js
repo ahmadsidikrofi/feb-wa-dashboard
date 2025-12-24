@@ -139,11 +139,50 @@ export default function MonitoringKegiatanPage() {
     keterangan: "",
   })
 
+  // Helper function to parse conflict types from status
+  const parseConflictTypes = (status) => {
+    if (!status || status === "Normal") {
+      return []
+    }
+
+    const conflictTypes = []
+    const statusLower = status.toLowerCase()
+
+    // Handle DoubleConflict - means 2 conflicts, typically including pejabat
+    if (status === "DoubleConflict" || statusLower === "doubleconflict") {
+      // DoubleConflict usually means pejabat conflict + another conflict (ruangan or waktu)
+      conflictTypes.push("pejabat")
+      conflictTypes.push("ruangan") // Common second conflict, could also be waktu
+      return conflictTypes
+    }
+
+    // Check for specific conflict types
+    if (statusLower.includes("official") || statusLower.includes("pejabat")) {
+      conflictTypes.push("pejabat")
+    }
+    if (statusLower.includes("room") || statusLower.includes("ruangan")) {
+      conflictTypes.push("ruangan")
+    }
+    if (statusLower.includes("time") || statusLower.includes("waktu")) {
+      conflictTypes.push("waktu")
+    }
+
+    // If status contains "Conflict" but no specific type found
+    if (statusLower.includes("conflict") && conflictTypes.length === 0) {
+      conflictTypes.push("pejabat") // Default to pejabat as user mentioned it's the focus
+    }
+
+    return conflictTypes
+  }
+
   const mapApiDataToComponent = (apiData) => {
     return apiData.map((item) => {
       const date = new Date(item.date)
       const startTime = new Date(item.startTime)
       const endTime = new Date(item.endTime)
+      
+      const conflictTypes = parseConflictTypes(item.status)
+      const hasConflict = item.status !== "Normal" && item.status !== null
       
       return {
         id: item.id,
@@ -158,9 +197,10 @@ export default function MonitoringKegiatanPage() {
         tempat: formatCamelCaseLabel(item.room),
         pejabat: (item.officials || []).map(formatCamelCaseLabel),
         jumlahPeserta: item.participants || 0,
-        status: item.status || "Terjadwal",
-        hasConflict: item.status !== "Normal",
-        conflictType: item.status !== "Normal" ? "waktu" : null,
+        status: item.status || "Normal",
+        hasConflict: hasConflict,
+        conflictTypes: conflictTypes, // Array of conflict types
+        conflictType: conflictTypes.length > 0 ? conflictTypes[0] : null, // For backward compatibility
       }
     })
   }
@@ -233,6 +273,46 @@ export default function MonitoringKegiatanPage() {
   const filteredActivities = activities
 
   const getStatusBadge = (activity) => {
+    if (activity.hasConflict && activity.conflictTypes && activity.conflictTypes.length > 0) {
+      const conflictLabels = activity.conflictTypes.map((type) => {
+        switch (type) {
+          case "pejabat":
+            return "Pejabat"
+          case "ruangan":
+            return "Ruangan"
+          case "waktu":
+            return "Waktu"
+          case "multiple":
+            return "Multiple"
+          default:
+            return type
+        }
+      })
+
+      // If multiple conflicts (e.g., DoubleConflict), show all badges
+      if (conflictLabels.length > 1) {
+        return (
+          <div className="flex flex-wrap gap-1">
+            {conflictLabels.map((label, idx) => (
+              <Badge key={idx} variant="destructive" className="gap-1 text-xs">
+                <AlertTriangle className="h-3 w-3" />
+                Konflik {label}
+              </Badge>
+            ))}
+          </div>
+        )
+      }
+
+      // Single conflict
+      return (
+        <Badge variant="destructive" className="gap-1">
+          <AlertTriangle className="h-3 w-3" />
+          Konflik {conflictLabels[0]}
+        </Badge>
+      )
+    }
+
+    // Fallback for backward compatibility
     if (activity.hasConflict) {
       return (
         <Badge variant="destructive" className="gap-1">
@@ -246,6 +326,7 @@ export default function MonitoringKegiatanPage() {
         </Badge>
       )
     }
+
     return (
       <Badge
         variant="default"
@@ -257,63 +338,6 @@ export default function MonitoringKegiatanPage() {
     );
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Check for conflicts (exclude current activity if editing)
-    const conflicts = detectConflicts(formData, editingId);
-
-    const activityData = {
-      ...formData,
-      status: "Terjadwal",
-      hasConflict: conflicts.hasConflict,
-      conflictType: conflicts.type,
-    };
-
-    if (editingId) {
-      setActivities(
-        activities.map((activity) =>
-          activity.id === editingId
-            ? { ...activity, ...activityData, tempat: undefined }
-            : activity
-        )
-      );
-      toast.success("Kegiatan berhasil diupdate");
-    } else {
-      const newActivity = {
-        id: activities.length + 1,
-        ...activityData,
-      };
-      setActivities([newActivity, ...activities]);
-      
-      if (conflicts.hasConflict) {
-        toast.warning("Kegiatan ditambahkan dengan konflik", {
-          description: conflicts.message,
-        });
-      } else {
-        toast.success("Kegiatan berhasil ditambahkan");
-      }
-    }
-
-    setIsDialogOpen(false);
-    setEditingId(null);
-
-    setFormData({
-      namaKegiatan: "",
-      tanggal: "",
-      waktuMulai: "",
-      waktuSelesai: "",
-      unit: "",
-      prodi: "",
-      ruangan: "",
-      pejabat: [],
-      jumlahPeserta: "",
-      keterangan: "",
-    });
-
-    // Refresh data from API
-    fetchActivities(currentPage);
-  }
 
   // Function to export to Google Calendar
   const exportToGoogleCalendar = (activity) => {
@@ -450,8 +474,9 @@ ${activity.keterangan}`;
           <AddActivity 
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
             editingId={editingId}
-            handleSubmit={handleSubmit}
             formData={formData}
             setFormData={setFormData}
             units={units}
@@ -524,45 +549,8 @@ ${activity.keterangan}`;
         </Card>
       </div>
 
-      {/* View Toggle and Filters */}
-      <TableActivityMonitoring 
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        filterUnit={filterUnit}
-        setFilterUnit={setFilterUnit}
-        units={units}
-        filterStatus={filterStatus}
-        setFilterStatus={setFilterStatus}
-        filteredActivities={filteredActivities}
-        isLoading={isLoading}
-        pagination={pagination}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        getStatusBadge={getStatusBadge}
-        exportToGoogleCalendar={exportToGoogleCalendar}
-        onSuccess={() => fetchActivities(currentPage)}
-        onEdit={(activity) => {
-          setFormData({
-            namaKegiatan: activity.namaKegiatan,
-            tanggal: activity.tanggal,
-            waktuMulai: activity.waktuMulai,
-            waktuSelesai: activity.waktuSelesai,
-            unit: activity.unit,
-            prodi: activity.prodi,
-            ruangan: activity.ruangan || activity.tempat,
-            pejabat: activity.pejabat,
-            jumlahPeserta: activity.jumlahPeserta,
-            keterangan: activity.keterangan,
-          })
-          setEditingId(activity.id)
-          setIsDialogOpen(true)
-        }}
-      />
-
-      {/* Quick Stats by Resource */}
-      <div className="grid gap-4 md:grid-cols-3">
+            {/* Quick Stats by Resource */}
+            <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -641,6 +629,43 @@ ${activity.keterangan}`;
           </CardContent>
         </Card>
       </div>
+
+      {/* View Toggle and Filters */}
+      <TableActivityMonitoring 
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filterUnit={filterUnit}
+        setFilterUnit={setFilterUnit}
+        units={units}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filteredActivities={filteredActivities}
+        isLoading={isLoading}
+        pagination={pagination}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        getStatusBadge={getStatusBadge}
+        exportToGoogleCalendar={exportToGoogleCalendar}
+        onSuccess={() => fetchActivities(currentPage)}
+        onEdit={(activity) => {
+          setFormData({
+            namaKegiatan: activity.namaKegiatan,
+            tanggal: activity.tanggal,
+            waktuMulai: activity.waktuMulai,
+            waktuSelesai: activity.waktuSelesai,
+            unit: activity.unit,
+            prodi: activity.prodi,
+            ruangan: activity.ruangan,
+            pejabat: activity.pejabat,
+            jumlahPeserta: activity.jumlahPeserta,
+            keterangan: activity.keterangan,
+          })
+          setEditingId(activity.id)
+          setIsDialogOpen(true)
+        }}
+      />
     </div>
   );
 }

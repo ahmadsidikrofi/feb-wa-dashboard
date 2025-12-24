@@ -20,34 +20,74 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
 
 const AddActivity = ({
     isDialogOpen,
     setIsDialogOpen,
     editingId,
-    // handleSubmit,
     formData,
     setFormData,
     units,
     prodiList,
     rooms,
     officials,
-    onSuccess
+    onSuccess,
+    isLoading,
+    setIsLoading
 }) => {
     const createActivity = async (payload) => {
-        const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring`,
-            payload,
-            {
-                headers: { "ngrok-skip-browser-warning": true },
-            }
-        );
-        return res.data;
-    };
+        setIsLoading(true);
+        try {
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring`,
+                payload,
+                {
+                    headers: { "ngrok-skip-browser-warning": true },
+                }
+            );
+            return res.data;
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const updateActivity = async (id, payload) => {
+        setIsLoading(true);
+        try {
+            const res = await axios.put(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring/${id}`,
+                payload
+            );
+            return res.data;
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const handleSubmit = async (e) => {
+        if (!formData.ruangan) {
+            toast.error("Ruangan belum dipilih. Silakan pilih ruangan terlebih dahulu.", {
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            });
+            return
+        }
+
+        if (!rooms.includes(formData.ruangan)) {
+            toast.error(
+                "Data ruangan tidak valid. Silakan pilih ulang ruangan.",
+                {
+                    style: { background: "#b91c1c", color: "#fef2f2" },
+                    iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+                }
+            );
+            return
+        }
+
+
         e.preventDefault()
 
         try {
@@ -62,11 +102,16 @@ const AddActivity = ({
                 room: formData.ruangan,
                 prodi: formData.prodi || null,
                 officials: formData.pejabat,
-            };
+            }
 
-            await createActivity(payload);
+            if (editingId) {
+                await updateActivity(editingId, payload)
+                toast.success("Kegiatan berhasil diperbarui")
+            } else {
+                await createActivity(payload);
+                toast.success("Kegiatan berhasil ditambahkan")
+            }
 
-            toast.success("Kegiatan berhasil ditambahkan")
             setIsDialogOpen(false);
 
             setFormData({
@@ -306,7 +351,7 @@ const AddActivity = ({
                             variant="outline"
                             onClick={() => {
                                 setIsDialogOpen(false);
-                                setEditingId(null);
+                                // setEditingId(null);
                                 setFormData({
                                     namaKegiatan: "",
                                     tanggal: "",
@@ -326,8 +371,16 @@ const AddActivity = ({
                         <Button
                             type="submit"
                             className="bg-[#e31e25] hover:bg-[#c41a20]"
+                            disabled={isLoading}
                         >
-                            {editingId ? "Update Kegiatan" : "Simpan Kegiatan"}
+                            {isLoading ? (
+                                <span className="flex items-center gap-2">
+                                    <Loader2 className="size-4 animate-spin"/>
+                                    {editingId ? "Menyimpan Perubahan..." : "Menyimpan..."}
+                                </span>
+                            ) : (
+                                editingId ? "Update Kegiatan" : "Simpan Kegiatan"
+                            )}
                         </Button>
                     </DialogFooter>
                 </form>
