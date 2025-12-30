@@ -549,8 +549,8 @@ ${activity.keterangan}`;
         </Card>
       </div>
 
-            {/* Quick Stats by Resource */}
-            <div className="grid gap-4 md:grid-cols-3">
+      {/* Quick Stats by Resource */}
+      {/* <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -628,7 +628,7 @@ ${activity.keterangan}`;
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* View Toggle and Filters */}
       <TableActivityMonitoring 

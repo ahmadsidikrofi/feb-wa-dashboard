@@ -8,18 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import {
   Dialog,
   DialogContent,
@@ -38,177 +31,17 @@ import {
   TrendingUp,
   Edit,
   Search,
+  PlusCircleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-
-// Data dummy untuk indikator laporan fakultas
-const indicatorsData = [
-  {
-    id: 1,
-    indikator: "Kepuasan Pengguna Lulusan Program Studi",
-    linkEvidence: "kepuasan pengguna lulusan",
-    tw1: true,
-    tw2: false,
-    tw3: false,
-    tw4: false,
-  },
-  {
-    id: 2,
-    indikator: "Persen Mata kuliah dengan Sertifikasi",
-    linkEvidence: "mk sertifikasi dt_feb\ndt mk proses feb",
-    tw1: true,
-    tw2: false,
-    tw3: false,
-    tw4: false,
-  },
-  {
-    id: 3,
-    indikator: "Persentase Riset 2023 yang upload ke Dataverse",
-    linkEvidence: "dataverse\nLaporan",
-    tw1: true,
-    tw2: false,
-    tw3: false,
-    tw4: false,
-  },
-  {
-    id: 4,
-    indikator: "Jumlah kegiatan pembinaan karakter",
-    linkEvidence: "Laporan\npembinaan karakter",
-    tw1: true,
-    tw2: true,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 5,
-    indikator: "Jumlah Academic Peer Internasional per Dosen",
-    linkEvidence: "Academicpeer.xlt",
-    tw1: true,
-    tw2: false,
-    tw3: false,
-    tw4: false,
-  },
-  {
-    id: 6,
-    indikator: "Perkutaan Dosen DTPS Sesuai Standar Akreditasi Jumlah dan JFA",
-    linkEvidence: "Dosen DTPS",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 7,
-    indikator:
-      "Rata-rata Aktivitas LMS pada tiap mata kuliah (untuk TW 2 & TW 4)",
-    linkEvidence: "cctve",
-    tw1: false,
-    tw2: true,
-    tw3: false,
-    tw4: false,
-  },
-  {
-    id: 8,
-    indikator:
-      "Persen individu dari Industri yang Hadir berkegiatan di Universitas dibanding jumlah dosen",
-    linkEvidence: "individu industri",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 9,
-    indikator: "Pembentukan Prodi Baru",
-    linkEvidence: "prodi baru",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 10,
-    indikator: "Prodi naik akreditasi",
-    linkEvidence: "prodi naik akre",
-    tw1: false,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 11,
-    indikator: "Pelaksanaan Rencana Kerja Manajerial",
-    linkEvidence: "RKM",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 12,
-    indikator: "Jumlah P1PP Berstatus Open",
-    linkEvidence: "P3 & P1PP",
-    tw1: true,
-    tw2: true,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 13,
-    indikator:
-      "Persentase Minimum Responden Tracer Study untuk setiap prodi (Control) (CAE) ka -> fakultas",
-    linkEvidence: "Tracer Study",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 14,
-    indikator:
-      "Jumlah Mahasiswa yang ambbound Research based (SPJO) -> fakultas",
-    linkEvidence: "mhs asing inbound",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 15,
-    indikator: "IKU 6: Program Studi Bekerjasama dengan Mitra Kelas Dunia",
-    linkEvidence: "IKU 6",
-    tw1: true,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 16,
-    indikator: "IKU 3: Dosen berkegiatan di luar kampus",
-    linkEvidence: "",
-    tw1: false,
-    tw2: false,
-    tw3: true,
-    tw4: false,
-  },
-  {
-    id: 17,
-    indikator: "IKU 4: Praktek mengajar di dalam kampus",
-    linkEvidence: "",
-    tw1: false,
-    tw2: false,
-    tw3: false,
-    tw4: false,
-  },
-];
+import TableManagementReport from "@/components/ManagementReport/table-management-report";
 
 export default function LaporanManagementPage() {
-  const [indicators, setIndicators] = useState(indicatorsData);
+  const [indicators, setIndicators] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIndicator, setSelectedIndicator] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Filter indicators based on search
   const filteredIndicators = indicators.filter(
     (indicator) =>
       indicator.indikator.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -336,8 +169,8 @@ export default function LaporanManagementPage() {
         </Card>
       </div>
 
-            {/* Progress Summary */}
-            <div className="grid gap-4 md:grid-cols-4">
+      {/* Progress Summary */}
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -407,131 +240,7 @@ export default function LaporanManagementPage() {
         </Card>
       </div>
 
-      {/* Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari indikator atau link evidence..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Indicators Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Indikator LAPMAN Fakultas</CardTitle>
-          <CardDescription>
-            Daftar indikator laporan manajemen dengan status per triwulan
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="min-w-[400px]">
-                    Indikator Lapman Fakultas
-                  </TableHead>
-                  <TableHead className="min-w-[200px]">Link Evidence</TableHead>
-                  <TableHead className="text-center">Status TW 1</TableHead>
-                  <TableHead className="text-center">Status TW 2</TableHead>
-                  <TableHead className="text-center">Status TW 3</TableHead>
-                  <TableHead className="text-center">Status TW 4</TableHead>
-                  <TableHead className="text-center">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredIndicators.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center text-muted-foreground py-8"
-                    >
-                      Tidak ada indikator ditemukan
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredIndicators.map((indicator) => (
-                    <TableRow key={indicator.id}>
-                      <TableCell className="font-medium">
-                        {indicator.indikator}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          {indicator.linkEvidence.split("\n").map(
-                            (link, idx) =>
-                              link.trim() && (
-                                <a
-                                  key={idx}
-                                  href="#"
-                                  className="text-blue-600 hover:underline text-sm flex items-center gap-1"
-                                >
-                                  {link.trim()}
-                                  <ExternalLink className="h-3 w-3" />
-                                </a>
-                              )
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={indicator.tw1}
-                          onCheckedChange={(checked) =>
-                            handleStatusUpdate(indicator.id, "tw1", checked)
-                          }
-                          className="mx-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={indicator.tw2}
-                          onCheckedChange={(checked) =>
-                            handleStatusUpdate(indicator.id, "tw2", checked)
-                          }
-                          className="mx-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={indicator.tw3}
-                          onCheckedChange={(checked) =>
-                            handleStatusUpdate(indicator.id, "tw3", checked)
-                          }
-                          className="mx-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={indicator.tw4}
-                          onCheckedChange={(checked) =>
-                            handleStatusUpdate(indicator.id, "tw4", checked)
-                          }
-                          className="mx-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditIndicator(indicator)}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <TableManagementReport searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredIndicators={filteredIndicators}/>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
