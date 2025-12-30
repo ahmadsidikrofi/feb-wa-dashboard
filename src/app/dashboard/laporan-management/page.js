@@ -20,63 +20,61 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   FileText,
-  CheckCircle2,
   Download,
-  ExternalLink,
   Calendar,
   TrendingUp,
-  Edit,
-  Search,
-  PlusCircleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import TableManagementReport from "@/components/ManagementReport/table-management-report";
+import axios from "axios";
+import AddManagementReport from "@/components/ManagementReport/add-management-report";
+import EditManagementReport from "@/components/ManagementReport/edit-management-report";
 
 export default function LaporanManagementPage() {
-  const [indicators, setIndicators] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedIndicator, setSelectedIndicator] = useState(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedIndicator, setSelectedIndicator] = useState(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const filteredIndicators = indicators.filter(
-    (indicator) =>
-      indicator.indikator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      indicator.linkEvidence.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [stats, setStats] = useState({
+    total: 0,
+    completedTW1: 0,
+    completedTW2: 0,
+    completedTW3: 0,
+    completedTW4: 0,
+  });
 
   // Calculate stats
-  const totalIndicators = indicators.length;
-  const completedTW1 = indicators.filter((i) => i.tw1).length;
-  const completedTW2 = indicators.filter((i) => i.tw2).length;
-  const completedTW3 = indicators.filter((i) => i.tw3).length;
-  const completedTW4 = indicators.filter((i) => i.tw4).length;
+  const totalIndicators = stats.total;
+  const completedTW1 = stats.completedTW1;
+  const completedTW2 = stats.completedTW2;
+  const completedTW3 = stats.completedTW3;
+  const completedTW4 = stats.completedTW4;
 
-  const handleStatusUpdate = (indicatorId, quarter, value) => {
-    setIndicators(
-      indicators.map((ind) =>
-        ind.id === indicatorId ? { ...ind, [quarter]: value } : ind
-      )
-    );
-    toast.success("Status berhasil diperbarui");
+  const handleStatusUpdate = async (indicatorId, quarter, value) => {
+    try {
+      // TODO: Implement API call to update status
+      // await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports/${indicatorId}`, {
+      //   [quarter]: value
+      // });
+      toast.success("Status berhasil diperbarui");
+    } catch (error) {
+      console.error("Gagal update status:", error);
+      toast.error("Gagal memperbarui status");
+    }
   };
 
   const handleEditIndicator = (indicator) => {
     setSelectedIndicator({ ...indicator });
     setIsEditDialogOpen(true);
-  };
+  }
 
-  const handleSaveEdit = () => {
-    setIndicators(
-      indicators.map((ind) =>
-        ind.id === selectedIndicator.id ? selectedIndicator : ind
-      )
-    );
-    setIsEditDialogOpen(false);
-    toast.success("Indikator berhasil diperbarui");
+  const handleStatsUpdate = (newStats) => {
+    setStats(newStats);
   };
 
   return (
@@ -240,124 +238,41 @@ export default function LaporanManagementPage() {
         </Card>
       </div>
 
-      <TableManagementReport searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredIndicators={filteredIndicators}/>
+      <TableManagementReport 
+        onEditIndicator={handleEditIndicator}
+        onAddReport={() => setIsAddDialogOpen(true)}
+        onStatusUpdate={handleStatusUpdate}
+        onStatsUpdate={handleStatsUpdate}
+        refreshKey={refreshKey}
+        setIsLoading={setIsLoading}
+        isLoading={isLoading}
+      />
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Indikator</DialogTitle>
-            <DialogDescription>
-              Perbarui informasi indikator dan link evidence
-            </DialogDescription>
-          </DialogHeader>
-          {selectedIndicator && (
-            <div className="space-y-4">
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">Indikator</label>
-                <Input
-                  value={selectedIndicator.indikator}
-                  onChange={(e) =>
-                    setSelectedIndicator({
-                      ...selectedIndicator,
-                      indikator: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">Link Evidence</label>
-                <Input
-                  value={selectedIndicator.linkEvidence}
-                  onChange={(e) =>
-                    setSelectedIndicator({
-                      ...selectedIndicator,
-                      linkEvidence: e.target.value,
-                    })
-                  }
-                  placeholder="Pisahkan multiple link dengan enter"
-                />
-              </div>
-              <div className="grid grid-cols-4 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="tw1"
-                    checked={selectedIndicator.tw1}
-                    onCheckedChange={(checked) =>
-                      setSelectedIndicator({
-                        ...selectedIndicator,
-                        tw1: checked,
-                      })
-                    }
-                  />
-                  <label htmlFor="tw1" className="text-sm font-medium">
-                    TW 1
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="tw2"
-                    checked={selectedIndicator.tw2}
-                    onCheckedChange={(checked) =>
-                      setSelectedIndicator({
-                        ...selectedIndicator,
-                        tw2: checked,
-                      })
-                    }
-                  />
-                  <label htmlFor="tw2" className="text-sm font-medium">
-                    TW 2
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="tw3"
-                    checked={selectedIndicator.tw3}
-                    onCheckedChange={(checked) =>
-                      setSelectedIndicator({
-                        ...selectedIndicator,
-                        tw3: checked,
-                      })
-                    }
-                  />
-                  <label htmlFor="tw3" className="text-sm font-medium">
-                    TW 3
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="tw4"
-                    checked={selectedIndicator.tw4}
-                    onCheckedChange={(checked) =>
-                      setSelectedIndicator({
-                        ...selectedIndicator,
-                        tw4: checked,
-                      })
-                    }
-                  />
-                  <label htmlFor="tw4" className="text-sm font-medium">
-                    TW 4
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsEditDialogOpen(false)}
-            >
-              Batal
-            </Button>
-            <Button
-              onClick={handleSaveEdit}
-              className="bg-[#e31e25] hover:bg-[#c41a20]"
-            >
-              Simpan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddManagementReport
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSuccess={() => {
+          toast.success("Data Laporan Manajemen berhasil ditambahkan")
+          setIsAddDialogOpen(false)
+          setRefreshKey((prev) => prev + 1)
+        }}
+        setIsLoading={setIsLoading}
+        isLoading={isLoading}
+      />
+
+      <EditManagementReport
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        selectedIndicator={selectedIndicator}
+        onSuccess={() => {
+          toast.success("Data Laporan Manajemen berhasil diubah")
+          setIsEditDialogOpen(false)
+          setRefreshKey((prev) => prev + 1)
+        }}
+        setIsLoading={setIsLoading}
+        isLoading={isLoading}
+      />
+
     </div>
   );
 }
