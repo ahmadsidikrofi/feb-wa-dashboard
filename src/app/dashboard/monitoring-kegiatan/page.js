@@ -35,6 +35,7 @@ import TableActivityMonitoring from "@/components/ActivityMonitoring/table-activ
 import { useDebounce } from "@/hooks/use-debounce";
 import AddActivity from "@/components/ActivityMonitoring/add-activity";
 import { formatCamelCaseLabel } from "@/lib/utils";
+import EditActivity from "@/components/ActivityMonitoring/edit-activity";
 
 // Data dummy untuk unit dan prodi
 const units = [
@@ -115,6 +116,7 @@ export default function MonitoringKegiatanPage() {
   const [filterUnit, setFilterUnit] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [viewMode, setViewMode] = useState("table")
   const [editingId, setEditingId] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -476,7 +478,6 @@ ${activity.keterangan}`;
             setIsDialogOpen={setIsDialogOpen}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
-            editingId={editingId}
             formData={formData}
             setFormData={setFormData}
             units={units}
@@ -656,15 +657,50 @@ ${activity.keterangan}`;
             waktuMulai: activity.waktuMulai,
             waktuSelesai: activity.waktuSelesai,
             unit: activity.unit,
-            prodi: activity.prodi,
+            prodi: activity.prodi || "",
             ruangan: activity.ruangan,
-            pejabat: activity.pejabat,
-            jumlahPeserta: activity.jumlahPeserta,
-            keterangan: activity.keterangan,
+            pejabat: activity.pejabat || [],
+            jumlahPeserta: activity.jumlahPeserta || "",
+            keterangan: activity.keterangan || "",
           })
           setEditingId(activity.id)
-          setIsDialogOpen(true)
+          setIsEditDialogOpen(true)
         }}
+      />
+
+      <EditActivity 
+        isDialogOpen={isEditDialogOpen}
+        setIsDialogOpen={(open) => {
+          setIsEditDialogOpen(open)
+          if (!open) {
+            setEditingId(null)
+            setFormData({
+              namaKegiatan: "",
+              tanggal: "",
+              waktuMulai: "",
+              waktuSelesai: "",
+              unit: "",
+              prodi: "",
+              ruangan: "",
+              pejabat: [],
+              jumlahPeserta: "",
+              keterangan: "",
+            })
+          }
+        }}
+        editingId={editingId}
+        formData={formData}
+        setFormData={setFormData}
+        units={units}
+        prodiList={prodiList}
+        rooms={rooms}
+        officials={officials}
+        onSuccess={() => {
+          fetchActivities(currentPage)
+          setEditingId(null)
+        }}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
       />
     </div>
   );

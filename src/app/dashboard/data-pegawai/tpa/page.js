@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -26,66 +26,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Search, Download, Briefcase } from "lucide-react";
+import { ArrowLeft, Search, Download, Briefcase, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-// Mock data from CSV - all entries
-const tpaData = [
-  { no: 1, nama: "Alfi Inayati S.Pd", nip: "22970021", lokasiKerja: "Urusan Sekretariat", status: "TPA Profesional Full Time" },
-  { no: 2, nama: "Asep Sudrajat S.Kom.", nip: "15840035", lokasiKerja: "Kepala Urusan Laboratorium/Bengkel/Studio", status: "TPA Pegawai Tetap" },
-  { no: 3, nama: "Astri Anggelia S.E.", nip: "21840003", lokasiKerja: "Prodi S3 Manajemen", status: "TPA Pegawai Tetap" },
-  { no: 4, nama: "Aulia Ferina Sendhitasari S.Kom", nip: "23990038", lokasiKerja: "Prodi S1 Bisnis Digital", status: "TPA Profesional Full Time" },
-  { no: 5, nama: "Azam Fhadillah Mulki S. T", nip: "62400039", lokasiKerja: "Prodi S2 Akuntansi", status: "TPA Profesional Full Time" },
-  { no: 6, nama: "Desma Luluk Arianti S.Pi.", nip: "62498040", lokasiKerja: "Urusan Akademik", status: "TPA Profesional Full Time" },
-  { no: 7, nama: "Enung Muhaemi", nip: "1710044", lokasiKerja: "Prodi S1 Akuntansi", status: "TPA Pegawai Tetap" },
-  { no: 8, nama: "Hani Widianingrum S.Ak.", nip: "23000039", lokasiKerja: "Urusan Akademik", status: "TPA Profesional Full Time" },
-  { no: 9, nama: "Harrys Sudarmadji S.M.B.", nip: "19900033", lokasiKerja: "Prodi S1 Manajemen", status: "TPA Pegawai Tetap" },
-  { no: 10, nama: "Imas Maesyaroh A.Md.", nip: "19800005", lokasiKerja: "Urusan Akademik", status: "TPA Pegawai Tetap" },
-  { no: 11, nama: "Indra Gunawan S.Kom.", nip: "12830015", lokasiKerja: "Kepala Urusan Kemahasiswaan", status: "TPA Pegawai Tetap" },
-  { no: 12, nama: "Irwan Mulyawan S.Pd.", nip: "15820076", lokasiKerja: "Urusan Kemahasiswaan", status: "TPA Pegawai Tetap" },
-  { no: 13, nama: "Ismaya Indrayanti S. A. B", nip: "22970019", lokasiKerja: "Prodi S1 Administrasi Bisnis", status: "TPA Profesional Full Time" },
-  { no: 14, nama: "Kharisma Ellyana S.M.B.", nip: "15850073", lokasiKerja: "Urusan Kemahasiswaan", status: "TPA Pegawai Tetap" },
-  { no: 15, nama: "Khoerunisa Mubarrokah Kusumawardhani S.Pd", nip: "62498041", lokasiKerja: "Prodi S2 Manajemen", status: "TPA Profesional Full Time" },
-  { no: 16, nama: "Mesayu Ana Hanifah Yahsallah S.H.", nip: "23940021", lokasiKerja: "Urusan Sumber Daya Manusia dan Keuangan", status: "TPA Pegawai Tetap" },
-  { no: 17, nama: "Mohammad Tyas Pawitra S.M.B.", nip: "15870055", lokasiKerja: "Kepala Urusan Sekretariat", status: "TPA Pegawai Tetap" },
-  { no: 18, nama: "Muhamad Ramadhan S. E", nip: "23910010", lokasiKerja: "Urusan Akademik", status: "TPA Profesional Full Time" },
-  { no: 19, nama: "Muhammad Farhan Ramadhan S.Pd", nip: "23990037", lokasiKerja: "Prodi S2 Manajemen", status: "TPA Profesional Full Time" },
-  { no: 20, nama: "Nathaleo Michel Apon S.T.", nip: "12830063", lokasiKerja: "Kepala Urusan Sumber Daya Manusia dan Keuangan", status: "TPA Pegawai Tetap" },
-  { no: 21, nama: "Nensi Damayanti S.S.", nip: "15860094", lokasiKerja: "Urusan Laboratorium/Bengkel/Studio", status: "TPA Pegawai Tetap" },
-  { no: 22, nama: "Puji Adhiayati S.KM", nip: "62497042", lokasiKerja: "Prodi S2 Administrasi Bisnis", status: "TPA Profesional Full Time" },
-  { no: 23, nama: "Ratih Raihun Raihanun S.T., M.T.", nip: "22000009", lokasiKerja: "Urusan Sumber Daya Manusia dan Keuangan", status: "TPA Profesional Full Time" },
-  { no: 24, nama: "Sela Garnita S.M.", nip: "22950037", lokasiKerja: "Prodi S2 Manajemen PJJ", status: "TPA Profesional Full Time" },
-  { no: 25, nama: "Setiadi S.Kom.", nip: "15860072", lokasiKerja: "Kepala Urusan Akademik", status: "TPA Pegawai Tetap" },
-  { no: 26, nama: "Shinta Sekaring Wijiutami S.M.", nip: "23950041", lokasiKerja: "Prodi S1 Manajemen Bisnis Rekreasi", status: "TPA Pegawai Tetap" },
-  { no: 27, nama: "Ahmad Sidik Rofiudin S.Kom", nip: "82501081", lokasiKerja: "Urusan Sekretariat", status: "TLH" },
-  { no: 28, nama: "Ansari Siddieqi Yustia S.Kom.", nip: "82497100", lokasiKerja: "Urusan Kemahasiswaan", status: "TLH" },
-  { no: 29, nama: "Dara Dhenissa Herman S.Sos.", nip: "82502079", lokasiKerja: "Prodi S1 Manajemen (Inter)", status: "TLH" },
-];
+import axios from "axios";
 
 export default function DataTPAPage() {
   const router = useRouter();
+  const [tpaData, setTpaData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterLokasi, setFilterLokasi] = useState("all");
 
+  // Fetch data from API
+  useEffect(() => {
+    const fetchTPA = async () => {
+      try {
+        setIsLoading(true);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/staffs`, {
+          headers: {
+            "ngrok-skip-browser-warning": true,
+          },
+        });
+
+        if (res.data?.success) {
+          setTpaData(res.data.data || []);
+        }
+      } catch (error) {
+        console.error("Gagal fetch data TPA:", error);
+        setTpaData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTPA();
+  }, []);
+
   // Get unique values
-  const statusList = [...new Set(tpaData.map((d) => d.status))];
-  const lokasiList = [...new Set(tpaData.map((d) => d.lokasiKerja))];
+  const statusList = [...new Set(tpaData.map((d) => d.employmentStatus))].filter(Boolean);
+  const lokasiList = [...new Set(tpaData.map((d) => d.workUnit))].filter(Boolean);
 
   // Calculate stats
   const totalTPA = tpaData.length;
-  const pegawaiTetap = tpaData.filter((d) => d.status === "TPA Pegawai Tetap").length;
-  const profesional = tpaData.filter((d) => d.status === "TPA Profesional Full Time").length;
-  const tlh = tpaData.filter((d) => d.status === "TLH").length;
+  const pegawaiTetap = tpaData.filter((d) => d.employmentStatus?.includes("Pegawai Tetap")).length;
+  const profesional = tpaData.filter((d) => d.employmentStatus?.includes("Profesional")).length;
+  const tlh = tpaData.filter((d) => d.employmentStatus === "TLH").length;
 
   // Filter data
   const filteredData = tpaData.filter((tpa) => {
     const matchSearch =
-      tpa.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tpa.nip.includes(searchQuery) ||
-      tpa.lokasiKerja.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchStatus = filterStatus === "all" || tpa.status === filterStatus;
-    const matchLokasi = filterLokasi === "all" || tpa.lokasiKerja === filterLokasi;
+      tpa.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tpa.nip?.includes(searchQuery) ||
+      tpa.workUnit?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === "all" || tpa.employmentStatus === filterStatus;
+    const matchLokasi = filterLokasi === "all" || tpa.workUnit === filterLokasi;
 
     return matchSearch && matchStatus && matchLokasi;
   });
@@ -96,14 +91,24 @@ export default function DataTPAPage() {
   };
 
   const getStatusBadge = (status) => {
-    if (status === "TPA Pegawai Tetap") {
+    if (status?.includes("Pegawai Tetap")) {
       return <Badge variant="default">Pegawai Tetap</Badge>;
-    } else if (status === "TPA Profesional Full Time") {
+    } else if (status?.includes("Profesional")) {
       return <Badge variant="secondary">Profesional</Badge>;
-    } else {
+    } else if (status === "TLH") {
       return <Badge variant="outline">TLH</Badge>;
+    } else {
+      return <Badge variant="outline">{status || "-"}</Badge>;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -258,17 +263,17 @@ export default function DataTPAPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredData.map((tpa) => (
-                    <TableRow key={tpa.no}>
-                      <TableCell>{tpa.no}</TableCell>
-                      <TableCell className="font-mono text-sm">{tpa.nip}</TableCell>
+                  filteredData.map((tpa, index) => (
+                    <TableRow key={tpa.id || index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell className="font-mono text-sm">{tpa.nip || "-"}</TableCell>
                       <TableCell>
-                        <div className="font-medium">{tpa.nama}</div>
+                        <div className="font-medium">{tpa.name || "-"}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">{tpa.lokasiKerja}</div>
+                        <div className="text-sm">{tpa.workUnit || "-"}</div>
                       </TableCell>
-                      <TableCell>{getStatusBadge(tpa.status)}</TableCell>
+                      <TableCell>{getStatusBadge(tpa.employmentStatus)}</TableCell>
                     </TableRow>
                   ))
                 )}

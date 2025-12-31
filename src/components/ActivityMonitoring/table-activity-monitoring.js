@@ -267,7 +267,6 @@ const TableActivityMonitoring = ({
                                                                 size="icon"
                                                                 variant="outline"
                                                                 onClick={() => onEdit(activity)}
-                                                                className=""
                                                             >
                                                                 <Pencil className="size-4" />
                                                                 {/* Edit */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, GraduationCap, Briefcase, ArrowRight, TrendingUp } from "lucide-react";
+import { Users, GraduationCap, Briefcase, ArrowRight, TrendingUp, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -28,60 +29,125 @@ import {
 
 export default function DataPegawaiPage() {
   const router = useRouter();
+  const [lecturers, setLecturers] = useState([]);
+  const [staffs, setStaffs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Stats dari data CSV
+  // Fetch data from APIs
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch lecturers
+        const lecturersRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/lecturers`, {
+          headers: {
+            "ngrok-skip-browser-warning": true,
+          },
+        });
+        
+        // Fetch staffs
+        const staffsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/staffs`, {
+          headers: {
+            "ngrok-skip-browser-warning": true,
+          },
+        });
+
+        if (lecturersRes.data?.success) {
+          setLecturers(lecturersRes.data.data || []);
+        }
+        
+        if (staffsRes.data?.success) {
+          setStaffs(staffsRes.data.data || []);
+        }
+      } catch (error) {
+        console.error("Gagal fetch data pegawai:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Calculate stats from API data
   const stats = {
-    totalDosen: 205,
-    totalTPA: 40,
-    totalPegawai: 245,
+    totalDosen: lecturers.length,
+    totalTPA: staffs.length,
+    totalPegawai: lecturers.length + staffs.length,
   };
 
-  // Data Dosen berdasarkan Pendidikan
-  const dosenByPendidikan = [
-    { name: "S3", value: 156, percentage: 76.1 },
-    { name: "S2", value: 49, percentage: 23.9 },
-  ];
+  // Calculate dosen by pendidikan
+  const dosenByPendidikanData = lecturers.reduce((acc, dosen) => {
+    const pendidikan = dosen.education || "Lainnya";
+    const existing = acc.find((item) => item.name === pendidikan);
+    if (existing) {
+      existing.value += 1;
+    } else {
+      acc.push({ name: pendidikan, value: 1, percentage: 0 });
+    }
+    return acc;
+  }, []);
 
-  // Data Dosen berdasarkan Prodi
-  const dosenByProdi = [
-    { prodi: "S1 MAN", total: 52 },
-    { prodi: "S1 ADBIS", total: 46 },
-    { prodi: "S1 AKUN", total: 38 },
-    { prodi: "S2 MAN", total: 19 },
-    { prodi: "S2 MAN PJJ", total: 17 },
-    { prodi: "S2 ADBIS", total: 10 },
-    { prodi: "S2 AKUN", total: 8 },
-    { prodi: "S1 LM", total: 6 },
-    { prodi: "S3 MAN", total: 1 },
-    { prodi: "Lainnya", total: 8 },
-  ];
+  const dosenByPendidikan = dosenByPendidikanData.map((item) => ({
+    ...item,
+    percentage: stats.totalDosen > 0 ? ((item.value / stats.totalDosen) * 100).toFixed(1) : 0,
+  }));
 
-  // Data TPA berdasarkan Status
-  const tpaByStatus = [
-    { name: "Pegawai Tetap", value: 16, percentage: 40 },
-    { name: "Profesional", value: 11, percentage: 27.5 },
-    { name: "TLH", value: 10, percentage: 25 },
-    { name: "TLH Borongan", value: 3, percentage: 7.5 },
-  ];
+  // Calculate dosen by prodi
+  const dosenByProdiData = lecturers.reduce((acc, dosen) => {
+    const prodi = dosen.prodi || "Lainnya";
+    const existing = acc.find((item) => item.prodi === prodi);
+    if (existing) {
+      existing.total += 1;
+    } else {
+      acc.push({ prodi, total: 1 });
+    }
+    return acc;
+  }, []);
 
-  // Data TPA berdasarkan Lokasi Kerja
-  const tpaByLokasi = [
-    { lokasi: "Urusan Akademik", total: 5 },
-    { lokasi: "Kepala Urusan", total: 5 },
-    { lokasi: "Urusan SDM & Keuangan", total: 4 },
-    { lokasi: "Urusan Kemahasiswaan", total: 4 },
-    { lokasi: "Urusan Sekretariat", total: 3 },
-    { lokasi: "S2 Manajemen", total: 3 },
-    { lokasi: "S2 MAN PJJ", total: 3 },
-    { lokasi: "Urusan Lab/Studio", total: 3 },
-    { lokasi: "S1 Manajemen", total: 2 },
-    { lokasi: "S1 Akuntansi", total: 2 },
-    { lokasi: "S1 Bisnis Digital", total: 2 },
-    { lokasi: "S1 Adbis", total: 1 },
-    { lokasi: "S1 LM", total: 1 },
-    { lokasi: "S2 Adbis", total: 1 },
-    { lokasi: "S2 Akuntansi", total: 1 },
-  ];
+  const dosenByProdi = dosenByProdiData.sort((a, b) => b.total - a.total);
+
+  // Calculate TPA by status
+  const tpaByStatusData = staffs.reduce((acc, staff) => {
+    let statusName = "Lainnya";
+    if (staff.employmentStatus?.includes("Pegawai Tetap")) {
+      statusName = "Pegawai Tetap";
+    } else if (staff.employmentStatus?.includes("Profesional")) {
+      statusName = "Profesional";
+    } else if (staff.employmentStatus === "TLH") {
+      statusName = "TLH";
+    } else if (staff.employmentStatus?.includes("TLH Borongan")) {
+      statusName = "TLH Borongan";
+    }
+    
+    const existing = acc.find((item) => item.name === statusName);
+    if (existing) {
+      existing.value += 1;
+    } else {
+      acc.push({ name: statusName, value: 1, percentage: 0 });
+    }
+    return acc;
+  }, []);
+
+  const tpaByStatus = tpaByStatusData.map((item) => ({
+    ...item,
+    percentage: stats.totalTPA > 0 ? ((item.value / stats.totalTPA) * 100).toFixed(1) : 0,
+  }));
+
+  // Calculate TPA by work unit
+  const tpaByLokasiData = staffs.reduce((acc, staff) => {
+    const lokasi = staff.workUnit || "Lainnya";
+    const existing = acc.find((item) => item.lokasi === lokasi);
+    if (existing) {
+      existing.total += 1;
+    } else {
+      acc.push({ lokasi, total: 1 });
+    }
+    return acc;
+  }, []);
+
+  const tpaByLokasi = tpaByLokasiData.sort((a, b) => b.total - a.total);
 
   const COLORS = {
     brickRed: "#b91c1c",
@@ -104,8 +170,8 @@ export default function DataPegawaiPage() {
       path: "/dashboard/data-pegawai/dosen",
       color: "bg-blue-50 text-blue-600 dark:bg-blue-950",
       stats: [
-        { label: "S3", value: "156" },
-        { label: "S2", value: "50" },
+        { label: "S3", value: String(lecturers.filter((d) => d.education === "S3").length) },
+        { label: "S2", value: String(lecturers.filter((d) => d.education === "S2").length) },
       ],
     },
     {
@@ -117,12 +183,20 @@ export default function DataPegawaiPage() {
       path: "/dashboard/data-pegawai/tpa",
       color: "bg-green-50 text-green-600 dark:bg-green-950",
       stats: [
-        { label: "Pegawai Tetap", value: "16" },
-        { label: "Profesional", value: "23" },
-        { label: "TLH", value: "3" },
+        { label: "Pegawai Tetap", value: String(staffs.filter((s) => s.employmentStatus?.includes("Pegawai Tetap")).length) },
+        { label: "Profesional", value: String(staffs.filter((s) => s.employmentStatus?.includes("Profesional")).length) },
+        { label: "TLH", value: String(staffs.filter((s) => s.employmentStatus === "TLH").length) },
       ],
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

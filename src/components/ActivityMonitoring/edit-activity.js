@@ -17,16 +17,16 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 
-const AddActivity = ({
+const EditActivity = ({
     isDialogOpen,
     setIsDialogOpen,
+    editingId,
     formData,
     setFormData,
     units,
@@ -37,11 +37,11 @@ const AddActivity = ({
     isLoading,
     setIsLoading
 }) => {
-    const createActivity = async (payload) => {
+    const updateActivity = async (id, payload) => {
         setIsLoading(true);
         try {
-            const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring`,
+            const res = await axios.put(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring/${id}`,
                 payload,
                 {
                     headers: { "ngrok-skip-browser-warning": true },
@@ -73,8 +73,12 @@ const AddActivity = ({
             return
         }
 
-
         e.preventDefault()
+
+        if (!editingId) {
+            toast.error("ID kegiatan tidak ditemukan");
+            return;
+        }
 
         try {
             const payload = {
@@ -90,8 +94,8 @@ const AddActivity = ({
                 officials: formData.pejabat,
             }
 
-            await createActivity(payload);
-            toast.success("Kegiatan berhasil ditambahkan")
+            await updateActivity(editingId, payload)
+            toast.success("Kegiatan berhasil diperbarui")
 
             setIsDialogOpen(false);
 
@@ -111,48 +115,31 @@ const AddActivity = ({
             onSuccess()
         } catch (err) {
             console.error(err);
-            toast.error("Gagal menyimpan kegiatan")
+            toast.error("Gagal memperbarui kegiatan")
         }
     }
+
+    if (!editingId) {
+        return null;
+    }
+
     return (
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open)
-            if (!open) {
-                setFormData({
-                    namaKegiatan: "",
-                    tanggal: "",
-                    waktuMulai: "",
-                    waktuSelesai: "",
-                    unit: "",
-                    prodi: "",
-                    ruangan: "",
-                    pejabat: [],
-                    jumlahPeserta: "",
-                    keterangan: "",
-                })
-            }
-        }}>
-            <DialogTrigger asChild>
-                <Button className="bg-[#e31e25] hover:bg-[#c41a20]">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Tambah Kegiatan
-                </Button>
-            </DialogTrigger>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
-                        Tambah Kegiatan Baru
+                        Edit Kegiatan
                     </DialogTitle>
                     <DialogDescription>
-                        Isi form di bawah untuk menambahkan kegiatan. Sistem akan mendeteksi konflik otomatis.
+                        Edit informasi kegiatan di bawah. Sistem akan mendeteksi konflik otomatis.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="namaKegiatan">Nama Kegiatan *</Label>
+                            <Label htmlFor="edit-namaKegiatan">Nama Kegiatan *</Label>
                             <Input
-                                id="namaKegiatan"
+                                id="edit-namaKegiatan"
                                 value={formData.namaKegiatan}
                                 onChange={(e) =>
                                     setFormData({
@@ -166,9 +153,9 @@ const AddActivity = ({
 
                         <div className="grid grid-cols-3 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="tanggal">Tanggal *</Label>
+                                <Label htmlFor="edit-tanggal">Tanggal *</Label>
                                 <Input
-                                    id="tanggal"
+                                    id="edit-tanggal"
                                     type="date"
                                     value={formData.tanggal}
                                     onChange={(e) =>
@@ -178,9 +165,9 @@ const AddActivity = ({
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="waktuMulai">Waktu Mulai *</Label>
+                                <Label htmlFor="edit-waktuMulai">Waktu Mulai *</Label>
                                 <Input
-                                    id="waktuMulai"
+                                    id="edit-waktuMulai"
                                     type="time"
                                     value={formData.waktuMulai}
                                     onChange={(e) =>
@@ -193,9 +180,9 @@ const AddActivity = ({
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="waktuSelesai">Waktu Selesai *</Label>
+                                <Label htmlFor="edit-waktuSelesai">Waktu Selesai *</Label>
                                 <Input
-                                    id="waktuSelesai"
+                                    id="edit-waktuSelesai"
                                     type="time"
                                     value={formData.waktuSelesai}
                                     onChange={(e) =>
@@ -211,7 +198,7 @@ const AddActivity = ({
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="unit">Unit Penyelenggara *</Label>
+                                <Label htmlFor="edit-unit">Unit Penyelenggara *</Label>
                                 <Select
                                     value={formData.unit}
                                     onValueChange={(value) =>
@@ -219,7 +206,7 @@ const AddActivity = ({
                                     }
                                     required
                                 >
-                                    <SelectTrigger id="unit">
+                                    <SelectTrigger id="edit-unit">
                                         <SelectValue placeholder="Pilih unit" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -232,14 +219,14 @@ const AddActivity = ({
                                 </Select>
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="prodi">Program Studi</Label>
+                                <Label htmlFor="edit-prodi">Program Studi</Label>
                                 <Select
                                     value={formData.prodi}
                                     onValueChange={(value) =>
                                         setFormData({ ...formData, prodi: value })
                                     }
                                 >
-                                    <SelectTrigger id="prodi">
+                                    <SelectTrigger id="edit-prodi">
                                         <SelectValue placeholder="Pilih prodi" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -255,7 +242,7 @@ const AddActivity = ({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="ruangan">Ruangan *</Label>
+                            <Label htmlFor="edit-ruangan">Ruangan *</Label>
                             <Select
                                 value={formData.ruangan}
                                 onValueChange={(value) =>
@@ -263,7 +250,7 @@ const AddActivity = ({
                                 }
                                 required
                             >
-                                <SelectTrigger id="ruangan">
+                                <SelectTrigger id="edit-ruangan">
                                     <SelectValue placeholder="Pilih ruangan" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -311,9 +298,9 @@ const AddActivity = ({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="jumlahPeserta">Jumlah Peserta</Label>
+                            <Label htmlFor="edit-jumlahPeserta">Jumlah Peserta</Label>
                             <Input
-                                id="jumlahPeserta"
+                                id="edit-jumlahPeserta"
                                 type="number"
                                 value={formData.jumlahPeserta}
                                 onChange={(e) =>
@@ -327,10 +314,10 @@ const AddActivity = ({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="keterangan">Keterangan</Label>
+                            <Label htmlFor="edit-keterangan">Keterangan</Label>
                             <Textarea
-                                id="keterangan"
-                                value={formData.keterangan || "Isi keterangan singkat"}
+                                id="edit-keterangan"
+                                value={formData.keterangan || ""}
                                 onChange={(e) =>
                                     setFormData({ ...formData, keterangan: e.target.value })
                                 }
@@ -346,7 +333,6 @@ const AddActivity = ({
                             variant="outline"
                             onClick={() => {
                                 setIsDialogOpen(false);
-                                // setEditingId(null);
                                 setFormData({
                                     namaKegiatan: "",
                                     tanggal: "",
@@ -371,10 +357,10 @@ const AddActivity = ({
                             {isLoading ? (
                                 <span className="flex items-center gap-2">
                                     <Loader2 className="size-4 animate-spin"/>
-                                    Menyimpan...
+                                    Menyimpan Perubahan...
                                 </span>
                             ) : (
-                                "Simpan Kegiatan"
+                                "Update Kegiatan"
                             )}
                         </Button>
                     </DialogFooter>
@@ -384,4 +370,4 @@ const AddActivity = ({
     )
 }
 
-export default AddActivity
+export default EditActivity

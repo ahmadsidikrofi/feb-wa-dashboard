@@ -200,50 +200,110 @@ const TableContractManagement = () => {
         </div>
       )}
 
-      <div className="border border-gray-200 rounded-lg shadow dark:border-gray-800">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead style={{ minWidth: '50px' }}>No</TableHead>
-              <TableHead style={{ minWidth: '50px' }}>Triwulan</TableHead>
-              <TableHead style={{ minWidth: '50px' }}>Responsibility</TableHead>
-              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Unit</TableHead>
-              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Bobot</TableHead>
-              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Target</TableHead>
-              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Realisasi</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Pencapaian</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Max</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Min</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">% Real</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Nilai</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Input</TableHead>
-              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Monitor</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {contractData.map((row, idx) => {
-              const rowNumber = (currentPage - 1) * rowFilter + idx + 1
-              return (
-                <TableRow key={row.id || idx}>
-                  <TableCell className="max-sm:hidden">{rowNumber}</TableCell>
-                  <TableCell>{row.quarterly || "-"}</TableCell>
-                  <TableCell className="max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap">{row.responsibility || "-"}</TableCell>
-                  <TableCell className="">{row.unit || "-"}</TableCell>
-                  <TableCell className="">{row.weight || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.target || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.realization || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.achievement || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.max || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.min || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.persReal || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.value || "-"}</TableCell>
-                  <TableCell style={{ minWidth: '50px' }} className="max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap max-sm:hidden">{row.Input || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{row.Monitor || "-"}</TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
+      <div className="relative border border-gray-200 rounded-lg shadow dark:border-gray-800">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead
+                  className="sticky left-0 z-20 bg-white dark:bg-gray-900"
+                  style={{ minWidth: '60px' }}
+                >
+                  No
+                </TableHead>
+
+                <TableHead
+                  className="sticky left-[60px] z-20 bg-white dark:bg-gray-900"
+                  style={{ minWidth: '90px' }}
+                >
+                  Triwulan
+                </TableHead>
+
+                <TableHead
+                  className="sticky left-[150px] z-20 bg-white dark:bg-gray-900"
+                  style={{ minWidth: '280px' }}
+                >
+                  Responsibility
+                </TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Unit</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Bobot</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Target</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Realisasi</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Pencapaian</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Max</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Min</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">% Real</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Nilai</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Input</TableHead>
+                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Monitor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {contractData.map((row, idx) => {
+                const rowNumber = (currentPage - 1) * rowFilter + idx + 1
+                return (
+                  <TableRow key={row.id || idx}>
+                    <TableCell
+                      className="sticky left-0 z-10 bg-white dark:bg-gray-900"
+                      style={{ minWidth: '60px' }}
+                    >
+                      {rowNumber}
+                    </TableCell>
+
+                    <TableCell
+                      className="sticky left-[60px] z-10 bg-white dark:bg-gray-900"
+                      style={{ minWidth: '90px' }}
+                    >
+                      {row.quarterly || "-"}
+                    </TableCell>
+
+                    <TableCell
+                      className="sticky left-[150px] z-10 bg-white dark:bg-gray-900"
+                      style={{ minWidth: '280px' }}
+                    >
+                      {row.responsibility || "-"}
+                    </TableCell>
+
+                    {/* kolom scrollable */}
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.unit || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.weight || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.target || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.realization || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.achievement || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.max || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.min || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.persReal || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.value || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.Input || "-"}
+                    </TableCell>
+                    <TableCell style={{ minWidth: '100px' }}>
+                      {row.Monitor || "-"}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
