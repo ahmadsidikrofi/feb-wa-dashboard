@@ -1,163 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+
 import { toast } from "sonner";
 import {
   FileText,
   Calendar,
-  Users,
   CheckCircle2,
   Clock,
   Search,
-  Eye,
   Download,
   Plus,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-// Dummy data for meetings
-const dummyMeetings = [
-  {
-    id: 1,
-    judulRapat: "Rapat Koordinasi Kurikulum Semester Genap",
-    tanggal: "2025-01-10",
-    waktu: "09:00 - 11:00",
-    tempat: "Ruang Sidang Dekan",
-    pemimpin: "Wakil Dekan I",
-    peserta: 15,
-    status: "Selesai",
-    notulen: "Dr. Ahmad Susanto",
-    hasNotulensi: true,
-  },
-  {
-    id: 2,
-    judulRapat: "Evaluasi Kinerja Triwulan IV",
-    tanggal: "2025-01-12",
-    waktu: "13:00 - 15:30",
-    tempat: "Ruang Rapat Dekan",
-    pemimpin: "Dekan",
-    peserta: 25,
-    status: "Selesai",
-    notulen: "Siti Nurhaliza, M.M.",
-    hasNotulensi: true,
-  },
-  {
-    id: 3,
-    judulRapat: "Rapat Persiapan Akreditasi AACSB",
-    tanggal: "2025-01-15",
-    waktu: "08:00 - 12:00",
-    tempat: "Aula Fakultas",
-    pemimpin: "Dekan",
-    peserta: 40,
-    status: "Selesai",
-    notulen: "Prof. Budiman",
-    hasNotulensi: true,
-  },
-  {
-    id: 4,
-    judulRapat: "Rapat Koordinasi Program Studi S1",
-    tanggal: "2025-01-17",
-    waktu: "10:00 - 12:00",
-    tempat: "Ruang Seminar A",
-    pemimpin: "Wakil Dekan I",
-    peserta: 20,
-    status: "Selesai",
-    notulen: "Dr. Rina Kusuma",
-    hasNotulensi: false,
-  },
-  {
-    id: 5,
-    judulRapat: "Rapat Evaluasi Penelitian dan Pengabdian",
-    tanggal: "2025-01-18",
-    waktu: "14:00 - 16:00",
-    tempat: "Ruang Sidang Dekan",
-    pemimpin: "Wakil Dekan II",
-    peserta: 18,
-    status: "Berlangsung",
-    notulen: "Dr. Hendra Wijaya",
-    hasNotulensi: false,
-  },
-  {
-    id: 6,
-    judulRapat: "Rapat Perencanaan Kegiatan Kemahasiswaan",
-    tanggal: "2025-01-20",
-    waktu: "09:00 - 11:00",
-    tempat: "Ruang Rapat Kemahasiswaan",
-    pemimpin: 'Kaur Kemahasiswaan',
-    peserta: 12,
-    status: "Terjadwal",
-    notulen: "Ani Setiani, S.E.",
-    hasNotulensi: false,
-  },
-  {
-    id: 7,
-    judulRapat: 'Rapat Evaluasi Laboratorium',
-    tanggal: '2025-01-22',
-    waktu: '13:00 - 15:00',
-    tempat: 'Lab Komputer 1',
-    pemimpin: 'Kaur Laboratorium',
-    peserta: 10,
-    status: "Terjadwal",
-    notulen: "Budi Santoso, M.T.",
-    hasNotulensi: false,
-  },
-  {
-    id: 8,
-    judulRapat: "Rapat Koordinasi SDM dan Keuangan",
-    tanggal: "2025-01-25",
-    waktu: "10:00 - 12:00",
-    tempat: "Ruang Rapat Dekan",
-    pemimpin: 'Kaur SDM Keuangan',
-    peserta: 8,
-    status: "Terjadwal",
-    notulen: "Lina Marlina, S.E., M.M.",
-    hasNotulensi: false,
-  },
-];
+import axios from "axios";
+import TableMeetingMinutes from "@/components/MeetingMinutes/table-meeting-minutes";
+import AddMeeting from "@/components/MeetingMinutes/add-meeting";
 
 export default function NotulensiRapatPage() {
-  const router = useRouter();
-  const [meetings, setMeetings] = useState(dummyMeetings);
+  const [meetings, setMeetings] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     judulRapat: "",
     tanggal: "",
@@ -167,7 +40,7 @@ export default function NotulensiRapatPage() {
     pemimpin: "",
     notulen: "",
     keterangan: "",
-  });
+  })
 
   // Calculate stats
   const totalMeetings = meetings.length;
@@ -180,79 +53,64 @@ export default function NotulensiRapatPage() {
   const withNotulensi = meetings.filter((m) => m.hasNotulensi).length;
   const pendingNotulensi = completedMeetings - withNotulensi;
 
-  // Filter meetings
-  const filteredMeetings = meetings.filter((meeting) => {
-    const matchesSearch =
-      meeting.judulRapat.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      meeting.pemimpin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      meeting.tempat.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      filterStatus === "all" || meeting.status === filterStatus;
+  const mapMeetingApiToState = (data = []) =>
+    data.map((item) => ({
+      id: item.id,
+      judulRapat: item.title,
+      tanggal: item.date,
+      waktu: `${new Date(item.startTime).toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })} - ${new Date(item.endTime).toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`,
+      tempat: item.location,
+      pemimpin: item.leader,
+      notulen: item.notetaker,
+      status: item.status,
+      hasNotulensi: item.hasNotulensi,
+  }))
 
-    return matchesSearch && matchesStatus;
-  });
+  const fetchMeetings = useCallback(async () => {
+    try {
+      setIsLoading(true)
 
-  const getStatusBadge = (status) => {
-    const config = {
-      Selesai: {
-        variant: "default",
-        className: "bg-green-600 hover:bg-green-700",
-      },
-      Berlangsung: {
-        variant: "default",
-        className: "bg-blue-600 hover:bg-blue-700",
-      },
-      Terjadwal: { variant: "secondary", className: "" },
-    };
-    const { variant, className } = config[status] || config["Terjadwal"];
+      const params = {
+        search: searchQuery || undefined,
+        status: filterStatus !== "all" ? filterStatus : undefined,
+      }
 
-    return (
-      <Badge variant={variant} className={className}>
-        {status}
-      </Badge>
-    );
-  };
+      Object.keys(params).forEach(
+        (key) => params[key] === undefined && delete params[key]
+      )
 
-  const handleViewNotulensi = (meetingId) => {
-    router.push(`/dashboard/notulensi-rapat/${meetingId}`);
-  };
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings`,
+        {
+          params,
+          headers: {
+            "ngrok-skip-browser-warning": true,
+          },
+        }
+      )
 
-  const handleCreateNotulensi = () => {
-    router.push("/dashboard/notulensi-rapat/buat");
-  };
+      if (res.data?.success) {
+        const mapped = mapMeetingApiToState(res.data.data || [])
+        setMeetings(mapped)
+      }
+    } catch (err) {
+      console.error("Gagal fetch meetings:", err)
+      toast.error("Gagal memuat data rapat")
+      setMeetings([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [searchQuery, filterStatus])
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const newMeeting = {
-      id: meetings.length + 1,
-      judulRapat: formData.judulRapat,
-      tanggal: formData.tanggal,
-      waktu: `${formData.waktuMulai} - ${formData.waktuSelesai}`,
-      tempat: formData.tempat,
-      pemimpin: formData.pemimpin,
-      peserta: 0,
-      status: "Terjadwal",
-      notulen: formData.notulen,
-      hasNotulensi: false,
-    };
-
-    setMeetings([newMeeting, ...meetings]);
-    setIsDialogOpen(false);
-    toast.success("Rapat berhasil ditambahkan");
-
-    // Reset form
-    setFormData({
-      judulRapat: "",
-      tanggal: "",
-      waktuMulai: "",
-      waktuSelesai: "",
-      tempat: "",
-      pemimpin: "",
-      notulen: "",
-      keterangan: "",
-    });
-  };
+  useEffect(() => {
+    fetchMeetings()
+  }, [fetchMeetings])
 
   return (
     <div className="space-y-6">
@@ -271,178 +129,16 @@ export default function NotulensiRapatPage() {
             <Download className="h-4 w-4 mr-2" />
             Export Laporan
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#e31e25] hover:bg-[#c41a20]" size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Tambah Rapat
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Tambah Rapat Baru</DialogTitle>
-                <DialogDescription>
-                  Isi formulir untuk menambahkan jadwal rapat baru
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="judulRapat">Judul Rapat *</Label>
-                    <Input
-                      id="judulRapat"
-                      value={formData.judulRapat}
-                      onChange={(e) =>
-                        setFormData({ ...formData, judulRapat: e.target.value })
-                      }
-                      required
-                      placeholder="Contoh: Rapat Koordinasi Kurikulum"
-                    />
-                  </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="tanggal">Tanggal *</Label>
-                      <Input
-                        id="tanggal"
-                        type="date"
-                        value={formData.tanggal}
-                        onChange={(e) =>
-                          setFormData({ ...formData, tanggal: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="waktuMulai">Waktu Mulai *</Label>
-                      <Input
-                        id="waktuMulai"
-                        type="time"
-                        value={formData.waktuMulai}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            waktuMulai: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="waktuSelesai">Waktu Selesai *</Label>
-                      <Input
-                        id="waktuSelesai"
-                        type="time"
-                        value={formData.waktuSelesai}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            waktuSelesai: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="tempat">Tempat *</Label>
-                    <Input
-                      id="tempat"
-                      value={formData.tempat}
-                      onChange={(e) =>
-                        setFormData({ ...formData, tempat: e.target.value })
-                      }
-                      required
-                      placeholder="Contoh: Ruang Sidang Dekan"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="pemimpin">Pemimpin Rapat *</Label>
-                      <Select
-                        value={formData.pemimpin}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, pemimpin: value })
-                        }
-                        required
-                      >
-                        <SelectTrigger id="pemimpin">
-                          <SelectValue placeholder="Pilih pemimpin rapat" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Dekan">Dekan</SelectItem>
-                          <SelectItem value="Wakil Dekan I">
-                            Wakil Dekan I
-                          </SelectItem>
-                          <SelectItem value="Wakil Dekan II">
-                            Wakil Dekan II
-                          </SelectItem>
-                          <SelectItem value="Kaur Sekretariat Dekan">
-                            Kaur Sekretariat Dekan
-                          </SelectItem>
-                          <SelectItem value="Kaur Akademik">
-                            Kaur Akademik
-                          </SelectItem>
-                          <SelectItem value="Kaur Laboratorium">
-                            Kaur Laboratorium
-                          </SelectItem>
-                          <SelectItem value="Kaur SDM Keuangan">
-                            Kaur SDM Keuangan
-                          </SelectItem>
-                          <SelectItem value="Kaur Kemahasiswaan">
-                            Kaur Kemahasiswaan
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="notulen">Notulen *</Label>
-                      <Input
-                        id="notulen"
-                        value={formData.notulen}
-                        onChange={(e) =>
-                          setFormData({ ...formData, notulen: e.target.value })
-                        }
-                        required
-                        placeholder="Nama petugas notulen"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="keterangan">Keterangan</Label>
-                    <Textarea
-                      id="keterangan"
-                      value={formData.keterangan}
-                      onChange={(e) =>
-                        setFormData({ ...formData, keterangan: e.target.value })
-                      }
-                      placeholder="Catatan atau agenda singkat rapat"
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-[#e31e25] hover:bg-[#c41a20]"
-                  >
-                    Simpan Rapat
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <AddMeeting 
+            isDialogOpen={isDialogOpen}
+            setIsDialogOpen={setIsDialogOpen}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            formData={formData}
+            setFormData={setFormData}
+            onSuccess={() => fetchMeetings()}
+          />
         </div>
       </div>
 
@@ -520,139 +216,12 @@ export default function NotulensiRapatPage() {
         </Card>
       </div>
 
-      {/* Search and Filter */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Cari rapat berdasarkan judul, pemimpin, atau tempat..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Semua Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Status</SelectItem>
-                  <SelectItem value="Selesai">Selesai</SelectItem>
-                  <SelectItem value="Berlangsung">Berlangsung</SelectItem>
-                  <SelectItem value="Terjadwal">Terjadwal</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Meetings Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daftar Rapat</CardTitle>
-          <CardDescription>
-            Daftar lengkap rapat fakultas dan status notulensi
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Judul Rapat</TableHead>
-                  <TableHead>Waktu</TableHead>
-                  <TableHead>Tempat</TableHead>
-                  <TableHead>Pemimpin Rapat</TableHead>
-                  <TableHead className="text-center">Peserta</TableHead>
-                  <TableHead>Notulen</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMeetings.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={9}
-                      className="text-center text-muted-foreground py-8"
-                    >
-                      Tidak ada rapat ditemukan
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredMeetings.map((meeting) => (
-                    <TableRow key={meeting.id}>
-                      <TableCell className="font-medium">
-                        {new Date(meeting.tanggal).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{meeting.judulRapat}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          {meeting.waktu}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {meeting.tempat}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {meeting.pemimpin}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Users className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">{meeting.peserta}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {meeting.notulen}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(meeting.status)}</TableCell>
-                      <TableCell className="text-center">
-                        {meeting.hasNotulensi ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleViewNotulensi(meeting.id)}
-                            className="gap-1"
-                          >
-                            <Eye className="h-3 w-3" />
-                            Lihat
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleCreateNotulensi}
-                            className="gap-1"
-                            disabled={meeting.status === "Terjadwal"}
-                          >
-                            <FileText className="h-3 w-3" />
-                            Buat
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <TableMeetingMinutes isLoading={isLoading} meetings={meetings} 
+        searchQuery={searchQuery}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        setSearchQuery={setSearchQuery}
+      />
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -679,10 +248,11 @@ export default function NotulensiRapatPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {Math.round(
-                meetings.reduce((sum, m) => sum + m.peserta, 0) /
-                  meetings.length
-              )}
+              {meetings.length > 0
+                ? Math.round(
+                    meetings.reduce((sum, m) => sum + (typeof m.peserta === "number" ? m.peserta : 0), 0) / meetings.length
+                  )
+                : 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Per rapat yang dilaksanakan
