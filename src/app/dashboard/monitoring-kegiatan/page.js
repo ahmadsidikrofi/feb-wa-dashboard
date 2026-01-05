@@ -106,6 +106,12 @@ const officials = [
   "Kaprodi S2 Administrasi Bisnis",
   "Kaprodi S2 Akuntansi",
   "Kaprodi S3 Manajemen",
+  "Sekprodi S1 Manajemen",
+  "Sekprodi S1 ICT Bussiness",
+  "Sekprodi S1 Akuntansi",
+  "Sekprodi S2 Manajemen",
+  "Sekprodi S2 Manajemen PJJ",
+  "Sekprodi S2 Administrasi Bisnis",
 ]
 
 export default function MonitoringKegiatanPage() {

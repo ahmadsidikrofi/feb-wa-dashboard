@@ -73,7 +73,7 @@ const navigation = [
     ],
   },
   {
-    name: "Monitoring Kegiatan",
+    name: "Daftar Agenda",
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
   },

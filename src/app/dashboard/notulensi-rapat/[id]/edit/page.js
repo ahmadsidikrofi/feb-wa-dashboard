@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -13,14 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { Save, ArrowLeft, Plus, Trash2, Loader2, BadgeCheckIcon, Timer, CalendarCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
+import DeleteMeeting from "@/components/MeetingMinutes/delete-meeting";
 
-export default function EditNotulensiPage() {
-  const router = useRouter()
-  const { id } = useParams()
+export default function EditNotulensiPage({ params }) {
+  const router = useRouter();
+  const resolvedParams = use(params);
+  const { id } = resolvedParams;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
@@ -33,7 +35,7 @@ export default function EditNotulensiPage() {
     tempat: "",
     pemimpin: "",
     notulen: "",
-  });
+  })
 
   const [pesertaList, setPesertaList] = useState([""]);
   const [agendaList, setAgendaList] = useState([""]);
@@ -45,7 +47,6 @@ export default function EditNotulensiPage() {
   ]);
   const [penutup, setPenutup] = useState("");
 
-  // Fetch data from API
   const fetchMeetingData = async (meetingId) => {
     try {
       setIsLoading(true);
@@ -61,17 +62,21 @@ export default function EditNotulensiPage() {
       if (res.data?.success && res.data?.data) {
         const data = res.data.data;
 
-        // Format tanggal untuk input date (YYYY-MM-DD)
         const date = new Date(data.date);
         const formattedDate = date.toISOString().split("T")[0];
 
-        // Format waktu untuk input time (HH:mm) - menggunakan UTC untuk menghindari timezone offset
         const startTime = new Date(data.startTime);
-        const endTime = new Date(data.endTime);
-        const formattedStartTime = startTime.toISOString().slice(11, 16); // Mengambil HH:mm dari ISO string
-        const formattedEndTime = endTime.toISOString().slice(11, 16);
+        const endTime = new Date(data.endTime)
 
-        // Set form data
+        const toTimeInputValue = (date) => {
+          const h = String(date.getHours()).padStart(2, "0");
+          const m = String(date.getMinutes()).padStart(2, "0");
+          return `${h}:${m}`;
+        }
+        
+        const formattedStartTime = toTimeInputValue(startTime)
+        const formattedEndTime = toTimeInputValue(endTime)
+
         setFormData({
           judulRapat: data.title || "",
           tanggal: formattedDate,
@@ -136,15 +141,17 @@ export default function EditNotulensiPage() {
 
   // Load existing data on mount
   useEffect(() => {
-    const meetingId = Number(id)
+    if (!id) return;
+    
+    const meetingId = Number(id);
     if (!meetingId || Number.isNaN(meetingId)) {
-      toast.error("ID rapat tidak valid")
-      router.push("/dashboard/notulensi-rapat")
-      return
+      toast.error("ID rapat tidak valid");
+      router.push("/dashboard/notulensi-rapat");
+      return;
     }
-  
-    fetchMeetingData(meetingId)
-  }, [id]);
+
+    fetchMeetingData(meetingId);
+  }, [id, router]);
 
   if (isLoading) {
     return (
@@ -253,36 +260,86 @@ export default function EditNotulensiPage() {
         }
       );
 
-      toast.success("Notulensi berhasil diperbarui");
-      router.push(`/dashboard/notulensi-rapat/${id}`);
+      toast.success("Notulensi berhasil diperbarui", {
+        style: { background: "#22c55e", color: "#fff" },
+        iconTheme: { primary: "#22c55e", secondary: "#fff" }
+      })
     } catch (err) {
       console.error("Gagal update notulensi:", err);
-      const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Gagal memperbarui notulensi";
+      const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Gagal memperbarui notulensi"
       console.error("Error details:", err?.response?.data);
       toast.error(errorMessage);
     } finally {
       setIsFetching(false);
     }
-  };
+  }
+
+  const calculateStatus = () => {
+    if (!formData.tanggal || !formData.waktuMulai || !formData.waktuSelesai) {
+      return "Terjadwal";
+    }
+
+    const now = new Date();
+    const meetingDate = new Date(formData.tanggal);
+    const startDateTime = new Date(`${formData.tanggal}T${formData.waktuMulai}:00`);
+    const endDateTime = new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`);
+
+    if (now < startDateTime) {
+      return "Terjadwal";
+    } else if (now >= startDateTime && now < endDateTime) {
+      return "Berlangsung";
+    } else {
+      return "Selesai";
+    }
+  }
+
+  const getStatusBadge = (status) => {
+    const config = {
+      Selesai: {
+        variant: "default",
+        className: "bg-green-600 hover:bg-green-700 rounded-full",
+        icon: BadgeCheckIcon,
+      },
+      Berlangsung: {
+        variant: "default",
+        className: "bg-blue-600 hover:bg-blue-700 rounded-full",
+        icon: Timer,
+      },
+      Terjadwal: { variant: "secondary", className: "rounded-full", icon: CalendarCheck },
+    };
+    const { variant, className, icon: Icon } = config[status] || config["Terjadwal"];
+
+    return (
+      <Badge variant={variant} className={`${className} px-2 py-1 text-xs h-6 min-h-0`}>
+        <Icon className="mr-1 size-3.5 inline align-text-bottom" />
+        {status}
+      </Badge>
+    )
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push(`/dashboard/notulensi-rapat`)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-5">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => router.push(`/dashboard/notulensi-rapat`)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+              Buat/Edit Notulensi Rapat
+            </h1>
+            <p className="text-muted-foreground">
+              Perbarui dokumentasi hasil rapat
+            </p>
+          </div>
+        </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
-            Buat/Edit Notulensi Rapat
-          </h1>
-          <p className="text-muted-foreground">
-            Perbarui dokumentasi hasil rapat
-          </p>
+          <DeleteMeeting isLoading={isLoading} setIsLoading={setIsLoading} meetingId={id} />
         </div>
       </div>
 
@@ -290,10 +347,15 @@ export default function EditNotulensiPage() {
         {/* Informasi Rapat */}
         <Card>
           <CardHeader>
-            <CardTitle>Informasi Rapat</CardTitle>
-            <CardDescription>
-              Data dasar rapat yang dilaksanakan
-            </CardDescription>
+            <div className="flex justify-between">
+              <div>
+                <CardTitle>Informasi Rapat</CardTitle>
+                <CardDescription>
+                  Data dasar rapat yang dilaksanakan
+                </CardDescription>
+              </div>
+              {getStatusBadge(calculateStatus())}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4">
@@ -328,9 +390,10 @@ export default function EditNotulensiPage() {
                     id="waktuMulai"
                     type="time"
                     value={formData.waktuMulai}
-                    onChange={(e) =>
-                      setFormData({ ...formData, waktuMulai: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setFormData({ ...formData, waktuMulai: val });
+                    }}
                     required
                   />
                 </div>
@@ -347,6 +410,11 @@ export default function EditNotulensiPage() {
                   />
                 </div>
               </div>
+              {/* 
+                Penjelasan:
+                - Gunakan kembali `formData.waktuMulai`, bukan `formattedStartTime`, agar dua arah (input dan perubahan state) tetap sinkron.
+                - Jika ingin formatting, lakukan saat menampilkan/submit saja, bukan saat mengisi value input.
+              */}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
@@ -628,7 +696,7 @@ export default function EditNotulensiPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/dashboard/notulensi-rapat/${id}`)}
+            onClick={() => router.push(`/dashboard/notulensi-rapat`)}
           >
             Batal
           </Button>

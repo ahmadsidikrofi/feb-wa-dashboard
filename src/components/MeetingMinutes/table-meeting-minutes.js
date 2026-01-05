@@ -15,13 +15,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -62,7 +55,7 @@ const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery,
     }
 
     return (
-        <div>
+        <div className="space-y-4">
             {/* Search and Filter */}
             <Card>
                 <CardContent className="pt-6">
@@ -77,20 +70,6 @@ const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery,
                                     className="pl-8"
                                 />
                             </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Semua Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Status</SelectItem>
-                                    <SelectItem value="Selesai">Selesai</SelectItem>
-                                    <SelectItem value="Berlangsung">Berlangsung</SelectItem>
-                                    <SelectItem value="Terjadwal">Terjadwal</SelectItem>
-                                    <SelectItem value="Batal">Batal</SelectItem>
-                                </SelectContent>
-                            </Select>
                         </div>
                     </div>
                 </CardContent>
@@ -172,7 +151,7 @@ const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery,
                                                 {getStatusBadge(meeting.status)}
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                {meeting.hasNotulensi ? (
+                                                {meeting.status === "Selesai" ? (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -190,7 +169,7 @@ const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery,
                                                         className="gap-1"
                                                     >
                                                         <FileText className="h-3 w-3" />
-                                                        Buat
+                                                        Lanjutkan
                                                     </Button>
                                                 )}
                                             </TableCell>

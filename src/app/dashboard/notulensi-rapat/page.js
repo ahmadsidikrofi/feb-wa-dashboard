@@ -20,6 +20,7 @@ import {
   Plus,
   TrendingUp,
   Loader2,
+  CalendarCheck,
 } from "lucide-react";
 import axios from "axios";
 import TableMeetingMinutes from "@/components/MeetingMinutes/table-meeting-minutes";
@@ -31,6 +32,7 @@ export default function NotulensiRapatPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const today = new Date().toISOString().split("T")[0]
   const [formData, setFormData] = useState({
     judulRapat: "",
     tanggal: "",
@@ -50,8 +52,15 @@ export default function NotulensiRapatPage() {
   const scheduledMeetings = meetings.filter(
     (m) => m.status === "Terjadwal"
   ).length;
-  const withNotulensi = meetings.filter((m) => m.hasNotulensi).length;
-  const pendingNotulensi = completedMeetings - withNotulensi;
+  const withNotulensi = meetings.filter((m) => m.hasNotulensi).length
+  // const pendingNotulensi = completedMeetings - withNotulensi
+  const pendingNotulensi = meetings.filter(
+    (m) => m.status === "Selesai" && !m.hasNotulensi
+  ).length
+  const activeTodayMeetings = meetings.filter(m =>
+    m.tanggal?.startsWith(today) &&
+    (m.status === "Berlangsung" || m.status === "Terjadwal")
+  ).length
 
   const mapMeetingApiToState = (data = []) =>
     data.map((item) => ({
@@ -216,18 +225,12 @@ export default function NotulensiRapatPage() {
         </Card>
       </div>
 
-      <TableMeetingMinutes isLoading={isLoading} meetings={meetings} 
-        searchQuery={searchQuery}
-        filterStatus={filterStatus}
-        setFilterStatus={setFilterStatus}
-        setSearchQuery={setSearchQuery}
-      />
-
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base">Tingkat Dokumentasi</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
@@ -243,33 +246,30 @@ export default function NotulensiRapatPage() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Rata-rata Peserta</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Rapat Aktif Hari Ini
+            </CardTitle>
+            <CalendarCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              {meetings.length > 0
-                ? Math.round(
-                    meetings.reduce((sum, m) => sum + (typeof m.peserta === "number" ? m.peserta : 0), 0) / meetings.length
-                  )
-                : 0}
+            <div className="text-2xl font-bold">
+              {activeTodayMeetings}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Per rapat yang dilaksanakan
+              Terjadwal & sedang berlangsung
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Rapat Bulan Ini</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{totalMeetings}</div>
-            <p className="text-xs text-muted-foreground mt-1">Januari 2025</p>
-          </CardContent>
-        </Card>
       </div>
+
+      <TableMeetingMinutes isLoading={isLoading} meetings={meetings} 
+        searchQuery={searchQuery}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        setSearchQuery={setSearchQuery}
+      />
+
     </div>
   );
 }
