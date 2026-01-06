@@ -40,6 +40,7 @@ import {
   Newspaper,
   GraduationCap,
   Award,
+  Users,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -102,8 +103,8 @@ const navigation = [
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,
     submenu: [
-      { name: "Pengajuan", href: "/dashboard/partnership-monitoring/ajukan-kerjasama" },
-      { name: "Persetujuan", href: "/dashboard/partnership-monitoring/pengajuan" },
+      { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
+      { name: "Persetujuan", href: "/dashboard/partnership-monitoring/persetujuan" },
       { name: "Penerapan", href: "/dashboard/partnership-monitoring/penerapan" },
     ],
   },
@@ -260,7 +261,7 @@ export default function DashboardLayout({ children }) {
                                 onClick={() => handleNavigation("/dashboard")}
                                 isActive={pathname === "/dashboard"}
                               >
-                                <Home className="w-4 h-4 shrink-0 mr-2" />
+                                {/* <Home className="w-4 h-4 shrink-0 mr-2" /> */}
                                 Dashboard
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -413,6 +414,21 @@ export default function DashboardLayout({ children }) {
                               <SidebarMenuSubButton
                                 onClick={() =>
                                   handleNavigation(
+                                    "/dashboard/partnership-monitoring/persetujuan"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/partnership-monitoring/persetujuan"
+                                }
+                              >
+                                Persetujuan
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
                                     "/dashboard/partnership-monitoring/penerapan"
                                   )
                                 }
@@ -445,8 +461,8 @@ export default function DashboardLayout({ children }) {
                           <SidebarMenuButton
                             onClick={() => handleNavigation(item.href)}
                             className={`flex-1 ${pathname === item.href
-                                ? "bg-primary text-white font-semibold"
-                                : ""
+                              ? "bg-primary text-white font-semibold"
+                              : ""
                               }`}
                           >
                             <item.icon className="w-4 h-4 shrink-0" />
