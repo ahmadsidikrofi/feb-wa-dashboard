@@ -107,7 +107,7 @@ const officials = [
   "Kaprodi S2 Akuntansi",
   "Kaprodi S3 Manajemen",
   "Sekprodi S1 Manajemen",
-  "Sekprodi S1 ICT Bussiness",
+  "Sekprodi S1 ICT Business",
   "Sekprodi S1 Akuntansi",
   "Sekprodi S2 Manajemen",
   "Sekprodi S2 Manajemen PJJ",
@@ -140,8 +140,8 @@ export default function MonitoringKegiatanPage() {
     waktuMulai: "",
     waktuSelesai: "",
     unit: "",
-    prodi: "",
     ruangan: "",
+    locationDetail: "",
     pejabat: [],
     jumlahPeserta: "",
     keterangan: "",
@@ -200,9 +200,9 @@ export default function MonitoringKegiatanPage() {
         waktuMulai: startTime.toTimeString().slice(0, 5),
         waktuSelesai: endTime.toTimeString().slice(0, 5),
         unit: formatCamelCaseLabel(item.unit),
-        prodi: formatCamelCaseLabel(item.prodi),
         ruangan: formatCamelCaseLabel(item.room),
         tempat: formatCamelCaseLabel(item.room),
+        locationDetail: item.locationDetail || "",
         pejabat: (item.officials || []).map(formatCamelCaseLabel),
         jumlahPeserta: item.participants || 0,
         status: item.status || "Normal",
@@ -356,7 +356,6 @@ export default function MonitoringKegiatanPage() {
     
     const details = `
 Unit: ${activity.unit}
-Prodi: ${activity.prodi}
 Ruangan: ${ruangan}
 Pejabat: ${activity.pejabat.join(", ")}
 Jumlah Peserta: ${activity.jumlahPeserta}
@@ -487,7 +486,6 @@ ${activity.keterangan}`;
             formData={formData}
             setFormData={setFormData}
             units={units}
-            prodiList={prodiList}
             rooms={rooms}
             officials={officials}
             onSuccess={() => fetchActivities(currentPage)}
@@ -582,8 +580,8 @@ ${activity.keterangan}`;
             waktuMulai: activity.waktuMulai,
             waktuSelesai: activity.waktuSelesai,
             unit: activity.unit,
-            prodi: activity.prodi || "",
             ruangan: activity.ruangan,
+            locationDetail: activity.locationDetail,
             pejabat: activity.pejabat || [],
             jumlahPeserta: activity.jumlahPeserta || "",
             keterangan: activity.keterangan || "",
@@ -605,8 +603,8 @@ ${activity.keterangan}`;
               waktuMulai: "",
               waktuSelesai: "",
               unit: "",
-              prodi: "",
               ruangan: "",
+              locationDetail: "",
               pejabat: [],
               jumlahPeserta: "",
               keterangan: "",
@@ -617,7 +615,6 @@ ${activity.keterangan}`;
         formData={formData}
         setFormData={setFormData}
         units={units}
-        prodiList={prodiList}
         rooms={rooms}
         officials={officials}
         onSuccess={() => {

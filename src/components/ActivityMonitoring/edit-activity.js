@@ -30,7 +30,6 @@ const EditActivity = ({
     formData,
     setFormData,
     units,
-    prodiList,
     rooms,
     officials,
     onSuccess,
@@ -73,6 +72,14 @@ const EditActivity = ({
             return
         }
 
+        if (
+            formData.ruangan === "Lainnya" &&
+            (!formData.locationDetail || formData.locationDetail.trim() === "")
+        ) {
+            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.");
+            return
+        }
+
         e.preventDefault()
 
         if (!editingId) {
@@ -90,7 +97,7 @@ const EditActivity = ({
                 description: formData.keterangan,
                 unit: formData.unit,
                 room: formData.ruangan,
-                prodi: formData.prodi || null,
+                locationDetail: formData.locationDetail || "",
                 officials: formData.pejabat,
             }
 
@@ -105,8 +112,8 @@ const EditActivity = ({
                 waktuMulai: "",
                 waktuSelesai: "",
                 unit: "",
-                prodi: "",
                 ruangan: "",
+                locationDetail: "",
                 pejabat: [],
                 jumlahPeserta: "",
                 keterangan: "",
@@ -218,27 +225,6 @@ const EditActivity = ({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="edit-prodi">Program Studi</Label>
-                                <Select
-                                    value={formData.prodi}
-                                    onValueChange={(value) =>
-                                        setFormData({ ...formData, prodi: value })
-                                    }
-                                >
-                                    <SelectTrigger id="edit-prodi">
-                                        <SelectValue placeholder="Pilih prodi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="-">Tidak ada</SelectItem>
-                                        {prodiList.map((prodi) => (
-                                            <SelectItem key={prodi} value={prodi}>
-                                                {prodi}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </div>
 
                         <div className="grid gap-2">
@@ -261,6 +247,22 @@ const EditActivity = ({
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? "" : "hidden"}`}>
+                            <Label htmlFor="edit-locationDetail">Detail Lokasi</Label>
+                            <Input
+                                id="edit-locationDetail"
+                                type="text"
+                                value={formData.locationDetail || ""}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        locationDetail: e.target.value,
+                                    })
+                                }
+                                placeholder="Tulis detail lokasi"
+                            />
                         </div>
 
                         <div className="grid gap-2">
@@ -339,7 +341,6 @@ const EditActivity = ({
                                     waktuMulai: "",
                                     waktuSelesai: "",
                                     unit: "",
-                                    prodi: "",
                                     ruangan: "",
                                     pejabat: [],
                                     jumlahPeserta: "",

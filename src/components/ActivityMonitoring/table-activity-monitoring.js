@@ -104,7 +104,7 @@ const TableActivityMonitoring = ({
                             <div className="relative">
                                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Cari kegiatan, unit, atau prodi..."
+                                    placeholder="Cari kegiatan, atau unit..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-8"
@@ -159,7 +159,6 @@ const TableActivityMonitoring = ({
                                         <TableHead>Waktu</TableHead>
                                         <TableHead>Nama Kegiatan</TableHead>
                                         <TableHead>Unit</TableHead>
-                                        <TableHead>Prodi</TableHead>
                                         <TableHead>Ruangan</TableHead>
                                         <TableHead>Pejabat</TableHead>
                                         <TableHead>Peserta</TableHead>
@@ -230,13 +229,12 @@ const TableActivityMonitoring = ({
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant="outline">{activity.prodi || "-"}</Badge>
-                                                </TableCell>
-                                                <TableCell>
                                                     <div className="flex items-center gap-1">
                                                         <MapPin className="h-3 w-3 text-muted-foreground" />
                                                         <span className="text-sm">
-                                                            {activity.ruangan || activity.tempat}
+                                                            {activity.ruangan === "Lainnya"
+                                                                ? activity.locationDetail
+                                                                : activity.ruangan}
                                                         </span>
                                                     </div>
                                                 </TableCell>
@@ -557,7 +555,6 @@ const TableActivityMonitoring = ({
                                         waktuMulai: activity.waktuMulai,
                                         waktuSelesai: activity.waktuSelesai,
                                         unit: activity.unit,
-                                        prodi: activity.prodi,
                                         tempat: activity.tempat === "Lainnya" ? "Lainnya" : activity.tempat,
                                         tempatLainnya: activity.tempat === "Lainnya" ? "" : "",
                                         pejabat: activity.pejabat,

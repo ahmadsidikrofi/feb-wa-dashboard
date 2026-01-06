@@ -30,7 +30,6 @@ const AddActivity = ({
     formData,
     setFormData,
     units,
-    prodiList,
     rooms,
     officials,
     onSuccess,
@@ -73,6 +72,14 @@ const AddActivity = ({
             return
         }
 
+        if (
+            formData.ruangan === "Lainnya" &&
+            (!formData.locationDetail || formData.locationDetail.trim() === "")
+        ) {
+            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.");
+            return
+        }
+
 
         e.preventDefault()
 
@@ -86,7 +93,7 @@ const AddActivity = ({
                 description: formData.keterangan,
                 unit: formData.unit,
                 room: formData.ruangan,
-                prodi: formData.prodi || null,
+                locationDetail: formData.locationDetail || "",
                 officials: formData.pejabat,
             }
 
@@ -101,8 +108,8 @@ const AddActivity = ({
                 waktuMulai: "",
                 waktuSelesai: "",
                 unit: "",
-                prodi: "",
                 ruangan: "",
+                locationDetail: "",
                 pejabat: [],
                 jumlahPeserta: "",
                 keterangan: "",
@@ -124,8 +131,8 @@ const AddActivity = ({
                     waktuMulai: "",
                     waktuSelesai: "",
                     unit: "",
-                    prodi: "",
                     ruangan: "",
+                    locationDetail: "",
                     pejabat: [],
                     jumlahPeserta: "",
                     keterangan: "",
@@ -209,7 +216,7 @@ const AddActivity = ({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="w-full">
                             <div className="grid gap-2">
                                 <Label htmlFor="unit">Unit Penyelenggara *</Label>
                                 <Select
@@ -219,7 +226,7 @@ const AddActivity = ({
                                     }
                                     required
                                 >
-                                    <SelectTrigger id="unit">
+                                    <SelectTrigger id="unit" className="w-full">
                                         <SelectValue placeholder="Pilih unit" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -231,49 +238,44 @@ const AddActivity = ({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="prodi">Program Studi</Label>
-                                <Select
-                                    value={formData.prodi}
-                                    onValueChange={(value) =>
-                                        setFormData({ ...formData, prodi: value })
-                                    }
-                                >
-                                    <SelectTrigger id="prodi">
-                                        <SelectValue placeholder="Pilih prodi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="-">Tidak ada</SelectItem>
-                                        {prodiList.map((prodi) => (
-                                            <SelectItem key={prodi} value={prodi}>
-                                                {prodi}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="ruangan">Ruangan *</Label>
-                            <Select
-                                value={formData.ruangan}
-                                onValueChange={(value) =>
-                                    setFormData({ ...formData, ruangan: value })
-                                }
-                                required
-                            >
-                                <SelectTrigger id="ruangan">
-                                    <SelectValue placeholder="Pilih ruangan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {rooms.map((room) => (
-                                        <SelectItem key={room} value={room}>
-                                            {room}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        <div className="w-full">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="ruangan">Ruangan *</Label>
+                                    <Select
+                                        value={formData.ruangan}
+                                        onValueChange={(value) =>
+                                            setFormData({ ...formData, ruangan: value })
+                                        }
+                                        required
+                                    >
+                                        <SelectTrigger id="ruangan" className="w-full">
+                                            <SelectValue placeholder="Pilih ruangan" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {rooms.map((room) => (
+                                                <SelectItem key={room} value={room}>
+                                                    {room}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className={`flex flex-col gap-2 ${formData.ruangan === "Lainnya" ? '' : 'hidden'}`}>
+                                    <Label htmlFor="locationDetail">Detail Lokasi</Label>
+                                    <Input
+                                        id="locationDetail"
+                                        type="text"
+                                        value={formData.locationDetail || ""}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, locationDetail: e.target.value })
+                                        }
+                                        placeholder="Tulis detail lokasi"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="grid gap-2">
@@ -353,8 +355,8 @@ const AddActivity = ({
                                     waktuMulai: "",
                                     waktuSelesai: "",
                                     unit: "",
-                                    prodi: "",
                                     ruangan: "",
+                                    locationDetail: "",
                                     pejabat: [],
                                     jumlahPeserta: "",
                                     keterangan: "",
