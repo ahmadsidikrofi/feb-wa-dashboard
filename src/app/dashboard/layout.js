@@ -40,7 +40,6 @@ import {
   Newspaper,
   GraduationCap,
   Award,
-  Users,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -97,6 +96,7 @@ const navigation = [
     href: "/dashboard/notulensi-rapat",
     icon: Inbox,
   },
+  { name: "Reminder", href: "/dashboard/reminder", icon: AlarmClock },
   {
     name: "Partnership Monitoring",
     href: "/dashboard/partnership-monitoring",
@@ -110,11 +110,6 @@ const navigation = [
   {
     name: "Kontrak Manajemen",
     href: "/dashboard/kontrak-manajemen",
-    icon: Newspaper,
-  },
-  {
-    name: "Laporan Manajemen",
-    href: "/dashboard/laporan-manajemen",
     icon: Newspaper,
   },
   {
@@ -232,6 +227,376 @@ export default function DashboardLayout({ children }) {
           <SidebarContent className="overflow-y-auto">
             <SidebarMenu className="px-2 cursor-pointer">
               {navigation.map((item, index) => {
+                if (item.name === "Ticket Management") {
+                  const isTicketManagementActive =
+                    pathname === "/dashboard" ||
+                    pathname?.startsWith("/dashboard/ticket-archive") ||
+                    pathname?.startsWith("/dashboard/tickets");
+
+                  return (
+                    <Collapsible
+                      key={item.name}
+                      defaultOpen
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className={
+                              isTicketManagementActive
+                                ? "bg-primary text-white font-semibold"
+                                : ""
+                            }
+                          >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.name}</span>
+                            <ChevronRightIcon className="size-4 ml-auto shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation("/dashboard")}
+                                isActive={pathname === "/dashboard"}
+                              >
+                                <Home className="w-4 h-4 shrink-0 mr-2" />
+                                Dashboard
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/ticket-management/ticket-archive"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/ticket-management/ticket-archive"
+                                }
+                              >
+                                Ticket Archive
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/ticket-management/tickets"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/ticket-management/tickets"
+                                }
+                              >
+                                Tickets
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                } else if (item.name === "Reminder") {
+                  return (
+                    <Collapsible
+                      key={item.name}
+                      defaultOpen
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className={
+                              pathname === item.href
+                                ? "bg-primary text-white font-semibold"
+                                : ""
+                            }
+                          >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.name}</span>
+                            <ChevronRightIcon className="size-4 ml-auto shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/reminder/tambah-penerima"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/reminder/tambah-penerima"
+                                }
+                              >
+                                Tambah penerima
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/reminder/buat-jadwal"
+                                  )
+                                }
+                                isActive={
+                                  pathname === "/dashboard/reminder/buat-jadwal"
+                                }
+                              >
+                                Buat jadwal
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/reminder/google-calendar"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/reminder/google-calendar"
+                                }
+                              >
+                                Google Calendar
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                } else if (item.name === "Partnership Monitoring") {
+                  return (
+                    <Collapsible
+                      key={item.name}
+                      defaultOpen
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className={
+                              pathname === item.href
+                                ? "bg-primary text-white font-semibold"
+                                : ""
+                            }
+                          >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.name}</span>
+                            <ChevronRightIcon className="size-4 ml-auto shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/partnership-monitoring/pengajuan"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/partnership-monitoring/pengajuan"
+                                }
+                              >
+                                Pengajuan
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/partnership-monitoring/penerapan"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/partnership-monitoring/penerapan"
+                                }
+                              >
+                                Penerapan
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                } else if (item.name === "Akreditasi LAMEMBA") {
+                  const isAkreditasiActive = pathname?.startsWith(
+                    "/dashboard/akreditasi-lamemba"
+                  );
+
+                  return (
+                    <Collapsible
+                      key={item.name}
+                      defaultOpen
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <div className="flex items-center">
+                          <SidebarMenuButton
+                            onClick={() => handleNavigation(item.href)}
+                            className={`flex-1 ${pathname === item.href
+                                ? "bg-primary text-white font-semibold"
+                                : ""
+                              }`}
+                          >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.name}</span>
+                          </SidebarMenuButton>
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 shrink-0"
+                            >
+                              <ChevronRightIcon className="size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </Button>
+                          </CollapsibleTrigger>
+                        </div>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/visi-misi"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/visi-misi"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Visi, Misi, Tujuan & Sasaran
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/tata-pamong"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/tata-pamong"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Tata Pamong & Penjaminan Mutu
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/mahasiswa-lulusan"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/mahasiswa-lulusan"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Mahasiswa dan Lulusan
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/sdm"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/sdm"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Sumber Daya Manusia
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/kurikulum"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/kurikulum"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Kurikulum & Pembelajaran
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/pembiayaan"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/pembiayaan"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Pembiayaan & Sarana Prasarana
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton
+                                onClick={() =>
+                                  handleNavigation(
+                                    "/dashboard/akreditasi-lamemba/penelitian"
+                                  )
+                                }
+                                isActive={
+                                  pathname ===
+                                  "/dashboard/akreditasi-lamemba/penelitian"
+                                }
+                                className="whitespace-normal h-auto py-2 leading-tight"
+                              >
+                                <span className="text-xs">
+                                  Penelitian & Pengabdian
+                                </span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                }
+
                 // Jika menu adalah fullscreen
                 if (item.action === "fullscreen") {
                   return (
@@ -380,4 +745,3 @@ export default function DashboardLayout({ children }) {
     </SidebarProvider>
   );
 }
-
