@@ -55,8 +55,13 @@ import {
   LayoutGrid,
   CalendarDays,
   Pencil,
+  Columns,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 // Data dummy untuk unit dan prodi
 const units = [
@@ -533,9 +538,8 @@ ${activity.keterangan}`;
       return {
         hasConflict: true,
         type: "pejabat",
-        message: `${conflictingOfficials.join(", ")} sudah terjadwal di "${
-          officialConflict.namaKegiatan
-        }"`,
+        message: `${conflictingOfficials.join(", ")} sudah terjadwal di "${officialConflict.namaKegiatan
+          }"`,
       };
     }
 
@@ -664,38 +668,38 @@ ${activity.keterangan}`;
                       </Select>
                     </div>
                     <div className="grid gap-2">
-                    <Label htmlFor="tempat">Tempat *</Label>
-                    <Select
-                      value={formData.tempat}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, tempat: value, tempatLainnya: "" })
-                      }
-                      required
-                    >
-                      <SelectTrigger id="tempat">
-                        <SelectValue placeholder="Pilih tempat" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rooms.map((room) => (
-                          <SelectItem key={room} value={room}>
-                            {room}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {formData.tempat === "Lainnya" && (
-                      <Input
-                        id="tempatLainnya"
-                        value={formData.tempatLainnya}
-                        onChange={(e) =>
-                          setFormData({ ...formData, tempatLainnya: e.target.value })
+                      <Label htmlFor="tempat">Tempat *</Label>
+                      <Select
+                        value={formData.tempat}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, tempat: value, tempatLainnya: "" })
                         }
                         required
-                        placeholder="Masukkan nama tempat"
-                        className="mt-2"
-                      />
-                    )}
-                  </div>
+                      >
+                        <SelectTrigger id="tempat">
+                          <SelectValue placeholder="Pilih tempat" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {rooms.map((room) => (
+                            <SelectItem key={room} value={room}>
+                              {room}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {formData.tempat === "Lainnya" && (
+                        <Input
+                          id="tempatLainnya"
+                          value={formData.tempatLainnya}
+                          onChange={(e) =>
+                            setFormData({ ...formData, tempatLainnya: e.target.value })
+                          }
+                          required
+                          placeholder="Masukkan nama tempat"
+                          className="mt-2"
+                        />
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid gap-2">
@@ -855,9 +859,13 @@ ${activity.keterangan}`;
                   <LayoutGrid className="h-4 w-4" />
                   Table
                 </TabsTrigger>
+                <TabsTrigger value="board" className="gap-2">
+                  <Columns className="h-4 w-4" />
+                  Board
+                </TabsTrigger>
                 <TabsTrigger value="calendar" className="gap-2">
                   <CalendarDays className="h-4 w-4" />
-                  Board
+                  Calendar
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -1063,13 +1071,13 @@ ${activity.keterangan}`;
           </Card>
         </TabsContent>
 
-        {/* Calendar View */}
-        <TabsContent value="calendar" className="mt-0">
+        {/* Board View (Formerly Calendar View) */}
+        <TabsContent value="board" className="mt-0">
           <Card>
             <CardHeader>
-              <CardTitle>Kalender Kegiatan</CardTitle>
+              <CardTitle>Board Kegiatan</CardTitle>
               <CardDescription>
-                Tampilan kalender agenda kegiatan fakultas
+                Tampilan kartu agenda kegiatan fakultas berdasarkan tanggal
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1207,6 +1215,93 @@ ${activity.keterangan}`;
                   </div>
                 )}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Real Calendar View */}
+        <TabsContent value="calendar" className="mt-0">
+          <Card>
+            <CardHeader>
+              <CardTitle>Kalender Interaktif</CardTitle>
+              <CardDescription>
+                Tampilan kalender interaktif untuk memantau seluruh kegiatan
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="calendar-container bg-white dark:bg-slate-900 p-4 rounded-xl border">
+                <FullCalendar
+                  plugins={[dayGridPlugin, interactionPlugin]}
+                  initialView="dayGridMonth"
+                  headerToolbar={{
+                    left: "prev,next today",
+                    center: "title",
+                    right: "dayGridMonth,dayGridWeek",
+                  }}
+                  events={filteredActivities.map((activity) => ({
+                    id: activity.id.toString(),
+                    title: activity.namaKegiatan,
+                    start: `${activity.tanggal}T${activity.waktuMulai}`,
+                    end: `${activity.tanggal}T${activity.waktuSelesai}`,
+                    backgroundColor: activity.hasConflict ? "#ef4444" : "#e31e25",
+                    borderColor: activity.hasConflict ? "#ef4444" : "#e31e25",
+                    extendedProps: { ...activity },
+                  }))}
+                  eventClick={(info) => {
+                    const activity = info.event.extendedProps;
+                    setFormData({
+                      namaKegiatan: activity.namaKegiatan,
+                      tanggal: activity.tanggal,
+                      waktuMulai: activity.waktuMulai,
+                      waktuSelesai: activity.waktuSelesai,
+                      unit: activity.unit,
+                      prodi: activity.prodi,
+                      tempat: activity.tempat === "Lainnya" ? "Lainnya" : activity.tempat,
+                      tempatLainnya: activity.tempat === "Lainnya" ? "" : "",
+                      pejabat: activity.pejabat,
+                      jumlahPeserta: activity.jumlahPeserta,
+                      keterangan: activity.keterangan,
+                    });
+                    setIsDialogOpen(true);
+                  }}
+                  height="auto"
+                  eventTimeFormat={{
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    meridiem: false,
+                    hour12: false,
+                  }}
+                  locale="id"
+                />
+              </div>
+              <style jsx global>{`
+                .fc .fc-button-primary {
+                  background-color: #e31e25;
+                  border-color: #e31e25;
+                }
+                .fc .fc-button-primary:hover {
+                  background-color: #c41a20;
+                  border-color: #c41a20;
+                }
+                .fc .fc-button-primary:disabled {
+                  background-color: #e31e25;
+                  opacity: 0.65;
+                }
+                .fc .fc-button-active {
+                  background-color: #c41a20 !important;
+                  border-color: #c41a20 !important;
+                }
+                .fc-event {
+                  cursor: pointer;
+                  padding: 2px 4px;
+                }
+                .dark .fc-theme-standard td, .dark .fc-theme-standard th {
+                  border-color: #334155;
+                }
+                .dark .fc .fc-daygrid-day-number {
+                  color: #f8fafc;
+                }
+              `}</style>
             </CardContent>
           </Card>
         </TabsContent>

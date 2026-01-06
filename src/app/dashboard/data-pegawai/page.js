@@ -128,7 +128,7 @@ export default function DataPegawaiPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Data Pegawai</h1>
+        <h1 className="text-3xl font-bold">Jumlah Pegawai</h1>
         <p className="text-muted-foreground mt-2">
           Rekapitulasi data pegawai Fakultas Ekonomi dan Bisnis
         </p>
@@ -196,8 +196,8 @@ export default function DataPegawaiPage() {
                         </div>
                       ))}
                     </div>
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       onClick={() => router.push(category.path)}
                     >
                       Data Detail

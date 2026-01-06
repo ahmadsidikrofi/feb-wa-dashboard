@@ -1,264 +1,128 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Ticket, Clock, CheckCircle, Users } from 'lucide-react'
+import React from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  TicketXIcon,
+  List,
+  AlarmClock,
+  Inbox,
+  ParkingMeter,
+  Newspaper,
+  GraduationCap,
+  Award,
+  Users
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import TicketDrawer from '@/components/ticket-drawer'
-import { DailyTrenChart } from '@/components/daily-tren-chart'
-import { TicketPerCategoryChart } from '@/components/ticket-per-category-chart'
 
-export default function Dashboard() {
-  // Data dummy untuk dashboard
-  const dummyStatusData = {
-    openTickets: 12,
-    inProgressTickets: 8,
-    resolvedToday: 15,
-    totalUsers: 245
-  }
+const menuItems = [
+  {
+    name: "Ticket Management",
+    description: "Kelola tiket bantuan dan layanan WhatsApp",
+    href: "/dashboard/ticket-management",
+    icon: TicketXIcon,
+    color: "bg-blue-500/10 text-blue-500",
+  },
+  {
+    name: "Daftar Kegiatan",
+    description: "Pantau dan kelola agenda kegiatan unit dan program studi untuk menghindari konflik jadwal",
+    href: "/dashboard/monitoring-kegiatan",
+    icon: List,
+    color: "bg-purple-500/10 text-purple-500",
+  },
+  {
+    name: "Reminder",
+    description: "Atur pengingat dan jadwal notifikasi",
+    href: "/dashboard/reminder",
+    icon: AlarmClock,
+    color: "bg-orange-500/10 text-orange-500",
+  },
+  {
+    name: "Notulensi Rapat",
+    description: "Arsip dan pembuatan notulensi rapat",
+    href: "/dashboard/notulensi-rapat",
+    icon: Inbox,
+    color: "bg-green-500/10 text-green-500",
+  },
+  {
+    name: "Partnership Monitoring",
+    description: "Pantau kerjasama dengan mitra luar",
+    href: "/dashboard/partnership-monitoring",
+    icon: ParkingMeter,
+    color: "bg-pink-500/10 text-pink-500",
+  },
+  {
+    name: "Kontrak Manajemen",
+    description: "Kelola dokumen kontrak manajemen",
+    href: "/dashboard/kontrak-manajemen",
+    icon: Newspaper,
+    color: "bg-yellow-500/10 text-yellow-500",
+  },
+  {
+    name: "Laporan Manajemen",
+    description: "Akses berbagai laporan manajemen FEB",
+    href: "/dashboard/laporan-manajemen",
+    icon: Newspaper,
+    color: "bg-cyan-500/10 text-cyan-500",
+  },
+  {
+    name: "Akreditasi LAMEMBA",
+    description: "Dokumentasi akreditasi LAMEMBA",
+    href: "/dashboard/akreditasi-lamemba",
+    icon: GraduationCap,
+    color: "bg-red-500/10 text-red-500",
+  },
+  {
+    name: "Akreditasi AACSB",
+    description: "Dokumentasi akreditasi internasional AACSB",
+    href: "/dashboard/akreditasi-aacsb",
+    icon: Award,
+    color: "bg-indigo-500/10 text-indigo-500",
+  },
+  {
+    name: "Jumlah Pegawai",
+    description: "Rekapitulasi data pegawai FEB",
+    href: "/dashboard/data-pegawai",
+    icon: Users,
+    color: "bg-slate-500/10 text-slate-500",
+  },
+]
 
-  const dummyRecentTickets = [
-    {
-      id: 1,
-      message: {
-        conversation: {
-          id: 'conv-001',
-          user: {
-            name: 'Ahmad Rizki',
-            identifier: '1302210001'
-          }
-        },
-        message_text: 'Bagaimana cara mengakses sistem informasi akademik?'
-      },
-      createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
-      status: 'open'
-    },
-    {
-      id: 2,
-      message: {
-        conversation: {
-          id: 'conv-002',
-          user: {
-            name: 'Siti Nurhaliza',
-            identifier: '1302210002'
-          }
-        },
-        message_text: 'Jadwal ujian semester genap sudah keluar?'
-      },
-      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-      status: 'open'
-    },
-    {
-      id: 3,
-      message: {
-        conversation: {
-          id: 'conv-003',
-          user: {
-            name: 'Budi Santoso',
-            identifier: '1302210003'
-          }
-        },
-        message_text: 'Mohon informasi tentang beasiswa tahun ini'
-      },
-      createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 minutes ago
-      status: 'open'
-    },
-    {
-      id: 4,
-      message: {
-        conversation: {
-          id: 'conv-004',
-          user: {
-            name: 'Dewi Lestari',
-            identifier: '1302210004'
-          }
-        },
-        message_text: 'Kapan pembukaan pendaftaran MBKM?'
-      },
-      createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
-      status: 'open'
-    },
-    {
-      id: 5,
-      message: {
-        conversation: {
-          id: 'conv-005',
-          user: {
-            name: 'Eko Prasetyo',
-            identifier: '1302210005'
-          }
-        },
-        message_text: 'Link untuk download sertifikat seminar?'
-      },
-      createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(), // 1.5 hours ago
-      status: 'open'
-    }
-  ]
-
-  const [statusData, setStatusData] = useState(dummyStatusData)
-  const [recentTickets, setRecentTickets] = useState(dummyRecentTickets)
-  const [loading, setLoading] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState(null)
+export default function DashboardHome() {
   const router = useRouter()
 
-  const handleTicketClick = (ticketId) => {
-    setSelected(ticketId)
-    setOpen(true)
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('id-ID', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map(i => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-20 bg-gray-200 rounded-lg"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview sistem tiket WhatsApp
+        <h1 className="text-3xl font-bold tracking-tight">Selamat Datang di Media Informasi dan Relasi Anda (MIRA) - Fakultas Ekonomi dan Bisnis - Telkom University</h1>
+        <p className="text-muted-foreground mt-1">
+          Pilih modul yang ingin Anda akses di bawah ini.
         </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 max-sm:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiket Terbuka</CardTitle>
-            <Ticket className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusData.openTickets}</div>
-            <p className="text-xs text-muted-foreground">
-              Menunggu penanganan
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sedang Diproses</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusData.inProgressTickets}</div>
-            <p className="text-xs text-muted-foreground">
-              Dalam penanganan admin
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Terselesaikan Hari Ini</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusData.resolvedToday}</div>
-            <p className="text-xs text-muted-foreground">
-              Tiket selesai hari ini
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pengguna</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusData.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              Pengguna terdaftar
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {menuItems.map((item) => (
+          <Card
+            key={item.name}
+            className="group hover:border-primary transition-all cursor-pointer hover:shadow-md border-muted-foreground/10"
+            onClick={() => router.push(item.href)}
+          >
+            <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
+              <div className={`p-2 rounded-lg ${item.color} group-hover:scale-110 transition-transform`}>
+                <item.icon className="h-6 w-6" />
+              </div>
+              <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
+                {item.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                {item.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* Chart */}
-      <div className='grid grid-cols-2 gap-4'>
-        <TicketPerCategoryChart />
-        <DailyTrenChart />
-      </div>
-
-      {/* Recent Tickets */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Antrian Tiket Baru</CardTitle>
-          <CardDescription>
-            5 tiket terbaru dengan status open
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nama User</TableHead>
-                <TableHead className="hidden xl:table-cell">NIM/Identifier</TableHead>
-                <TableHead className="hidden lg:table-cell">Pesan Awal</TableHead>
-                <TableHead>Waktu Masuk</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentTickets.length > 0 ? (
-                recentTickets.map((ticket) => (
-                  <TableRow 
-                    key={ticket.id} 
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleTicketClick(ticket.message?.conversation?.id)}
-                  >
-                    <TableCell className="font-medium">
-                      {ticket.message?.conversation?.user?.name || 'Unknown User'}
-                    </TableCell>
-                    <TableCell className='hidden xl:table-cell'>
-                      {ticket.message?.conversation?.user?.identifier || '-'}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell lg:max-w-xs truncate">
-                      {ticket.message?.message_text || '-'}
-                    </TableCell>
-                    <TableCell>{formatDate(ticket.createdAt)}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{ticket.status}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Tidak ada tiket baru
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      <TicketDrawer open={open} onOpenChange={setOpen} conversationId={selected} />
     </div>
   )
 }

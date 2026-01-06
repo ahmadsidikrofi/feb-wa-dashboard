@@ -63,23 +63,28 @@ import { useAuth } from "@/hooks/use-auth";
 
 const navigation = [
   {
+    name: "Home",
+    href: "/dashboard",
+    icon: Home,
+  },
+  {
     name: "Ticket Management",
     href: "/dashboard/ticket-management",
     icon: TicketXIcon,
     submenu: [
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/dashboard/ticket-management" },
       { name: "Ticket Archive", href: "/dashboard/ticket-management/ticket-archive" },
       { name: "Tickets", href: "/dashboard/ticket-management/tickets" },
     ],
   },
   {
-    name: "Monitoring Kegiatan",
+    name: "Daftar Kegiatan",
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
   },
-  { 
-    name: "Reminder", 
-    href: "/dashboard/reminder", 
+  {
+    name: "Reminder",
+    href: "/dashboard/reminder",
     icon: AlarmClock,
     submenu: [
       { name: "Tambah Penerima", href: "/dashboard/reminder/tambah-penerima" },
@@ -97,8 +102,8 @@ const navigation = [
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,
     submenu: [
-      { name: "Ajukan Kerjasama", href: "/dashboard/partnership-monitoring/ajukan-kerjasama" },
-      { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
+      { name: "Pengajuan", href: "/dashboard/partnership-monitoring/ajukan-kerjasama" },
+      { name: "Persetujuan", href: "/dashboard/partnership-monitoring/pengajuan" },
       { name: "Penerapan", href: "/dashboard/partnership-monitoring/penerapan" },
     ],
   },
@@ -123,7 +128,7 @@ const navigation = [
     icon: Award,
   },
   {
-    name: "Data Pegawai",
+    name: "Jumlah Pegawai",
     href: "/dashboard/data-pegawai",
     icon: Users,
   },
@@ -234,11 +239,10 @@ export default function DashboardLayout({ children }) {
                       <SidebarMenuButton asChild>
                         <Button
                           variant={isFullscreen ? "default" : "link"}
-                          className={`${
-                            isFullscreen
-                              ? "shadow-lg"
-                              : "text-black dark:text-white"
-                          } hover:bg-secondary flex items-center justify-start w-full`}
+                          className={`${isFullscreen
+                            ? "shadow-lg"
+                            : "text-black dark:text-white"
+                            } hover:bg-secondary flex items-center justify-start w-full`}
                           onClick={handleFullscreen}
                         >
                           {isFullscreen ? (
@@ -254,11 +258,11 @@ export default function DashboardLayout({ children }) {
                     </SidebarMenuItem>
                   );
                 }
-                
+
                 // Jika menu memiliki submenu
                 if (item.submenu && item.submenu.length > 0) {
                   const isActive = pathname === item.href || pathname?.startsWith(item.href);
-                  
+
                   return (
                     <Collapsible
                       key={item.name}
@@ -297,7 +301,7 @@ export default function DashboardLayout({ children }) {
                     </Collapsible>
                   );
                 }
-                
+
                 // Menu tanpa submenu
                 return (
                   <SidebarMenuItem key={item.name}>
