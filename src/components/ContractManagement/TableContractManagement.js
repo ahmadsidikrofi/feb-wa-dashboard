@@ -234,7 +234,7 @@ const TableContractManagement = () => {
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Min</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">% Real</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Nilai</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Input</TableHead>
+                <TableHead style={{ minWidth: '80px' }} className="max-sm:hidden">Input</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Monitor</TableHead>
               </TableRow>
             </TableHeader>
@@ -258,8 +258,9 @@ const TableContractManagement = () => {
                     </TableCell>
 
                     <TableCell
-                      className="sticky left-[150px] z-10 bg-white dark:bg-gray-900"
-                      style={{ minWidth: '280px' }}
+                      className="sticky left-[150px] z-10 bg-white dark:bg-gray-900 whitespace-pre-line"
+                      style={{ minWidth: '480px' }}
+                      title={row.responsibility || "-"}
                     >
                       {row.responsibility || "-"}
                     </TableCell>
@@ -292,8 +293,14 @@ const TableContractManagement = () => {
                     <TableCell style={{ minWidth: '100px' }}>
                       {row.value || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
-                      {row.Input || "-"}
+                    <TableCell
+                      style={{ minWidth: '100px', maxWidth: '220px' }}
+                      className="whitespace-pre-line break-words"
+                      title={row.Input || "-"}
+                    >
+                      <span>
+                        {row.Input || "-"}
+                      </span>
                     </TableCell>
                     <TableCell style={{ minWidth: '100px' }}>
                       {row.Monitor || "-"}

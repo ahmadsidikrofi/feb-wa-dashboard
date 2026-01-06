@@ -63,11 +63,16 @@ import { useAuth } from "@/hooks/use-auth";
 
 const navigation = [
   {
+    name: "Home",
+    href: "/dashboard",
+    icon: Home,
+  },
+  {
     name: "Ticket Management",
     href: "/dashboard/ticket-management",
     icon: TicketXIcon,
     submenu: [
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/dashboard/ticket-management" },
       { name: "Ticket Archive", href: "/dashboard/ticket-management/ticket-archive" },
       { name: "Tickets", href: "/dashboard/ticket-management/tickets" },
     ],
@@ -97,8 +102,8 @@ const navigation = [
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,
     submenu: [
-      { name: "Ajukan Kerjasama", href: "/dashboard/partnership-monitoring/ajukan-kerjasama" },
       { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
+      { name: "Persetujuan", href: "/dashboard/partnership-monitoring/persetujuan" },
       { name: "Penerapan", href: "/dashboard/partnership-monitoring/penerapan" },
     ],
   },
@@ -123,8 +128,8 @@ const navigation = [
     icon: Award,
   },
   {
-    name: "Data Pegawai",
-    href: "/dashboard/data-pegawai",
+    name: "Jumlah Pegawai",
+    href: "/dashboard/jumlah-pegawai",
     icon: Users,
   },
   { name: "Fullscreen", action: "fullscreen", icon: ScreenShare },

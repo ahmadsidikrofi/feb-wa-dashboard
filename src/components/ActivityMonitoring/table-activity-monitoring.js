@@ -34,9 +34,12 @@ import {
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, CalendarPlus, LayoutGrid, Search, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, Trash2 } from "lucide-react";
+import { CalendarDays, CalendarPlus, LayoutGrid, Search, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, Trash2, Columns } from "lucide-react";
 import { Input } from "../ui/input";
 import DeleteActivity from "./delete-activity";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 const formatRangeInfo = (pagination, currentPage) => {
     const total = pagination?.totalItems ?? 0
@@ -84,9 +87,13 @@ const TableActivityMonitoring = ({
                                 <LayoutGrid className="h-4 w-4" />
                                 Tabel
                             </TabsTrigger>
+                            <TabsTrigger value="board" className="gap-2">
+                                <Columns className="h-4 w-4" />
+                                Board
+                            </TabsTrigger>
                             <TabsTrigger value="calendar" className="gap-2">
                                 <CalendarDays className="h-4 w-4" />
-                                Board
+                                Calendar
                             </TabsTrigger>
                         </TabsList>
                     </div>
@@ -364,13 +371,13 @@ const TableActivityMonitoring = ({
                 </Card>
             </TabsContent>
 
-            {/* Calendar View */}
-            <TabsContent value="calendar" className="mt-0">
+            {/* Card View */}
+            <TabsContent value="board" className="mt-0">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Kalender Kegiatan</CardTitle>
+                        <CardTitle>Kartu Kegiatan</CardTitle>
                         <CardDescription>
-                            Tampilan kalender agenda kegiatan fakultas
+                            Tampilan kartu agenda kegiatan fakultas
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -510,6 +517,93 @@ const TableActivityMonitoring = ({
                                 </div>
                             )}
                         </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+                    {/* Real Calendar View */}
+            <TabsContent value="calendar" className="mt-0">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Kalender Interaktif</CardTitle>
+                        <CardDescription>
+                            Tampilan kalender interaktif untuk memantau seluruh kegiatan
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="calendar-container bg-white dark:bg-slate-900 p-4 rounded-xl border">
+                            <FullCalendar
+                                plugins={[dayGridPlugin, interactionPlugin]}
+                                initialView="dayGridMonth"
+                                headerToolbar={{
+                                    left: "prev,next today",
+                                    center: "title",
+                                    right: "dayGridMonth,dayGridWeek",
+                                }}
+                                events={filteredActivities.map((activity) => ({
+                                    id: activity.id.toString(),
+                                    title: activity.namaKegiatan,
+                                    start: `${activity.tanggal}T${activity.waktuMulai}`,
+                                    end: `${activity.tanggal}T${activity.waktuSelesai}`,
+                                    backgroundColor: activity.hasConflict ? "#ef4444" : "#e31e25",
+                                    borderColor: activity.hasConflict ? "#ef4444" : "#e31e25",
+                                    extendedProps: { ...activity },
+                                }))}
+                                eventClick={(info) => {
+                                    const activity = info.event.extendedProps;
+                                    setFormData({
+                                        namaKegiatan: activity.namaKegiatan,
+                                        tanggal: activity.tanggal,
+                                        waktuMulai: activity.waktuMulai,
+                                        waktuSelesai: activity.waktuSelesai,
+                                        unit: activity.unit,
+                                        prodi: activity.prodi,
+                                        tempat: activity.tempat === "Lainnya" ? "Lainnya" : activity.tempat,
+                                        tempatLainnya: activity.tempat === "Lainnya" ? "" : "",
+                                        pejabat: activity.pejabat,
+                                        jumlahPeserta: activity.jumlahPeserta,
+                                        keterangan: activity.keterangan,
+                                    });
+                                    setIsDialogOpen(true);
+                                }}
+                                height="auto"
+                                eventTimeFormat={{
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    meridiem: false,
+                                    hour12: false,
+                                }}
+                                locale="id"
+                            />
+                        </div>
+                        <style jsx global>{`
+                .fc .fc-button-primary {
+                  background-color: #e31e25;
+                  border-color: #e31e25;
+                }
+                .fc .fc-button-primary:hover {
+                  background-color: #c41a20;
+                  border-color: #c41a20;
+                }
+                .fc .fc-button-primary:disabled {
+                  background-color: #e31e25;
+                  opacity: 0.65;
+                }
+                .fc .fc-button-active {
+                  background-color: #c41a20 !important;
+                  border-color: #c41a20 !important;
+                }
+                .fc-event {
+                  cursor: pointer;
+                  padding: 2px 4px;
+                }
+                .dark .fc-theme-standard td, .dark .fc-theme-standard th {
+                  border-color: #334155;
+                }
+                .dark .fc .fc-daygrid-day-number {
+                  color: #f8fafc;
+                }
+              `}</style>
                     </CardContent>
                 </Card>
             </TabsContent>
