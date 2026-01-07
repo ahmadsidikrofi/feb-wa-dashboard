@@ -25,7 +25,7 @@ export const contractManagementSchema = z.object({
     unit: z.string().optional(),
 
     weight: z.coerce.number().optional(),
-    target: z.coerce.number().optional(),
+    target: z.string().optional(),
     realization: z.coerce.number().optional(),
 
     min: z.coerce.number().optional(),
@@ -45,7 +45,7 @@ const AddContract = ({ getContractData }) => {
                 ...values,
                 // Pastikan angka dikonversi benar, dan string kosong jadi null/undefined
                 weight: values.weight === "" ? null : Number(values.weight),
-                target: values.target === "" ? null : Number(values.target),
+                target: values.target === "" ? null : String(values.target),
                 realization: values.realization === "" ? null : Number(values.realization),
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
@@ -213,7 +213,7 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Target</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.01" {...field} />
+                                                <Input type="text" {...field} />
                                             </FormControl>
                                         </FormItem>
                                     )}
