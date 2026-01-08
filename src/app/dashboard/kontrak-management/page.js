@@ -31,7 +31,7 @@ const KontrakManagement = () => {
       try {
         setIsLoading(true);
         const res = await fetch(
-          "http://localhost:3001/api/contract-management/stats",
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contract-management/stats`,
           {
             cache: "no-store",
           }
@@ -75,9 +75,9 @@ const KontrakManagement = () => {
             <FileText className="size-8 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">Dokumen Kontrak Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">Dokumen Kontrak Manajemen</h1>
             <p className="text-muted-foreground">
-              Pantau status dokumen Kontrak Management (KM) sedang diajukan.
+              Pantau status dokumen Kontrak Manajemen (KM) sedang diajukan.
             </p>
           </div>
         </div>
@@ -90,30 +90,30 @@ const KontrakManagement = () => {
 
             return (
               <Card key={index} className={isLoading ? "animate-pulse" : ""}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <IconComponent className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                  {stat.trend === "up" ? (
-                    <TrendingUp className="h-3 w-3 text-green-600" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 text-red-600" />
-                  )}
-                  <span
-                    className={
-                      stat.trend === "up" ? "text-green-600" : "text-red-600"
-                    }
-                  >
-                    {stat.change}
-                  </span>
-                  <span>{stat.description}</span>
-                </p>
-              </CardContent>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {stat.title}
+                  </CardTitle>
+                  <IconComponent className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    {stat.trend === "up" ? (
+                      <TrendingUp className="h-3 w-3 text-green-600" />
+                    ) : (
+                      <TrendingDown className="h-3 w-3 text-red-600" />
+                    )}
+                    <span
+                      className={
+                        stat.trend === "up" ? "text-green-600" : "text-red-600"
+                      }
+                    >
+                      {stat.change}
+                    </span>
+                    <span>{stat.description}</span>
+                  </p>
+                </CardContent>
               </Card>
             );
           })}

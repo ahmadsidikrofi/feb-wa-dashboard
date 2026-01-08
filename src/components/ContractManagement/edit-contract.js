@@ -1,16 +1,16 @@
-'use state'
+'use client'
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import axios from 'axios'
-import z from 'zod'
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../ui/input'
-import { Loader2 } from 'lucide-react'
+import { EditIcon, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export const contractManagementSchema = z.object({
@@ -19,63 +19,24 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
-    responsibility: z.string().min(1, "Responsibility wajib diisi"),
-    quarterly: z.enum(["TW-1", "TW-2", "TW-3", "TW-4"]),
+    responsibility: z
+        .string()
+        .min(1, "Responsibility wajib diisi"),
 
     unit: z.string().optional(),
-
-    weight: z.coerce.number().optional(),
+    weight: z.union([z.string(), z.number()]).optional(),
     target: z.string().optional(),
-    realization: z.coerce.number().optional(),
+    realization: z.union([z.string(), z.number()]).optional(),
 
-    min: z.coerce.number().optional(),
-    max: z.coerce.number().optional(),
+    min: z.union([z.string(), z.number()]).optional(),
+    max: z.union([z.string(), z.number()]).optional(),
 
-    input: z.string().optional(),
-    monitor: z.string().optional(),
+    Input: z.string().optional(),
+    Monitor: z.string().optional(),
 })
 
-const AddContract = ({ getContractData }) => {
-    const [open, setOpen] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-
-    const createContractManagement = async (values) => {
-        setIsLoading(true)
-        try {
-            const payload = {
-                ...values,
-                // Pastikan angka dikonversi benar, dan string kosong jadi null/undefined
-                weight: values.weight === "" ? null : Number(values.weight),
-                target: values.target === "" ? null : String(values.target),
-                realization: values.realization === "" ? null : Number(values.realization),
-                min: values.min === "" ? null : Number(values.min),
-                max: values.max === "" ? null : Number(values.max),
-            }
-    
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contract-management`, payload, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
-            if (res.status === 200 || res.status === 201) {
-                setOpen(false)
-                form.reset()
-                toast.success("Kontrak KM berhasil ditambahkan", {
-                    style: { background: "#059669", color: "#d1fae5" },
-                    className: "border border-emerald-500"
-                })
-                getContractData(1)
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Kontrak KM gagal ditambahkan", {
-                style: { background: "#fee2e2", color: "#991b1b" },
-                className: "border border-red-500"
-            })
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
+const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
+    const [hasFetched, setHasFetched] = useState(false)
     const form = useForm({
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
@@ -92,21 +53,133 @@ const AddContract = ({ getContractData }) => {
             Monitor: "",
         }
     })
+
+    useEffect(() => {
+        if (open && contractId && !hasFetched) {
+            const fetchContractDetail = async () => {
+                try {
+                    const res = await axios.get(
+                        `http://localhost:3001/api/contract-management/${contractId}`,
+                        {
+                            headers: {
+                                "ngrok-skip-browser-warning": true,
+                            },
+                        }
+                    )
+
+                    const data = res.data.data || res.data
+
+                    // Populate form dengan data yang di-fetch
+                    form.reset({
+                        ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
+                        quarterly: data.quarterly || "TW-4",
+                        responsibility: data.responsibility || "",
+                        unit: data.unit || "",
+                        weight: data.weight?.toString() || "",
+                        target: data.target || "",
+                        realization: data.realization?.toString() || "",
+                        min: data.min?.toString() || "",
+                        max: data.max?.toString() || "",
+                        Input: data.Input || "",
+                        Monitor: data.Monitor || ""
+                    })
+                    setHasFetched(true)
+                } catch (error) {
+                    console.error("Error fetching contract detail:", error)
+                    toast.error("Gagal memuat data kontrak", {
+                        style: { background: "#fee2e2", color: "#991b1b" },
+                        className: "border border-red-500"
+                    })
+                    setOpen(false)
+                } finally {
+                }
+            }
+
+            fetchContractDetail()
+        }
+    }, [open, contractId, hasFetched])
+
+    // Reset flag ketika dialog ditutup
+    useEffect(() => {
+        if (!open) {
+            setHasFetched(false)
+            form.reset({
+                ContractManagementCategory: "NonFinancial",
+                quarterly: "TW-4",
+                responsibility: "",
+                unit: "",
+                weight: "",
+                target: "",
+                realization: "",
+                min: "",
+                max: "",
+                Input: "",
+                Monitor: "",
+            })
+        }
+    }, [open])
+
+    const editContractManagement = async (values) => {
+        setIsLoading(true)
+        try {
+            const payload = {
+                ...values,
+                weight: values.weight === "" ? null : Number(values.weight),
+                target: values.target === "" ? null : String(values.target),
+                realization: values.realization === "" ? null : Number(values.realization),
+                min: values.min === "" ? null : Number(values.min),
+                max: values.max === "" ? null : Number(values.max),
+            }
+
+            const res = await axios.put(
+                `http://localhost:3001/api/contract-management/${contractId}`,
+                payload
+            )
+
+            if (res.status === 200 || res.status === 201) {
+                setOpen(false)
+                setHasFetched(false)
+                form.reset({
+                    ContractManagementCategory: "NonFinancial",
+                    quarterly: "TW-4",
+                    responsibility: "",
+                    unit: "",
+                    weight: "",
+                    target: "",
+                    realization: "",
+                    min: "",
+                    max: "",
+                    Input: "",
+                    Monitor: "",
+                })
+                toast.success("Kontrak KM berhasil diperbarui", {
+                    style: { background: "#059669", color: "#d1fae5" },
+                    className: "border border-emerald-500"
+                })
+                getContractData(1)
+            }
+
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Kontrak KM gagal diperbarui", {
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                    <Button>+ Tambah KM</Button>
-                </DialogTrigger>
-
                 <DialogContent className="max-w-3xl">
                     <DialogHeader>
-                        <DialogTitle>Tambah Contract Management</DialogTitle>
+                        <DialogTitle>Edit Contract Management</DialogTitle>
                     </DialogHeader>
 
                     <Form {...form}>
                         <form
-                            onSubmit={form.handleSubmit(createContractManagement)}
+                            onSubmit={form.handleSubmit(editContractManagement)}
                             className="space-y-6 max-h-[70vh] overflow-y-auto pr-2"
                         >
                             {/* ====== SECTION: KATEGORI ====== */}
@@ -158,7 +231,7 @@ const AddContract = ({ getContractData }) => {
                                             <FormMessage />
                                         </FormItem>
                                     )}
-/>
+                                />
                             </div>
 
                             {/* ====== RESPONSIBILITY ====== */}
@@ -188,7 +261,10 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Unit</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="%, Jumlah, Skor" {...field} />
+                                                <Input
+                                                    placeholder="%, Jumlah, Skor"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -201,7 +277,12 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Bobot</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.01" {...field} />
+                                                <Input
+                                                    type="number"
+                                                    step="0.01"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -214,7 +295,10 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Target</FormLabel>
                                             <FormControl>
-                                                <Input type="text" {...field} />
+                                                <Input
+                                                    type="text"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -229,7 +313,12 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Realisasi</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.01" {...field} />
+                                                <Input
+                                                    type="number"
+                                                    step="0.01"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -242,7 +331,11 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Min</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} />
+                                                <Input
+                                                    type="number"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -255,7 +348,11 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Max</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} />
+                                                <Input
+                                                    type="number"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -271,7 +368,9 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Input</FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
+                                                <Input
+                                                    {...field}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -284,7 +383,9 @@ const AddContract = ({ getContractData }) => {
                                         <FormItem>
                                             <FormLabel>Monitor</FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
+                                                <Input
+                                                    {...field}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -319,4 +420,4 @@ const AddContract = ({ getContractData }) => {
     )
 }
 
-export default AddContract
+export default EditContract
