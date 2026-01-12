@@ -26,15 +26,17 @@ import { toast } from "sonner";
 import axios from "axios";
 import DeleteMeeting from "@/components/MeetingMinutes/delete-meeting"
 
-const rooms = [
-  "Ruang Rapat Manterawu lt. 2",
-  "Ruang Rapat Miossu lt. 1",
-  "Ruang Rapat Miossu lt. 2",
-  "Ruang Rapat Maratua lt. 1",
-  "Aula FEB",
-  "Aula Manterawu",
-  "Lainnya",
-]
+const ROOM_MAPPING = {
+  "Ruang Rapat Manterawu lt. 2": "RuangRapatManterawuLt2",
+  "Ruang Rapat Miossu lt. 1": "RuangRapatMiossuLt1",
+  "Ruang Rapat Miossu lt. 2": "RuangRapatMiossuLt2",
+  "Ruang Rapat Maratua lt. 1": "RuangRapatMaratuaLt1",
+  "Aula FEB": "AulaFEB",
+  "Aula Manterawu": "AulaManterawu",
+  "Lainnya": "Lainnya",
+};
+
+const rooms = Object.keys(ROOM_MAPPING)
 
 export default function EditNotulensiPage({ params }) {
   const router = useRouter();
@@ -53,12 +55,19 @@ export default function EditNotulensiPage({ params }) {
     locationDetail: "",
     pemimpin: "",
     notulen: "",
+    notulen: "",
+    status: "Terjadwal",
   })
 
   const [pesertaList, setPesertaList] = useState([""]);
   const [agendaList, setAgendaList] = useState([""]);
   const [pembahasanList, setPembahasanList] = useState([
-    { agenda: "", pembahasan: "", keputusan: "" },
+    {
+      agenda: "",
+      pembahasan: "",
+      keputusan: "",
+      actionItems: []
+    },
   ]);
   const [tindakLanjutList, setTindakLanjutList] = useState([
     { tugas: "", penanggungJawab: "", deadline: "" },
@@ -100,11 +109,14 @@ export default function EditNotulensiPage({ params }) {
           tanggal: formattedDate,
           waktuMulai: formattedStartTime,
           waktuSelesai: formattedEndTime,
-          ruangan: data.location || "",
+          ruangan: Object.keys(ROOM_MAPPING).find(key => ROOM_MAPPING[key] === data.room) || data.room || "",
           locationDetail: data.locationDetail || "",
           pemimpin: data.leader || "",
           notulen: data.notetaker || "",
-        });
+          status: data.status || "Terjadwal",
+        })
+        console.log(res.data)
+
 
         // Set peserta list
         if (data.participants && data.participants.length > 0) {
@@ -122,11 +134,24 @@ export default function EditNotulensiPage({ params }) {
             agenda: agenda.title || "",
             pembahasan: agenda.discussion || "",
             keputusan: agenda.decision || "",
+            actionItems: agenda.actionItems && agenda.actionItems.length > 0
+              ? agenda.actionItems.map(ai => ({
+                tugas: ai.task || "",
+                penanggungJawab: ai.pic || "",
+                deadline: ai.deadline ? new Date(ai.deadline).toISOString().split("T")[0] : "",
+                status: ai.status || "Pending"
+              }))
+              : []
           }));
           setPembahasanList(pembahasanData);
         } else {
           setAgendaList([""]);
-          setPembahasanList([{ agenda: "", pembahasan: "", keputusan: "" }]);
+          setPembahasanList([{
+            agenda: "",
+            pembahasan: "",
+            keputusan: "",
+            actionItems: []
+          }]);
         }
 
         // Set tindak lanjut dari actionItems
@@ -208,7 +233,7 @@ export default function EditNotulensiPage({ params }) {
   const handleAddPembahasan = () =>
     setPembahasanList([
       ...pembahasanList,
-      { agenda: "", pembahasan: "", keputusan: "" },
+      { agenda: "", pembahasan: "", keputusan: "", actionItems: [] },
     ]);
   const handleRemovePembahasan = (index) =>
     setPembahasanList(pembahasanList.filter((_, i) => i !== index));
@@ -217,6 +242,32 @@ export default function EditNotulensiPage({ params }) {
     newList[index][field] = value;
     setPembahasanList(newList);
   };
+
+  // Action Items Handlers (Nested inside Agenda)
+  const handleAddActionItem = (agendaIndex) => {
+    const newList = [...pembahasanList];
+    if (!newList[agendaIndex].actionItems) newList[agendaIndex].actionItems = [];
+
+    newList[agendaIndex].actionItems.push({
+      tugas: "",
+      penanggungJawab: "",
+      deadline: "",
+      status: "Pending"
+    });
+    setPembahasanList(newList);
+  }
+
+  const handleRemoveActionItem = (agendaIndex, actionIndex) => {
+    const newList = [...pembahasanList];
+    newList[agendaIndex].actionItems = newList[agendaIndex].actionItems.filter((_, i) => i !== actionIndex);
+    setPembahasanList(newList);
+  }
+
+  const handleActionItemChange = (agendaIndex, actionIndex, field, value) => {
+    const newList = [...pembahasanList];
+    newList[agendaIndex].actionItems[actionIndex][field] = value;
+    setPembahasanList(newList);
+  }
 
   const handleAddTindakLanjut = () =>
     setTindakLanjutList([
@@ -248,10 +299,12 @@ export default function EditNotulensiPage({ params }) {
         date: formData.tanggal,
         startTime: `${formData.tanggal}T${formData.waktuMulai}:00`,
         endTime: `${formData.tanggal}T${formData.waktuSelesai}:00`,
-        room: formData.ruangan || "",
+        room: ROOM_MAPPING[formData.ruangan] || formData.ruangan || "",
         locationDetail: formData.locationDetail || "",
         leader: formData.pemimpin || "",
+        leader: formData.pemimpin || "",
         notetaker: formData.notulen || "",
+        status: formData.status,
         participants: pesertaList.filter((p) => p.trim() !== ""),
         agendas: pembahasanList
           .filter((p) => p.agenda.trim() !== "")
@@ -259,13 +312,16 @@ export default function EditNotulensiPage({ params }) {
             title: item.agenda,
             discussion: item.pembahasan?.trim() || null,
             decision: item.keputusan?.trim() || null,
-          })),
-        actionItems: tindakLanjutList
-          .filter((t) => t.tugas.trim() !== "")
-          .map((item) => ({
-            task: item.tugas,
-            pic: item.penanggungJawab?.trim() || null,
-            deadline: item.deadline ? `${item.deadline}T00:00:00` : null,
+            actionItems: item.actionItems
+              ? item.actionItems
+                .filter(ai => ai.tugas.trim() !== "")
+                .map(ai => ({
+                  task: ai.tugas,
+                  pic: ai.penanggungJawab?.trim() || null,
+                  deadline: ai.deadline ? `${ai.deadline}T00:00:00` : null,
+                  status: ai.status || "Pending"
+                }))
+              : []
           })),
       };
 
@@ -374,7 +430,7 @@ export default function EditNotulensiPage({ params }) {
                   Data dasar rapat yang dilaksanakan
                 </CardDescription>
               </div>
-              {getStatusBadge(calculateStatus())}
+              {getStatusBadge(formData.status)}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -389,6 +445,25 @@ export default function EditNotulensiPage({ params }) {
                   }
                   required
                 />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="status">Status Rapat</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, status: value })
+                  }
+                >
+                  <SelectTrigger id="status" className="w-full">
+                    <SelectValue placeholder="Pilih status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Terjadwal">Terjadwal</SelectItem>
+                    <SelectItem value="Berlangsung">Berlangsung</SelectItem>
+                    <SelectItem value="Selesai">Selesai</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
@@ -637,56 +712,121 @@ export default function EditNotulensiPage({ params }) {
                       />
                     </div>
 
-                    {/* Tindak Lanjut untuk Agenda ini */}
+                    {/* Tindak Lanjut / Action Items List */}
                     <div className="border-t pt-4 mt-4">
-                      <Label className="text-sm font-semibold text-muted-foreground mb-3 block">
-                        Tindak Lanjut Agenda Ini
-                      </Label>
-                      <div className="space-y-3 bg-muted/50 p-3 rounded-lg">
-                        <div className="grid gap-2">
-                          <Label className="text-sm">Tugas</Label>
-                          <Input
-                            value={item.tindakLanjut?.tugas || ""}
-                            onChange={(e) =>
-                              handlePembahasanChange(
-                                index,
-                                "tindakLanjut.tugas",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Tugas yang harus dilakukan..."
-                          />
-                        </div>
+                      <div className="flex justify-between items-center mb-3">
+                        <Label className="text-sm font-semibold text-muted-foreground">
+                          Tindak Lanjut Agenda Ini
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAddActionItem(index)}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Tambah Item
+                        </Button>
+                      </div>
 
-                        <div className="grid gap-2">
-                          <Label className="text-sm">Penanggung Jawab</Label>
-                          <Input
-                            value={item.tindakLanjut?.penanggungJawab || ""}
-                            onChange={(e) =>
-                              handlePembahasanChange(
-                                index,
-                                "tindakLanjut.penanggungJawab",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Nama penanggung jawab..."
-                          />
-                        </div>
+                      <div className="space-y-4">
+                        {item.actionItems && item.actionItems.map((actionItem, actionIdx) => (
+                          <div key={actionIdx} className="bg-muted/50 p-3 rounded-lg relative group">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-2 top-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleRemoveActionItem(index, actionIdx)}
+                            >
+                              <Trash2 className="h-3 w-3 text-muted-foreground hover:text-red-500" />
+                            </Button>
 
-                        <div className="grid gap-2">
-                          <Label className="text-sm">Deadline</Label>
-                          <Input
-                            type="date"
-                            value={item.tindakLanjut?.deadline || ""}
-                            onChange={(e) =>
-                              handlePembahasanChange(
-                                index,
-                                "tindakLanjut.deadline",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
+                            <div className="grid gap-3">
+                              <div className="grid gap-2">
+                                <Label className="text-xs font-medium">Tugas</Label>
+                                <Input
+                                  value={actionItem.tugas}
+                                  onChange={(e) =>
+                                    handleActionItemChange(
+                                      index,
+                                      actionIdx,
+                                      "tugas",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Deskripsi tugas..."
+                                  className="h-8 text-sm"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="grid gap-2">
+                                  <Label className="text-xs font-medium">Penanggung Jawab</Label>
+                                  <Input
+                                    value={actionItem.penanggungJawab}
+                                    onChange={(e) =>
+                                      handleActionItemChange(
+                                        index,
+                                        actionIdx,
+                                        "penanggungJawab",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Nama PIC"
+                                    className="h-8 text-sm"
+                                  />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label className="text-xs font-medium">Deadline</Label>
+                                  <Input
+                                    type="date"
+                                    value={actionItem.deadline}
+                                    onChange={(e) =>
+                                      handleActionItemChange(
+                                        index,
+                                        actionIdx,
+                                        "deadline",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="h-8 text-sm"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid gap-2">
+                                <Label className="text-xs font-medium">Status Tugas</Label>
+                                <Select
+                                  value={actionItem.status}
+                                  onValueChange={(value) =>
+                                    handleActionItemChange(
+                                      index,
+                                      actionIdx,
+                                      "status",
+                                      value
+                                    )
+                                  }
+                                >
+                                  <SelectTrigger className="h-8 text-sm">
+                                    <SelectValue placeholder="Pilih status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Pending">Pending</SelectItem>
+                                    <SelectItem value="On Progress">On Progress</SelectItem>
+                                    <SelectItem value="Done">Done</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {(!item.actionItems || item.actionItems.length === 0) && (
+                          <div className="text-center py-4 text-sm text-muted-foreground border border-dashed rounded-lg">
+                            Belum ada tindak lanjut untuk agenda ini
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
