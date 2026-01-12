@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import axios from "axios"
-import { Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
+import { Edit, Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import {
   Pagination,
@@ -22,6 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import FilterTablePartnership from "../PartnershipMonitoring/filter-table"
 import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
+import EditContract from "./edit-contract"
 
 const formatRangeInfo = (pagination, currentPage) => {
   const total = pagination?.totalItems ?? 0
@@ -57,6 +58,9 @@ const TableContractManagement = () => {
     quarterly: null,
     unit: null,
   })
+
+  const [open, setOpen] = useState(false)
+  const [selectedContractId, setSelectedContractId] = useState(null)
 
   const getContractData = React.useCallback(async (page = 1) => {
     try {
@@ -236,6 +240,7 @@ const TableContractManagement = () => {
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Nilai</TableHead>
                 <TableHead style={{ minWidth: '80px' }} className="max-sm:hidden">Input</TableHead>
                 <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Monitor</TableHead>
+                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -305,6 +310,38 @@ const TableContractManagement = () => {
                     <TableCell style={{ minWidth: '100px' }}>
                       {row.Monitor || "-"}
                     </TableCell>
+                    <TableCell style={{ minWidth: "50px" }}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                            <Ellipsis className="w-5 h-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onSelect={(e) => {
+                              e.preventDefault()
+                              setSelectedContractId(row.id)
+                              setOpen(true)
+                            }}
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              // Lakukan aksi hapus data di sini
+                              // onDelete(row)
+                            }}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2 text-red-500" />
+                            Hapus
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -312,6 +349,15 @@ const TableContractManagement = () => {
           </Table>
         </div>
       </div>
+
+      <EditContract
+        open={open}
+        setOpen={setOpen}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        contractId={selectedContractId}
+        getContractData={getContractData}
+      />
 
       <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
 

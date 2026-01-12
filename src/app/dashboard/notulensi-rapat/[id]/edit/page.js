@@ -75,7 +75,7 @@ export default function EditNotulensiPage({ params }) {
             "ngrok-skip-browser-warning": true,
           },
         }
-      );
+      )
 
       if (res.data?.success && res.data?.data) {
         const data = res.data.data;
