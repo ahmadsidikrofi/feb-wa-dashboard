@@ -19,13 +19,13 @@ const Penerapan = () => {
     const updateStatusData = () => {
         if (typeof window !== 'undefined') {
             const implementations = JSON.parse(localStorage.getItem('partnershipImplementations') || '[]');
-            
+
             // Hitung berdasarkan docType
             const moa = implementations.filter(impl => impl.docType === 'MoA').length;
             const mou = implementations.filter(impl => impl.docType === 'MoU').length;
             const ia = implementations.filter(impl => impl.docType === 'IA').length;
             const active = implementations.filter(impl => impl.status === 'Aktif').length;
-            
+
             setStatusData({
                 totalMoA: 42 + moa,
                 totalMoU: 38 + mou,
@@ -37,21 +37,21 @@ const Penerapan = () => {
 
     useEffect(() => {
         updateStatusData();
-        
+
         // Refresh ketika ada perubahan data
         const handleDataChange = () => {
             updateStatusData();
         };
-        
+
         const handleStorageChange = (e) => {
             if (e.key === 'partnershipImplementations' || !e.key) {
                 updateStatusData();
             }
         };
-        
+
         window.addEventListener('partnershipDataChanged', handleDataChange);
         window.addEventListener('storage', handleStorageChange);
-        
+
         return () => {
             window.removeEventListener('partnershipDataChanged', handleDataChange);
             window.removeEventListener('storage', handleStorageChange);
@@ -134,7 +134,7 @@ const Penerapan = () => {
                 <ProportionPartnershipCategory />
                 <ScopeChart />
             </div>
-    
+
             <TableImplementation />
         </div>
     )

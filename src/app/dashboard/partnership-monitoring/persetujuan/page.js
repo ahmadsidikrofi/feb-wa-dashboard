@@ -39,16 +39,16 @@ const Pengajuan = () => {
 
     useEffect(() => {
         fetchDashboardData()
-        
+
         // Refresh data setiap kali halaman menjadi visible
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 fetchDashboardData();
             }
         };
-        
+
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        
+
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };

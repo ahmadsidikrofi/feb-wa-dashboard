@@ -71,7 +71,7 @@ export function ProportionPartnershipCategory() {
       setGrowthPercentage(0);
     }
   }, [])
-  
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">

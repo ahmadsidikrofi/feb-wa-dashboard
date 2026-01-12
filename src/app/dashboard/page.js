@@ -45,7 +45,7 @@ const menuItems = [
     color: "bg-green-500/10 text-green-500",
   },
   {
-    name: "Partnership Monitoring",
+    name: "Monitoring Kerjasama",
     description: "Pantau kerjasama dengan mitra luar",
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,

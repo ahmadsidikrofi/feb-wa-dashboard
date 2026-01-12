@@ -47,7 +47,7 @@ export function GrowthTrendByYearChart() {
     if (chartData.length >= 2) {
       const last = chartData[chartData.length - 1].jumlah;
       const prev = chartData[chartData.length - 2].jumlah;
-    
+
       if (prev > 0) {
         const growth = ((last - prev) / prev) * 100;
         setGrowthPercentage(growth);

@@ -15,6 +15,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -99,7 +100,7 @@ const navigation = [
   },
   { name: "Reminder", href: "/dashboard/reminder", icon: AlarmClock },
   {
-    name: "Partnership Monitoring",
+    name: "Monitoring Kerjasama",
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,
     submenu: [
@@ -155,6 +156,76 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function FooterContent({ user, logout, isLoading }) {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-2">
+        <Avatar className="w-8 h-8 shrink-0">
+          <AvatarFallback>
+            {user?.fullName?.split(" ")[0]?.substring(0, 2)?.toUpperCase() ||
+              "AD"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col items-center gap-2">
+          <Button size="icon" variant="ghost" className="h-8 w-8">
+            <UserCog2 className="h-4 w-4" />
+          </Button>
+          <ModeToggle />
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-destructive"
+          onClick={logout}
+          title="Keluar"
+        >
+          {isLoading ? (
+            <LoaderIcon className="animate-spin size-4" />
+          ) : (
+            <LogOut className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Card className="p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Avatar className="w-8 h-8 shrink-0">
+          <AvatarFallback>
+            {user?.fullName?.split(" ")[0]?.substring(0, 2)?.toUpperCase() ||
+              "AD"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <p className="text-sm font-medium truncate">
+            {user?.fullName || "Admin User"}
+          </p>
+          <p className="text-xs text-muted-foreground truncate">
+            {user?.username || "admin@smartticket.com"}
+          </p>
+        </div>
+        <div className="flex flex-col gap-1 shrink-0">
+          <Button size="icon" variant="ghost" className="h-6 w-6">
+            <UserCog2 className="h-4 w-4" />
+          </Button>
+          <ModeToggle />
+        </div>
+      </div>
+      <Button variant="outline" size="sm" className="w-full" onClick={logout}>
+        <LogOut className="w-4 h-4 mr-2 shrink-0" />
+        <span className="truncate">
+          {isLoading ? <LoaderIcon className="animate-spin size-4" /> : "Keluar"}
+        </span>
+      </Button>
+    </Card>
   );
 }
 
@@ -446,170 +517,19 @@ export default function DashboardLayout({ children }) {
                     </Collapsible>
                   );
                 } else if (item.name === "Akreditasi LAMEMBA") {
-                  const isAkreditasiActive = pathname?.startsWith(
-                    "/dashboard/akreditasi-lamemba"
-                  );
-
+                  const isActive = pathname?.startsWith("/dashboard/akreditasi-lamemba");
                   return (
-                    <Collapsible
-                      key={item.name}
-                      defaultOpen
-                      className="group/collapsible"
-                    >
-                      <SidebarMenuItem>
-                        <div className="flex items-center">
-                          <SidebarMenuButton
-                            onClick={() => handleNavigation(item.href)}
-                            className={`flex-1 ${pathname === item.href
-                              ? "bg-primary text-white font-semibold"
-                              : ""
-                              }`}
-                          >
-                            <item.icon className="w-4 h-4 shrink-0" />
-                            <span className="truncate">{item.name}</span>
-                          </SidebarMenuButton>
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 shrink-0"
-                            >
-                              <ChevronRightIcon className="size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                            </Button>
-                          </CollapsibleTrigger>
-                        </div>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/visi-misi"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/visi-misi"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Visi, Misi, Tujuan & Sasaran
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/tata-pamong"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/tata-pamong"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Tata Pamong & Penjaminan Mutu
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/mahasiswa-lulusan"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/mahasiswa-lulusan"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Mahasiswa dan Lulusan
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/sdm"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/sdm"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Sumber Daya Manusia
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/kurikulum"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/kurikulum"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Kurikulum & Pembelajaran
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/pembiayaan"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/pembiayaan"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Pembiayaan & Sarana Prasarana
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                onClick={() =>
-                                  handleNavigation(
-                                    "/dashboard/akreditasi-lamemba/penelitian"
-                                  )
-                                }
-                                isActive={
-                                  pathname ===
-                                  "/dashboard/akreditasi-lamemba/penelitian"
-                                }
-                                className="whitespace-normal h-auto py-2 leading-tight"
-                              >
-                                <span className="text-xs">
-                                  Penelitian & Pengabdian
-                                </span>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    </Collapsible>
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton
+                        onClick={() => handleNavigation(item.href)}
+                        className={
+                          isActive ? "bg-primary text-white font-semibold" : ""
+                        }
+                      >
+                        <item.icon className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{item.name}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   );
                 }
 
@@ -704,47 +624,7 @@ export default function DashboardLayout({ children }) {
           </SidebarContent>
 
           <SidebarFooter className="p-2 border-t">
-            <Card className="p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Avatar className="w-8 h-8 shrink-0">
-                  <AvatarFallback>
-                    {user?.fullName
-                      ?.split(" ")[0]
-                      ?.substring(0, 2)
-                      ?.toUpperCase() || "AD"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <p className="text-sm font-medium truncate">
-                    {user?.fullName || "Admin User"}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.username || "admin@smartticket.com"}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" className="h-6 w-6">
-                    <UserCog2 className="h-4 w-4" />
-                  </Button>
-                  <ModeToggle />
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={logout}
-              >
-                <LogOut className="w-4 h-4 mr-2 shrink-0" />
-                <span className="truncate">
-                  {isLoading ? (
-                    <LoaderIcon className="animate-spin size-4" />
-                  ) : (
-                    "Keluar"
-                  )}
-                </span>
-              </Button>
-            </Card>
+            <FooterContent user={user} logout={logout} isLoading={isLoading} />
           </SidebarFooter>
         </Sidebar>
 
