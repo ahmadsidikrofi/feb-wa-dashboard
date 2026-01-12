@@ -80,7 +80,7 @@ const rooms = [
   "Aula FEB",
   "Aula Manterawu",
   "Lainnya",
-];
+]
 
 const officials = [
   "Rektor",

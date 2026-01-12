@@ -23,18 +23,47 @@ import { Loader2, Plus } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 
-const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, formData, setFormData, onSuccess }) => {
+const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, formData, setFormData, onSuccess, rooms }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsLoading(true)
+
+        if (!formData.ruangan) {
+            toast.error("Ruangan belum dipilih. Silakan pilih ruangan terlebih dahulu.", {
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            });
+            return
+        }
+
+        if (
+            formData.ruangan === "Lainnya" &&
+            (!formData.locationDetail || formData.locationDetail.trim() === "")
+        ) {
+            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.");
+            return
+        }
+
+        if (!rooms.includes(formData.ruangan)) {
+            toast.error(
+                "Data ruangan tidak valid. Silakan pilih ulang ruangan.",
+                {
+                    style: { background: "#b91c1c", color: "#fef2f2" },
+                    iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+                }
+            );
+            return
+        }
+        
         try {
             const payload = {
                 title: formData.judulRapat,
                 date: formData.tanggal,
                 startTime: `${formData.tanggal}T${formData.waktuMulai}:00`,
                 endTime: `${formData.tanggal}T${formData.waktuSelesai}:00`,
-                location: formData.tempat,
+                room: formData.ruangan,
+                locationDetail: formData.locationDetail,
                 leader: formData.pemimpin,
                 notetaker: formData.notulen,
                 
@@ -59,7 +88,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                 tanggal: "",
                 waktuMulai: "",
                 waktuSelesai: "",
-                tempat: "",
+                ruangan: "",
                 pemimpin: "",
                 notulen: "",
                 keterangan: "",
@@ -148,16 +177,38 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                             </div>
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="tempat">Tempat *</Label>
-                            <Input
-                                id="tempat"
-                                value={formData.tempat}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, tempat: e.target.value })
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="ruangan">Ruangan *</Label>
+                            <Select
+                                value={formData.ruangan}
+                                onValueChange={(value) =>
+                                    setFormData({ ...formData, ruangan: value })
                                 }
                                 required
-                                placeholder="Contoh: Ruang Sidang Dekan"
+                            >
+                                <SelectTrigger id="ruangan" className="w-full">
+                                    <SelectValue placeholder="Pilih ruangan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {rooms.map((room) => (
+                                        <SelectItem key={room} value={room}>
+                                            {room}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? `` : `hidden`}`}>
+                            <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
+                            <Input
+                                id="locationDetail"
+                                value={formData.locationDetail}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, locationDetail: e.target.value })
+                                }
+                                required
+                                placeholder="Contoh: Hotel Papandayan"
                             />
                         </div>
 

@@ -8,6 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +24,17 @@ import { Save, ArrowLeft, Plus, Trash2, Loader2, BadgeCheckIcon, Timer, Calendar
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
-import DeleteMeeting from "@/components/MeetingMinutes/delete-meeting";
+import DeleteMeeting from "@/components/MeetingMinutes/delete-meeting"
+
+const rooms = [
+  "Ruang Rapat Manterawu lt. 2",
+  "Ruang Rapat Miossu lt. 1",
+  "Ruang Rapat Miossu lt. 2",
+  "Ruang Rapat Maratua lt. 1",
+  "Aula FEB",
+  "Aula Manterawu",
+  "Lainnya",
+]
 
 export default function EditNotulensiPage({ params }) {
   const router = useRouter();
@@ -32,7 +49,8 @@ export default function EditNotulensiPage({ params }) {
     tanggal: "",
     waktuMulai: "",
     waktuSelesai: "",
-    tempat: "",
+    ruangan: "",
+    locationDetail: "",
     pemimpin: "",
     notulen: "",
   })
@@ -73,7 +91,7 @@ export default function EditNotulensiPage({ params }) {
           const m = String(date.getMinutes()).padStart(2, "0");
           return `${h}:${m}`;
         }
-        
+
         const formattedStartTime = toTimeInputValue(startTime)
         const formattedEndTime = toTimeInputValue(endTime)
 
@@ -82,7 +100,8 @@ export default function EditNotulensiPage({ params }) {
           tanggal: formattedDate,
           waktuMulai: formattedStartTime,
           waktuSelesai: formattedEndTime,
-          tempat: data.location || "",
+          ruangan: data.location || "",
+          locationDetail: data.locationDetail || "",
           pemimpin: data.leader || "",
           notulen: data.notetaker || "",
         });
@@ -142,7 +161,7 @@ export default function EditNotulensiPage({ params }) {
   // Load existing data on mount
   useEffect(() => {
     if (!id) return;
-    
+
     const meetingId = Number(id);
     if (!meetingId || Number.isNaN(meetingId)) {
       toast.error("ID rapat tidak valid");
@@ -229,7 +248,8 @@ export default function EditNotulensiPage({ params }) {
         date: formData.tanggal,
         startTime: `${formData.tanggal}T${formData.waktuMulai}:00`,
         endTime: `${formData.tanggal}T${formData.waktuSelesai}:00`,
-        location: formData.tempat || "",
+        room: formData.ruangan || "",
+        locationDetail: formData.locationDetail || "",
         leader: formData.pemimpin || "",
         notetaker: formData.notulen || "",
         participants: pesertaList.filter((p) => p.trim() !== ""),
@@ -418,16 +438,41 @@ export default function EditNotulensiPage({ params }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="tempat">Tempat *</Label>
-                  <Input
-                    id="tempat"
-                    value={formData.tempat}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tempat: e.target.value })
+                  <Label htmlFor="ruangan">Ruangan *</Label>
+                  <Select
+                    value={formData.ruangan}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, ruangan: value })
                     }
                     required
+                  >
+                    <SelectTrigger id="ruangan" className="w-full">
+                      <SelectValue placeholder="Pilih ruangan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rooms.map((room) => (
+                        <SelectItem key={room} value={room}>
+                          {room}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? "" : "hidden"}`}>
+                  <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
+                  <Input
+                    id="locationDetail"
+                    value={formData.locationDetail}
+                    onChange={(e) =>
+                      setFormData({ ...formData, locationDetail: e.target.value })
+                    }
+                    required={formData.ruangan === "Lainnya"}
+                    disabled={formData.ruangan !== "Lainnya"}
+                    placeholder="Contoh: Hotel Papandayan"
                   />
                 </div>
+
                 <div className="grid gap-2">
                   <Label htmlFor="pemimpin">Pemimpin Rapat *</Label>
                   <Input
@@ -591,97 +636,57 @@ export default function EditNotulensiPage({ params }) {
                         rows={3}
                       />
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Tindak Lanjut */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Tindak Lanjut</CardTitle>
-                <CardDescription>
-                  Tugas dan tanggung jawab hasil rapat
-                </CardDescription>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddTindakLanjut}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Tambah Tindak Lanjut
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {tindakLanjutList.map((item, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">Tugas {index + 1}</span>
-                    {tindakLanjutList.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemoveTindakLanjut(index)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Hapus
-                      </Button>
-                    )}
-                  </div>
+                    {/* Tindak Lanjut untuk Agenda ini */}
+                    <div className="border-t pt-4 mt-4">
+                      <Label className="text-sm font-semibold text-muted-foreground mb-3 block">
+                        Tindak Lanjut Agenda Ini
+                      </Label>
+                      <div className="space-y-3 bg-muted/50 p-3 rounded-lg">
+                        <div className="grid gap-2">
+                          <Label className="text-sm">Tugas</Label>
+                          <Input
+                            value={item.tindakLanjut?.tugas || ""}
+                            onChange={(e) =>
+                              handlePembahasanChange(
+                                index,
+                                "tindakLanjut.tugas",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Tugas yang harus dilakukan..."
+                          />
+                        </div>
 
-                  <div className="grid gap-4">
-                    <div className="grid gap-2">
-                      <Label>Tugas</Label>
-                      <Input
-                        value={item.tugas}
-                        onChange={(e) =>
-                          handleTindakLanjutChange(
-                            index,
-                            "tugas",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Deskripsi tugas..."
-                      />
-                    </div>
+                        <div className="grid gap-2">
+                          <Label className="text-sm">Penanggung Jawab</Label>
+                          <Input
+                            value={item.tindakLanjut?.penanggungJawab || ""}
+                            onChange={(e) =>
+                              handlePembahasanChange(
+                                index,
+                                "tindakLanjut.penanggungJawab",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Nama penanggung jawab..."
+                          />
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="grid gap-2">
-                        <Label>Penanggung Jawab</Label>
-                        <Input
-                          value={item.penanggungJawab}
-                          onChange={(e) =>
-                            handleTindakLanjutChange(
-                              index,
-                              "penanggungJawab",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Nama/Unit penanggung jawab"
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label>Deadline</Label>
-                        <Input
-                          type="date"
-                          value={item.deadline}
-                          onChange={(e) =>
-                            handleTindakLanjutChange(
-                              index,
-                              "deadline",
-                              e.target.value
-                            )
-                          }
-                        />
+                        <div className="grid gap-2">
+                          <Label className="text-sm">Deadline</Label>
+                          <Input
+                            type="date"
+                            value={item.tindakLanjut?.deadline || ""}
+                            onChange={(e) =>
+                              handlePembahasanChange(
+                                index,
+                                "tindakLanjut.deadline",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

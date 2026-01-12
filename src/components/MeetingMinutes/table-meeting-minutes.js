@@ -90,7 +90,7 @@ const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery,
                                     <TableHead>Tanggal</TableHead>
                                     <TableHead>Judul Rapat</TableHead>
                                     <TableHead>Waktu</TableHead>
-                                    <TableHead>Tempat</TableHead>
+                                    <TableHead>Ruangan</TableHead>
                                     <TableHead>Pemimpin Rapat</TableHead>
                                     <TableHead>Notulen</TableHead>
                                     <TableHead>Status</TableHead>
@@ -139,7 +139,7 @@ const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery,
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-sm">
-                                                {meeting.tempat}
+                                                {meeting.ruangan === "Lainnya" ? meeting.locationDetail : meeting.ruangan}
                                             </TableCell>
                                             <TableCell className="text-sm">
                                                 {meeting.pemimpin}

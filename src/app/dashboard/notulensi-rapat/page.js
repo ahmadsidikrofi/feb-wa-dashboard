@@ -24,7 +24,17 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import TableMeetingMinutes from "@/components/MeetingMinutes/table-meeting-minutes";
-import AddMeeting from "@/components/MeetingMinutes/add-meeting";
+import AddMeeting from "@/components/MeetingMinutes/add-meeting"
+
+const rooms = [
+  "Ruang Rapat Manterawu lt. 2",
+  "Ruang Rapat Miossu lt. 1",
+  "Ruang Rapat Miossu lt. 2",
+  "Ruang Rapat Maratua lt. 1",
+  "Aula FEB",
+  "Aula Manterawu",
+  "Lainnya",
+]
 
 export default function NotulensiRapatPage() {
   const [meetings, setMeetings] = useState([]);
@@ -38,7 +48,8 @@ export default function NotulensiRapatPage() {
     tanggal: "",
     waktuMulai: "",
     waktuSelesai: "",
-    tempat: "",
+    ruangan: "",
+    locationDetail: "",
     pemimpin: "",
     notulen: "",
     keterangan: "",
@@ -74,7 +85,8 @@ export default function NotulensiRapatPage() {
         hour: "2-digit",
         minute: "2-digit",
       })}`,
-      tempat: item.location,
+      ruangan: item.room,
+      locationDetail: item.locationDetail,
       pemimpin: item.leader,
       notulen: item.notetaker,
       status: item.status,
@@ -144,6 +156,7 @@ export default function NotulensiRapatPage() {
             setIsDialogOpen={setIsDialogOpen}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
+            rooms={rooms}
             formData={formData}
             setFormData={setFormData}
             onSuccess={() => fetchMeetings()}
@@ -268,6 +281,7 @@ export default function NotulensiRapatPage() {
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
         setSearchQuery={setSearchQuery}
+        rooms={rooms}
       />
 
     </div>
