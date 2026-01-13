@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, CalendarPlus, LayoutGrid, Search, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, Trash2, Columns } from "lucide-react";
+import { CalendarDays, CalendarPlus, LayoutGrid, Search, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, Trash2, Columns, AlertTriangle } from "lucide-react";
 import { Input } from "../ui/input";
 import DeleteActivity from "./delete-activity";
 import FullCalendar from "@fullcalendar/react";
