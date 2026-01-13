@@ -57,6 +57,7 @@ export default function EditNotulensiPage({ params }) {
     notulen: "",
     notulen: "",
     status: "Terjadwal",
+    catatan: "Catatan belum dibuat",
   })
 
   const [pesertaList, setPesertaList] = useState([""]);
@@ -114,6 +115,7 @@ export default function EditNotulensiPage({ params }) {
           pemimpin: data.leader || "",
           notulen: data.notetaker || "",
           status: data.status || "Terjadwal",
+          catatan: data.notes || "Catatan belum dibuat"
         })
         console.log(res.data)
 
@@ -139,7 +141,8 @@ export default function EditNotulensiPage({ params }) {
                 tugas: ai.task || "",
                 penanggungJawab: ai.pic || "",
                 deadline: ai.deadline ? new Date(ai.deadline).toISOString().split("T")[0] : "",
-                status: ai.status || "Pending"
+                status: ai.status || "Open",
+                notes: ai.notes || ""
               }))
               : []
           }));
@@ -269,19 +272,6 @@ export default function EditNotulensiPage({ params }) {
     setPembahasanList(newList);
   }
 
-  const handleAddTindakLanjut = () =>
-    setTindakLanjutList([
-      ...tindakLanjutList,
-      { tugas: "", penanggungJawab: "", deadline: "" },
-    ]);
-  const handleRemoveTindakLanjut = (index) =>
-    setTindakLanjutList(tindakLanjutList.filter((_, i) => i !== index));
-  const handleTindakLanjutChange = (index, field, value) => {
-    const newList = [...tindakLanjutList];
-    newList[index][field] = value;
-    setTindakLanjutList(newList);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -319,7 +309,8 @@ export default function EditNotulensiPage({ params }) {
                   task: ai.tugas,
                   pic: ai.penanggungJawab?.trim() || null,
                   deadline: ai.deadline ? `${ai.deadline}T00:00:00` : null,
-                  status: ai.status || "Pending"
+                  status: ai.status || "Open",
+                  notes: ai.notes || "",
                 }))
               : []
           })),
@@ -347,25 +338,6 @@ export default function EditNotulensiPage({ params }) {
       toast.error(errorMessage);
     } finally {
       setIsFetching(false);
-    }
-  }
-
-  const calculateStatus = () => {
-    if (!formData.tanggal || !formData.waktuMulai || !formData.waktuSelesai) {
-      return "Terjadwal";
-    }
-
-    const now = new Date();
-    const meetingDate = new Date(formData.tanggal);
-    const startDateTime = new Date(`${formData.tanggal}T${formData.waktuMulai}:00`);
-    const endDateTime = new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`);
-
-    if (now < startDateTime) {
-      return "Terjadwal";
-    } else if (now >= startDateTime && now < endDateTime) {
-      return "Berlangsung";
-    } else {
-      return "Selesai";
     }
   }
 
@@ -794,29 +766,61 @@ export default function EditNotulensiPage({ params }) {
                                   />
                                 </div>
                               </div>
-
-                              <div className="grid gap-2">
-                                <Label className="text-xs font-medium">Status Tugas</Label>
-                                <Select
-                                  value={actionItem.status}
-                                  onValueChange={(value) =>
+                              <Textarea
+                                value={actionItem.notes}
+                                onChange={(e) =>
+                                  handleActionItemChange(
+                                    index,
+                                    actionIdx,
+                                    "notes",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Catatan tambahan (opsional)..."
+                                className="min-h-[60px] text-sm resize-none"
+                              />
+                            </div>
+                            <div className="grid gap-2 mt-2">
+                              <Label className="text-xs font-medium">Status Tugas</Label>
+                              <div className="flex items-center gap-2 p-1 bg-muted/50 rounded-lg w-fit border">
+                                <Button
+                                  type="button"
+                                  variant={actionItem.status === "Open" ? "white" : "ghost"}
+                                  size="sm"
+                                  className={`h-7 text-xs px-4 rounded-md transition-all ${actionItem.status === "Open"
+                                    ? "bg-white text-destructive shadow-sm font-semibold hover:bg-white"
+                                    : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                                  onClick={() =>
                                     handleActionItemChange(
                                       index,
                                       actionIdx,
                                       "status",
-                                      value
+                                      "Open"
                                     )
                                   }
                                 >
-                                  <SelectTrigger className="h-8 text-sm">
-                                    <SelectValue placeholder="Pilih status" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Pending">Pending</SelectItem>
-                                    <SelectItem value="On Progress">On Progress</SelectItem>
-                                    <SelectItem value="Done">Done</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                  Open
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant={actionItem.status === "Closed" ? "white" : "ghost"}
+                                  size="sm"
+                                  className={`h-7 text-xs px-4 rounded-md transition-all ${actionItem.status === "Closed"
+                                    ? "bg-green-600 text-white shadow-sm font-semibold hover:bg-green-700"
+                                    : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                                  onClick={() =>
+                                    handleActionItemChange(
+                                      index,
+                                      actionIdx,
+                                      "status",
+                                      "Closed"
+                                    )
+                                  }
+                                >
+                                  Closed
+                                </Button>
                               </div>
                             </div>
                           </div>

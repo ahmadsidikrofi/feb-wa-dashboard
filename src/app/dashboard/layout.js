@@ -41,6 +41,8 @@ import {
   GraduationCap,
   Award,
   Users,
+  Settings2,
+  Monitor,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -82,9 +84,9 @@ const navigation = [
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
   },
-  { 
-    name: "Reminder", 
-    href: "/dashboard/reminder", 
+  {
+    name: "Reminder",
+    href: "/dashboard/reminder",
     icon: AlarmClock,
     submenu: [
       { name: "Tambah Penerima", href: "/dashboard/reminder/tambah-penerima" },
@@ -140,7 +142,7 @@ export function ModeToggle() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className="cursor-pointer">
         <Button variant="ghost" size="icon">
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
@@ -149,17 +151,44 @@ export function ModeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
+          <Sun className="mr-2 h-4 w-4" /> Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
+          <Moon className="mr-2 h-4 w-4" /> Dark
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
+          <Monitor className="mr-2 h-4 w-4" /> System
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+export function UserButton({ user }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild className="cursor-pointer">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>
+              {user?.fullName
+                ?.split(" ")[0]
+                ?.substring(0, 2)
+                ?.toUpperCase() || "AD"}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" side="top" sideOffset={8}>
+        <DropdownMenuItem>
+          <Settings2 /> Manage Account
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <UserCog2 /> User Management
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
 
 export default function DashboardLayout({ children }) {
@@ -239,11 +268,10 @@ export default function DashboardLayout({ children }) {
                       <SidebarMenuButton asChild>
                         <Button
                           variant={isFullscreen ? "default" : "link"}
-                          className={`${
-                            isFullscreen
-                              ? "shadow-lg"
-                              : "text-black dark:text-white"
-                          } hover:bg-secondary flex items-center justify-start w-full`}
+                          className={`${isFullscreen
+                            ? "shadow-lg"
+                            : "text-black dark:text-white"
+                            } hover:bg-secondary flex items-center justify-start w-full`}
                           onClick={handleFullscreen}
                         >
                           {isFullscreen ? (
@@ -259,11 +287,11 @@ export default function DashboardLayout({ children }) {
                     </SidebarMenuItem>
                   );
                 }
-                
+
                 // Jika menu memiliki submenu
                 if (item.submenu && item.submenu.length > 0) {
                   const isActive = pathname === item.href || pathname?.startsWith(item.href);
-                  
+
                   return (
                     <Collapsible
                       key={item.name}
@@ -302,7 +330,7 @@ export default function DashboardLayout({ children }) {
                     </Collapsible>
                   );
                 }
-                
+
                 // Menu tanpa submenu
                 return (
                   <SidebarMenuItem key={item.name}>
@@ -326,14 +354,7 @@ export default function DashboardLayout({ children }) {
           <SidebarFooter className="p-2 border-t">
             <Card className="p-3">
               <div className="flex items-center gap-2 mb-2">
-                <Avatar className="w-8 h-8 shrink-0">
-                  <AvatarFallback>
-                    {user?.fullName
-                      ?.split(" ")[0]
-                      ?.substring(0, 2)
-                      ?.toUpperCase() || "AD"}
-                  </AvatarFallback>
-                </Avatar>
+                <UserButton user={user} logout={logout} isLoading={isLoading} />
                 <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="text-sm font-medium truncate">
                     {user?.fullName || "Admin User"}
@@ -343,9 +364,6 @@ export default function DashboardLayout({ children }) {
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" className="h-6 w-6">
-                    <UserCog2 className="h-4 w-4" />
-                  </Button>
                   <ModeToggle />
                 </div>
               </div>

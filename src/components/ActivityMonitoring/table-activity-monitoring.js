@@ -56,16 +56,16 @@ const formatRangeInfo = (pagination, currentPage) => {
     return `${start} – ${end} dari ${total} data`
 }
 
-const TableActivityMonitoring = ({ 
-    viewMode, 
-    setViewMode, 
+const TableActivityMonitoring = ({
+    viewMode,
+    setViewMode,
     searchQuery,
     setSearchQuery,
     filterUnit,
     setFilterUnit,
     units,
     filterStatus,
-    setFilterStatus, 
+    setFilterStatus,
     filteredActivities,
     isLoading = false,
     pagination = { totalItems: 0, totalPages: 0, currentPage: 1, pageSize: 10 },
@@ -240,15 +240,22 @@ const TableActivityMonitoring = ({
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col gap-1">
-                                                        {activity.pejabat.map((p, idx) => (
-                                                            <div
-                                                                key={idx}
-                                                                className="flex items-center gap-1"
-                                                            >
-                                                                <UserCheck className="h-3 w-3 text-muted-foreground" />
-                                                                <span className="text-xs">{p}</span>
-                                                            </div>
-                                                        ))}
+                                                        {activity.pejabat.map((p, idx) => {
+                                                            const isConflicting = activity.conflictingOfficialsList?.includes(p);
+                                                            return (
+                                                                <div
+                                                                    key={idx}
+                                                                    className={`flex items-center gap-1 ${isConflicting ? "text-red-600 font-medium" : ""}`}
+                                                                >
+                                                                    {isConflicting ? (
+                                                                        <AlertTriangle className="h-3 w-3 text-red-600" />
+                                                                    ) : (
+                                                                        <UserCheck className="h-3 w-3 text-muted-foreground" />
+                                                                    )}
+                                                                    <span className="text-xs">{p}</span>
+                                                                </div>
+                                                            )
+                                                        })}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
@@ -519,7 +526,7 @@ const TableActivityMonitoring = ({
                 </Card>
             </TabsContent>
 
-                    {/* Real Calendar View */}
+            {/* Real Calendar View */}
             <TabsContent value="calendar" className="mt-0">
                 <Card>
                     <CardHeader>

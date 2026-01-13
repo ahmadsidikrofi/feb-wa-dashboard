@@ -188,10 +188,10 @@ export default function MonitoringKegiatanPage() {
       const date = new Date(item.date)
       const startTime = new Date(item.startTime)
       const endTime = new Date(item.endTime)
-      
+
       const conflictTypes = parseConflictTypes(item.status)
       const hasConflict = item.status !== "Normal" && item.status !== null
-      
+
       return {
         id: item.id,
         namaKegiatan: item.title,
@@ -216,7 +216,7 @@ export default function MonitoringKegiatanPage() {
   const fetchActivities = useCallback(async (page = 1) => {
     try {
       setIsLoading(true)
-      
+
       const params = {
         page,
         limit: pageSize,
@@ -239,7 +239,34 @@ export default function MonitoringKegiatanPage() {
       )
 
       if (res.data?.success) {
-        const mappedData = mapApiDataToComponent(res.data.data || [])
+        let mappedData = mapApiDataToComponent(res.data.data || [])
+
+        // Detect specific official conflicts within the current page
+        mappedData = mappedData.map(activity => {
+          // Skip check if date is not valid
+          if (!activity.tanggal) return activity;
+
+          const conflictingAttributes = new Set();
+
+          mappedData.forEach(other => {
+            if (activity.id === other.id) return;
+            if (activity.tanggal !== other.tanggal) return;
+
+            // Check time overlap
+            // Format is "HH:MM", lexicographical comparison works for 24h
+            if (activity.waktuMulai < other.waktuSelesai && activity.waktuSelesai > other.waktuMulai) {
+              // Check officials overlap
+              const overlap = activity.pejabat.filter(p => other.pejabat.includes(p));
+              overlap.forEach(p => conflictingAttributes.add(p));
+            }
+          });
+
+          return {
+            ...activity,
+            conflictingOfficialsList: Array.from(conflictingAttributes)
+          };
+        });
+
         setActivities(mappedData)
 
         if (res.data.pagination) {
@@ -285,6 +312,14 @@ export default function MonitoringKegiatanPage() {
       const conflictLabels = activity.conflictTypes.map((type) => {
         switch (type) {
           case "pejabat":
+            const officials = activity.conflictingOfficialsList || [];
+            if (officials.length > 0) {
+              return (
+                <span key="pejabat" title={`Bentrokan Pejabat: ${officials.join(", ")}`}>
+                  Pejabat ({officials.length})
+                </span>
+              )
+            }
             return "Pejabat"
           case "ruangan":
             return "Ruangan"
@@ -301,21 +336,60 @@ export default function MonitoringKegiatanPage() {
       if (conflictLabels.length > 1) {
         return (
           <div className="flex flex-wrap gap-1">
-            {conflictLabels.map((label, idx) => (
-              <Badge key={idx} variant="destructive" className="gap-1 text-xs">
-                <AlertTriangle className="h-3 w-3" />
-                Konflik {label}
-              </Badge>
-            ))}
+            {activity.conflictTypes.map((type, idx) => {
+              let label = "Konflik";
+              let detail = "";
+
+              if (type === "pejabat") {
+                label = "Konflik Pejabat";
+                const officials = activity.conflictingOfficialsList || [];
+                if (officials.length > 0) {
+                  detail = officials.join(", ");
+                  label += ` (${officials.length})`;
+                }
+              } else if (type === "ruangan") {
+                label = "Konflik Ruangan";
+              } else {
+                label = `Konflik ${type}`;
+              }
+
+              return (
+                <Badge key={idx} variant="destructive" className="gap-1 text-xs cursor-help" title={detail || label}>
+                  <AlertTriangle className="h-3 w-3" />
+                  {label}
+                </Badge>
+              )
+            })}
           </div>
         )
       }
 
       // Single conflict
+      let label = `Konflik ${conflictLabels[0]}`;
+      // Fix for Object render if it returned JSX above
+      if (typeof conflictLabels[0] === 'object') {
+        // This path handles the specific JSX return I added earlier
+        // React might complain if I try to render Object in template literal.
+        // Let's simpler logic.
+      }
+
+      // Re-do single conflict logic cleaner:
+      const type = activity.conflictTypes[0];
+      let displayLabel = `Konflik ${type}`;
+      let tooltip = "";
+
+      if (type === "pejabat") {
+        const officials = activity.conflictingOfficialsList || [];
+        if (officials.length > 0) {
+          displayLabel = `Konflik Pejabat (${officials.length})`;
+          tooltip = `Bentrokan: ${officials.join(", ")}`;
+        }
+      }
+
       return (
-        <Badge variant="destructive" className="gap-1">
+        <Badge variant="destructive" className="gap-1 cursor-help" title={tooltip}>
           <AlertTriangle className="h-3 w-3" />
-          Konflik {conflictLabels[0]}
+          {displayLabel}
         </Badge>
       )
     }
@@ -329,8 +403,8 @@ export default function MonitoringKegiatanPage() {
           {activity.conflictType === "pejabat"
             ? "Pejabat"
             : activity.conflictType === "ruangan"
-            ? "Ruangan"
-            : "Waktu"}
+              ? "Ruangan"
+              : "Waktu"}
         </Badge>
       )
     }
@@ -353,7 +427,7 @@ export default function MonitoringKegiatanPage() {
     const endDateTime = `${activity.tanggal}T${activity.waktuSelesai}:00`;
 
     const ruangan = activity.ruangan || activity.tempat || "";
-    
+
     const details = `
 Unit: ${activity.unit}
 Ruangan: ${ruangan}
@@ -446,9 +520,8 @@ ${activity.keterangan}`;
       return {
         hasConflict: true,
         type: "pejabat",
-        message: `${conflictingOfficials.join(", ")} sudah terjadwal di "${
-          officialConflict.namaKegiatan
-        }"`,
+        message: `${conflictingOfficials.join(", ")} sudah terjadwal di "${officialConflict.namaKegiatan
+          }"`,
       };
     }
 
@@ -478,7 +551,7 @@ ${activity.keterangan}`;
             Export ke Google Calendar
           </Button>
 
-          <AddActivity 
+          <AddActivity
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}
             isLoading={isLoading}
@@ -555,7 +628,7 @@ ${activity.keterangan}`;
       </div>
 
       {/* View Toggle and Filters */}
-      <TableActivityMonitoring 
+      <TableActivityMonitoring
         viewMode={viewMode}
         setViewMode={setViewMode}
         searchQuery={searchQuery}
@@ -591,7 +664,7 @@ ${activity.keterangan}`;
         }}
       />
 
-      <EditActivity 
+      <EditActivity
         isDialogOpen={isEditDialogOpen}
         setIsDialogOpen={(open) => {
           setIsEditDialogOpen(open)

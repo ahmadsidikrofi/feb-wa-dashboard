@@ -84,12 +84,14 @@ export default function NotulensiDetailPage({ params }) {
               agenda: agenda.title || "",
               pembahasan: agenda.discussion || "",
               keputusan: agenda.decision || "-",
-            })) || [],
-          tindakLanjut:
-            data.actionItems?.map((item) => ({
-              tugas: item.task || "",
-              penanggungJawab: item.pic || "",
-              deadline: item.deadline || "",
+              tindakLanjut:
+                agenda.actionItems?.map((item) => ({
+                  id: item.id,
+                  tugas: item.task || "",
+                  penanggungJawab: item.pic || "",
+                  deadline: item.deadline || "",
+                  status: item.status || "Open",
+                })) || [],
             })) || [],
           penutup: "", // API tidak menyediakan penutup, bisa ditambahkan jika ada
         };
@@ -195,12 +197,9 @@ export default function NotulensiDetailPage({ params }) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <div className="flex items-start gap-2">
-              <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
-                Notulensi Rapat
-              </h1>
-              {getStatusBadge(notulensi.status)}
-            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+              Notulensi Rapat
+            </h1>
             <p className="text-muted-foreground">
               Dokumentasi lengkap hasil rapat
             </p>
@@ -225,7 +224,10 @@ export default function NotulensiDetailPage({ params }) {
       {/* Meeting Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">{notulensi.judulRapat}</CardTitle>
+          <div className="flex items-start gap-2">
+            <CardTitle className="text-2xl">{notulensi.judulRapat}</CardTitle>
+            {getStatusBadge(notulensi.status)}
+          </div>
           <CardDescription>Informasi Rapat</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -326,12 +328,12 @@ export default function NotulensiDetailPage({ params }) {
         </CardContent>
       </Card>
 
-      {/* Pembahasan dan Keputusan */}
+      {/* Pembahasan, Keputusan, dan Tindak Lanjut */}
       <Card>
         <CardHeader>
-          <CardTitle>Pembahasan dan Keputusan</CardTitle>
+          <CardTitle>Pembahasan, Keputusan, dan Tindak Lanjut</CardTitle>
           <CardDescription>
-            Detail pembahasan setiap agenda dan keputusan yang diambil
+            Detail pembahasan, keputusan, dan tindak lanjut untuk setiap agenda
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -372,6 +374,62 @@ export default function NotulensiDetailPage({ params }) {
                       </p>
                     )}
                   </div>
+
+                  {item.tindakLanjut && item.tindakLanjut.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                        <Target className="h-4 w-4" /> Tindak Lanjut:
+                      </h4>
+                      <div className="space-y-3 mt-2">
+                        {item.tindakLanjut.map((tl, idx) => (
+                          <div
+                            key={idx}
+                            className="border rounded-lg p-3 bg-muted/50"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="space-y-1">
+                                <p className="font-medium text-sm">{tl.tugas}</p>
+                                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <User className="h-3 w-3" />
+                                    <span>{tl.penanggungJawab}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    <span>
+                                      Deadline:{" "}
+                                      {new Date(tl.deadline).toLocaleDateString(
+                                        "id-ID",
+                                        {
+                                          day: "numeric",
+                                          month: "short",
+                                          year: "numeric",
+                                        }
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <Badge
+                                variant={
+                                  tl.status === "Closed" || tl.status === "Open"
+                                    ? "bg-red-500 hover:bg-red-600"
+                                    : "secondary"
+                                }
+                                className={
+                                  tl.status === "Closed" || tl.status === "Open"
+                                    ? "bg-green-600 hover:bg-green-700"
+                                    : ""
+                                }
+                              >
+                                {tl.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               {index < notulensi.pembahasanKeputusan.length - 1 && (
@@ -379,54 +437,6 @@ export default function NotulensiDetailPage({ params }) {
               )}
             </div>
           ))}
-        </CardContent>
-      </Card>
-
-      {/* Tindak Lanjut */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Tindak Lanjut
-          </CardTitle>
-          <CardDescription>
-            Tugas dan tanggung jawab hasil rapat
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {notulensi.tindakLanjut.map((item, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-2">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.tugas}</h4>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span>{item.penanggungJawab}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          Deadline:{" "}
-                          {new Date(item.deadline).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">
-                    {new Date(item.deadline) > new Date()
-                      ? "Aktif"
-                      : "Terlambat"}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
         </CardContent>
       </Card>
 
