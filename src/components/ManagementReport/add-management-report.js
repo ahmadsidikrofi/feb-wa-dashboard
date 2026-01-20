@@ -7,14 +7,14 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-  } from "@/components/ui/dialog";
+} from "@/components/ui/dialog";
 
-  import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
+import api from "@/lib/axios";
 
 const AddManagementReport = ({ open, onOpenChange, onSuccess, isLoading, setIsLoading }) => {
     const [selectedIndicator, setSelectedIndicator] = useState({
@@ -40,9 +40,9 @@ const AddManagementReport = ({ open, onOpenChange, onSuccess, isLoading, setIsLo
                 tw4: selectedIndicator.tw4 || false,
             }
 
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports`, payload)
+            const res = await api.post(`/api/management-reports`, payload)
             console.log(res);
-            
+
             onSuccess?.()
         } catch (error) {
             console.error("Gagal menyimpan management report:", error)
@@ -181,7 +181,7 @@ const AddManagementReport = ({ open, onOpenChange, onSuccess, isLoading, setIsLo
                         disabled={isLoading}
                     >
                         {isLoading && (
-                            <Loader2 className="size-4 animate-spin"/>
+                            <Loader2 className="size-4 animate-spin" />
                         )}
                         {isLoading ? "Menyimpan" : "Simpan"}
                     </Button>

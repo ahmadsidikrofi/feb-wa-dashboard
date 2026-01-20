@@ -10,19 +10,19 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import axios from 'axios';
 import { toast } from 'sonner';
 import ContactTable from '@/components/Contact/contact-table';
+import api from '@/lib/axios';
 
 export const contactSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
   phoneNumber: z.string()
-  .min(9, "Nomor tujuan terlalu pendek")
-  .max(15, "Nomor whatsapp terlalu panjang")
-  .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
-  .refine(value => !value.startsWith("62"), {
+    .min(9, "Nomor tujuan terlalu pendek")
+    .max(15, "Nomor whatsapp terlalu panjang")
+    .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
+    .refine(value => !value.startsWith("62"), {
       message: "Nomor WhatsApp tidak boleh diawali dengan 62 atau 0."
-  }),
+    }),
   notes: z.string().min(1, "Catatan wajib diisi"),
 })
 
@@ -33,23 +33,19 @@ function TambahPenerimaPage() {
 
   const getContacts = async () => {
     setIsLoading(true)
-      try {
-          const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
-              headers: {
-                  "ngrok-skip-browser-warning": true,
-              },
-          })
-          const data = res.data
-          if (Array.isArray(data)) {
-              setContacts(data)
-          } else {
-              console.warn("Unexpected API response:", data)
-              setContacts([])
-          }
-      } catch (err) {
-          console.error("Gagal fetch contacts:", err)
-          setContacts([])
+    try {
+      const res = await api.get(`/api/contacts`)
+      const data = res.data
+      if (Array.isArray(data)) {
+        setContacts(data)
+      } else {
+        console.warn("Unexpected API response:", data)
+        setContacts([])
       }
+    } catch (err) {
+      console.error("Gagal fetch contacts:", err)
+      setContacts([])
+    }
     finally {
       setIsLoading(false)
     }
@@ -68,10 +64,10 @@ function TambahPenerimaPage() {
 
   const createContact = async (values) => {
     const formattedPhoneNumber = `62${values.phoneNumber.replace(/^0+/, '')}@c.us`
-    
+
     try {
       setIsLoading(true)
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
+      const res = await api.post(`/api/contacts`, {
         name: values.name,
         phoneNumber: formattedPhoneNumber,
         notes: values.notes,
@@ -171,7 +167,7 @@ function TambahPenerimaPage() {
                     </FormItem>
                   )}
                 />
-                <FormField 
+                <FormField
                   control={form.control}
                   name="notes"
                   render={({ field }) => (
@@ -202,7 +198,7 @@ function TambahPenerimaPage() {
           </DialogContent>
         </Dialog>
       </div>
-      <ContactTable contacts={contacts} isLoading={isLoading} setIsLoading={setIsLoading} getContacts={getContacts}/>
+      <ContactTable contacts={contacts} isLoading={isLoading} setIsLoading={setIsLoading} getContacts={getContacts} />
     </section>
   )
 }

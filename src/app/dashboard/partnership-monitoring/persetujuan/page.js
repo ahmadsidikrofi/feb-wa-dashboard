@@ -7,6 +7,7 @@ import { GrowthTrendByYearChart } from "@/components/PartnershipMonitoring/growt
 import { ProportionPartnershipCategory } from "@/components/PartnershipMonitoring/proportion-partnership-cateogory-chart"
 import { ScopeChart } from "@/components/PartnershipMonitoring/scope-chart"
 import TableSubmission from "@/components/PartnershipMonitoring/table-submission"
+import api from "@/lib/axios"
 
 const Persetujuan = () => {
     const [statusData, setStatusData] = useState({
@@ -17,14 +18,12 @@ const Persetujuan = () => {
     })
 
     const fetchDashboardData = async () => {
-        // Fetch summary data
-        const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/stats`, {
-            headers: {
-                "ngrok-skip-browser-warning": true,
-            },
-        })
-        const status = await statsResponse.json()
-        setStatusData(status.data)
+        try {
+            const response = await api.get('/api/partnership/stats')
+            setStatusData(response.data.data)
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error)
+        }
     }
 
     useEffect(() => {

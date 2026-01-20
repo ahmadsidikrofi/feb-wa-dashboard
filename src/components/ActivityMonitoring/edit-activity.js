@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/axios";
 import { toast } from "sonner";
 
 const EditActivity = ({
@@ -39,13 +39,10 @@ const EditActivity = ({
     const updateActivity = async (id, payload) => {
         setIsLoading(true);
         try {
-            const res = await axios.put(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring/${id}`,
-                payload,
-                {
-                    headers: { "ngrok-skip-browser-warning": true },
-                }
-            );
+            const res = await api.put(
+                `/api/activity-monitoring/${id}`,
+                payload
+            )
             return res.data;
         } finally {
             setIsLoading(false);
@@ -357,7 +354,7 @@ const EditActivity = ({
                         >
                             {isLoading ? (
                                 <span className="flex items-center gap-2">
-                                    <Loader2 className="size-4 animate-spin"/>
+                                    <Loader2 className="size-4 animate-spin" />
                                     Menyimpan Perubahan...
                                 </span>
                             ) : (

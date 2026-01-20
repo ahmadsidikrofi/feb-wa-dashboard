@@ -1,7 +1,6 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import axios from "axios"
 import { Ellipsis, Loader2, PackageOpenIcon, Search, SearchX, X } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
 import {
@@ -22,6 +21,7 @@ import EditApproval from "./edit-approval"
 import { Button } from "../ui/button"
 import EditStatusActivityPartnership from "./edit-status-activity-partnership"
 import FilterTablePartnership from "./filter-table"
+import api from "@/lib/axios"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -51,300 +51,297 @@ const formatRangeInfo = (pagination, currentPage) => {
 }
 
 const TableImplementation = () => {
-    const [partnershipData, setPartnershipData] = useState([])
-    const [isLoading, setIsLoading] = useState(false)
-    const [currentPage, setCurrentPage] = useState(1)
-    const [pagination, setPagination] = useState({
-      totalItem: 0,
-      totalPages: 0,
-      currentPage: 1,
-      pageSize: 15
-    })
+  const [partnershipData, setPartnershipData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState({
+    totalItem: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 15
+  })
 
-    const [searchTerm, setSearchTerm] = useState('')
-    const [rowFilter, setRowFilter] = useState(15)
-    const debounceSearch = useDebounce(searchTerm, 500)
-    const [filters, setFilters] = useState({
-      scope: null,
-      docType: null,
-      status: null,
-      archive: null
-    })
+  const [searchTerm, setSearchTerm] = useState('')
+  const [rowFilter, setRowFilter] = useState(15)
+  const debounceSearch = useDebounce(searchTerm, 500)
+  const [filters, setFilters] = useState({
+    scope: null,
+    docType: null,
+    status: null,
+    archive: null
+  })
 
-    const listRef = useRef(null)
+  const listRef = useRef(null)
 
-    const getPartnershipData = React.useCallback(async (page = 1) => {
-      try {
-        setIsLoading(true)
-        const params = {
-          page,
-          limit: rowFilter,
-          search: debounceSearch || "",
-          scope: filters.scope,
-          docType: filters.docType,
-          status: filters.status,
-          archive: filters.archive
+  const getPartnershipData = React.useCallback(async (page = 1) => {
+    try {
+      setIsLoading(true)
+      const params = {
+        page,
+        limit: rowFilter,
+        search: debounceSearch || "",
+        scope: filters.scope,
+        docType: filters.docType,
+        status: filters.status,
+        archive: filters.archive
+      }
+
+      const res = await api.get('/api/partnership', {
+        params: params,
+      })
+
+      console.log('📦 Response from backend:', res.data)
+      console.log('📊 Data length:', res.data?.data?.length)
+
+      if (res.data) {
+        const { data = [], pagination: resPagination } = res.data
+        setPartnershipData(Array.isArray(data) ? data : [])
+        if (resPagination) {
+          setPagination(resPagination);
+          setCurrentPage(resPagination.currentPage);
+        } else {
+          setPagination({
+            totalItem: 0,
+            totalPages: 0,
+            currentPage: page,
+            pageSize: rowFilter,
+          });
+          setCurrentPage(page);
         }
-
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, {
-          params: params,
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        })
-
-        // console.log('📦 Response from backend:', res.data)
-        // console.log('📊 Data length:', res.data?.data?.length)
-
-        if (res.data) {
-          const { data = [], pagination: resPagination } = res.data
-          setPartnershipData(Array.isArray(data) ? data : [])
-          if (resPagination) {
-            setPagination(resPagination);
-            setCurrentPage(resPagination.currentPage);
-          } else {
-            setPagination({
-              totalItem: 0,
-              totalPages: 0,
-              currentPage: page,
-              pageSize: rowFilter,
-            });
-            setCurrentPage(page);
-          }
-        }
-
-      } catch (err) {
-        console.error("Gagal fetch data:", err)
-        setPartnershipData([])
-      } finally {
-        setIsLoading(false)
       }
-    }, [rowFilter, debounceSearch, filters]);
 
-    useEffect(() => {
-      console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
-      getPartnershipData(1)
-    }, [rowFilter, debounceSearch, getPartnershipData, filters])
-
-    useEffect(() => {
-      if (listRef.current) {
-        listRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
-      }
-    }, [pagination.currentPage])
-
-    const handlePageChange = (newPage) => {
-      if (newPage >= 1 && newPage <= pagination.totalPages) {
-        getPartnershipData(newPage)
-      }
+    } catch (err) {
+      console.error("Gagal fetch data:", err)
+      setPartnershipData([])
+    } finally {
+      setIsLoading(false)
     }
+  }, [rowFilter, debounceSearch, filters]);
 
-    const handleClearSearch = () => {
-      setSearchTerm('')
+  useEffect(() => {
+    console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
+    getPartnershipData(1)
+  }, [rowFilter, debounceSearch, getPartnershipData, filters])
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
+  }, [pagination.currentPage])
 
-    const handleResetFilters = () => {
-      setFilters({ scope: null, docType: null, status: null, archive: null })
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      getPartnershipData(newPage)
     }
+  }
 
-    return (
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4" ref={listRef}>
-          <FilterTablePartnership
-            filters={filters}
-            setFilter={setFilters}
-            onReset={handleResetFilters}
+  const handleClearSearch = () => {
+    setSearchTerm('')
+  }
+
+  const handleResetFilters = () => {
+    setFilters({ scope: null, docType: null, status: null, archive: null })
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-4" ref={listRef}>
+        <FilterTablePartnership
+          filters={filters}
+          setFilter={setFilters}
+          onReset={handleResetFilters}
+        />
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Cari berdasarkan nama mitra...."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-10"
           />
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari berdasarkan nama mitra...."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            {searchTerm && (
-              <button
-                onClick={handleClearSearch}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <Select
-              value={String(rowFilter)}
-              onValueChange={(value) => (setRowFilter(parseInt(value)))}
-            >
-              <SelectTrigger className="w-full sm:w-48 text-start">
-                {/* <PackageOpenIcon className="w-4 h-4" /> */}
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="15">Menampilkan 15 data</SelectItem>
-                <SelectItem value="30">Menampilkan 30 data</SelectItem>
-                <SelectItem value="3000">Semua Data</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {isLoading && (
-          <div className="flex items-center justify-center py-4 text-sm text-gray-500">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            Mencari data...
-          </div>
-        )}
-
-        {!isLoading && partnershipData.length === 0 && debounceSearch && (
-          <div className="text-center py-8 text-gray-500">
-            <SearchX className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>Tidak ada hasil untuk {debounceSearch}</p>
+          {searchTerm && (
             <button
               onClick={handleClearSearch}
-              className="mt-2 text-sm text-blue-600 hover:underline"
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Hapus pencarian
+              <X className="h-4 w-4" />
             </button>
-          </div>
-        )}
-
-        <div className="border border-gray-200 rounded-lg shadow dark:border-gray-800">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead style={{ minWidth: '50px' }}>Tahun</TableHead>
-                <TableHead style={{ minWidth: '50px' }}>Tipe Dokumen</TableHead>
-                <TableHead 
-                  className="max-sm:hidden" 
-                  style={{ minWidth: '100px', maxWidth: '220px' }}>
-                  Mitra
-                </TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Tingkat</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Jenis Kerjasama</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">PIC</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Berlaku hingga</TableHead>
-                <TableHead>Detail</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {partnershipData.map((partnership) => (
-                <TableRow key={partnership.id}>
-                  <TableCell>{partnership.yearIssued || "-"}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {partnership.docType || "-"}
-                    </span>
-                  </TableCell>
-                  <TableCell
-                    className="uppercase max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
-                    title={partnership.partnerName || "-"}
-                  >
-                    {partnership.partnerName || "-"}
-                  </TableCell>
-                  <TableCell className="max-sm:hidden capitalize">{partnership.scope || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden">{partnership.partnershipType || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden capitalize">{partnership.picInternal || "-"}</TableCell>
-                  <TableCell className="max-sm:hidden text-green-600 font-medium">
-                    {formatDate(partnership.validUntil)}
-                  </TableCell>
-                  <TableCell className="">
-                    {/* <ImplementationDetailDrawer partnership={partnership} /> */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="sm" variant="ghost">
-                          <Ellipsis />
-                        </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent>
-                        <div className="">
-                          <DropdownMenuItem asChild>
-                            <ImplementationDetailDrawer partnership={partnership} />
-                          </DropdownMenuItem>
-                        </div>
-
-                        <DropdownMenuSeparator />
-
-                        <div className="flex flex-col gap-2 justify-start items-center">
-                          <DropdownMenuItem asChild>
-                            <EditStatusActivityPartnership 
-                              partnershipId={partnership.id} 
-                              partnership={partnership}
-                              activities={partnership.activities}
-                              onSuccess={() => getPartnershipData(currentPage)}
-                            />
-                          </DropdownMenuItem>
-                        </div>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          )}
         </div>
-        <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
-
-        <div className="flex justify-start">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" 
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handlePageChange(currentPage - 1)
-                  }}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
-                // Tampilkan halaman 1, halaman terakhir, dan halaman di sekitar current page
-                if (
-                  page === 1 ||
-                  page === pagination.totalPages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1)
-                ) {
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        isActive={page === currentPage}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(page);
-                        }}
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                } else if (
-                  page === currentPage - 2 ||
-                  page === currentPage + 2
-                ) {
-                  // Tampilkan Ellipsis jika ada gap
-                  return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>
-                }
-                return null;
-              })}
-
-
-              <PaginationItem>
-                <PaginationNext href="#" 
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handlePageChange(currentPage + 1)
-                  }}
-                  className={currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+        <div className="flex items-center gap-4">
+          <Select
+            value={String(rowFilter)}
+            onValueChange={(value) => (setRowFilter(parseInt(value)))}
+          >
+            <SelectTrigger className="w-full sm:w-48 text-start">
+              {/* <PackageOpenIcon className="w-4 h-4" /> */}
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="15">Menampilkan 15 data</SelectItem>
+              <SelectItem value="30">Menampilkan 30 data</SelectItem>
+              <SelectItem value="3000">Semua Data</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-    )
+
+      {isLoading && (
+        <div className="flex items-center justify-center py-4 text-sm text-gray-500">
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          Mencari data...
+        </div>
+      )}
+
+      {!isLoading && partnershipData.length === 0 && debounceSearch && (
+        <div className="text-center py-8 text-gray-500">
+          <SearchX className="h-12 w-12 mx-auto mb-2 opacity-50" />
+          <p>Tidak ada hasil untuk {debounceSearch}</p>
+          <button
+            onClick={handleClearSearch}
+            className="mt-2 text-sm text-blue-600 hover:underline"
+          >
+            Hapus pencarian
+          </button>
+        </div>
+      )}
+
+      <div className="border border-gray-200 rounded-lg shadow dark:border-gray-800">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead style={{ minWidth: '50px' }}>Tahun</TableHead>
+              <TableHead style={{ minWidth: '50px' }}>Tipe Dokumen</TableHead>
+              <TableHead
+                className="max-sm:hidden"
+                style={{ minWidth: '100px', maxWidth: '220px' }}>
+                Mitra
+              </TableHead>
+              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Tingkat</TableHead>
+              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Jenis Kerjasama</TableHead>
+              <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">PIC</TableHead>
+              <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Berlaku hingga</TableHead>
+              <TableHead>Detail</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {partnershipData.map((partnership) => (
+              <TableRow key={partnership.id}>
+                <TableCell>{partnership.yearIssued || "-"}</TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {partnership.docType || "-"}
+                  </span>
+                </TableCell>
+                <TableCell
+                  className="uppercase max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap"
+                  title={partnership.partnerName || "-"}
+                >
+                  {partnership.partnerName || "-"}
+                </TableCell>
+                <TableCell className="max-sm:hidden capitalize">{partnership.scope || "-"}</TableCell>
+                <TableCell className="max-sm:hidden">{partnership.partnershipType || "-"}</TableCell>
+                <TableCell className="max-sm:hidden capitalize">{partnership.picInternal || "-"}</TableCell>
+                <TableCell className="max-sm:hidden text-green-600 font-medium">
+                  {formatDate(partnership.validUntil)}
+                </TableCell>
+                <TableCell className="">
+                  {/* <ImplementationDetailDrawer partnership={partnership} /> */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="ghost">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent>
+                      <div className="">
+                        <DropdownMenuItem asChild>
+                          <ImplementationDetailDrawer partnership={partnership} />
+                        </DropdownMenuItem>
+                      </div>
+
+                      <DropdownMenuSeparator />
+
+                      <div className="flex flex-col gap-2 justify-start items-center">
+                        <DropdownMenuItem asChild>
+                          <EditStatusActivityPartnership
+                            partnershipId={partnership.id}
+                            partnership={partnership}
+                            activities={partnership.activities}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
+
+      <div className="flex justify-start">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  handlePageChange(currentPage - 1)
+                }}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
+              // Tampilkan halaman 1, halaman terakhir, dan halaman di sekitar current page
+              if (
+                page === 1 ||
+                page === pagination.totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              ) {
+                return (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(page);
+                      }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              } else if (
+                page === currentPage - 2 ||
+                page === currentPage + 2
+              ) {
+                // Tampilkan Ellipsis jika ada gap
+                return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>
+              }
+              return null;
+            })}
+
+
+            <PaginationItem>
+              <PaginationNext href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  handlePageChange(currentPage + 1)
+                }}
+                className={currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </div>
+  )
 }
 
 export default TableImplementation

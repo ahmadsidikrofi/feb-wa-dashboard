@@ -12,10 +12,10 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "../ui/button";
-import { ArrowLeft, LoaderCircle, LoaderIcon, Trash2 } from "lucide-react";
-import axios from "axios";
+import { ArrowLeft, LoaderIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 const DeleteManagementReport = ({ isLoading, setIsLoading, reportId, onSuccess }) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -25,12 +25,8 @@ const DeleteManagementReport = ({ isLoading, setIsLoading, reportId, onSuccess }
 
         try {
             setIsLoading(true)
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports/${reportId}`, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
-            
+            await api.delete(`/api/management-reports/${reportId}`)
+
             toast.success("Indikator berhasil dihapus");
             onSuccess?.()
         } catch (error) {
@@ -83,7 +79,7 @@ const DeleteManagementReport = ({ isLoading, setIsLoading, reportId, onSuccess }
                                 </>
                             ) : (
                                 <>
-                                    <Trash2 className="size-4 mr-2" /> 
+                                    <Trash2 className="size-4 mr-2" />
                                     Lanjutkan
                                 </>
                             )}

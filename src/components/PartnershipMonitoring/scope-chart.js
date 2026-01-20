@@ -18,7 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import axios from "axios"
+import api from "@/lib/axios"
 
 export const description = "A mixed bar chart"
 
@@ -42,11 +42,7 @@ export function ScopeChart() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
+      const res = await api.get(`/api/partnership/chart`)
 
       // Perhatikan response datanya, gunakan 'documentByScope'
       const rawData = res?.data?.data?.documentByScope || []

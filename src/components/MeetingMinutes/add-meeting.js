@@ -20,8 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 import { Loader2, Plus } from "lucide-react";
-import axios from "axios";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, formData, setFormData, onSuccess, rooms }) => {
 
@@ -55,7 +55,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
             );
             return
         }
-        
+
         try {
             const payload = {
                 title: formData.judulRapat,
@@ -66,7 +66,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                 locationDetail: formData.locationDetail,
                 leader: formData.pemimpin,
                 notetaker: formData.notulen,
-                
+
                 participants: [],
                 actionItems: [],
                 agendas: [
@@ -77,8 +77,8 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                     }
                 ]
             }
-    
-            await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings`, payload)
+
+            await api.post(`/api/meetings`, payload)
 
             setIsDialogOpen(false)
             toast.success("Rapat berhasil ditambahkan")

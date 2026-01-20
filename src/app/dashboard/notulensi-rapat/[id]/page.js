@@ -29,8 +29,8 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 export default function NotulensiDetailPage({ params }) {
   const router = useRouter();
@@ -43,19 +43,11 @@ export default function NotulensiDetailPage({ params }) {
   const fetchMeetingData = async (meetingId) => {
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings/${meetingId}`,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        }
-      );
+      const res = await api.get(`/api/meetings/${meetingId}`)
 
       if (res.data?.success && res.data?.data) {
         const data = res.data.data;
 
-        // Format waktu untuk display (HH:mm - HH:mm)
         const startTime = new Date(data.startTime);
         const endTime = new Date(data.endTime);
         const formattedStartTime = startTime.toLocaleTimeString("id-ID", {

@@ -5,13 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState } from 'react'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import axios from 'axios'
 import z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../ui/input'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import api from '@/lib/axios'
 
 export const contractManagementSchema = z.object({
     ContractManagementCategory: z.enum([
@@ -51,12 +51,8 @@ const AddContract = ({ getContractData }) => {
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
             }
-    
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contract-management`, payload, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
+
+            const res = await api.post(`/api/contract-management`, payload)
             if (res.status === 200 || res.status === 201) {
                 setOpen(false)
                 form.reset()
@@ -158,7 +154,7 @@ const AddContract = ({ getContractData }) => {
                                             <FormMessage />
                                         </FormItem>
                                     )}
-/>
+                                />
                             </div>
 
                             {/* ====== RESPONSIBILITY ====== */}

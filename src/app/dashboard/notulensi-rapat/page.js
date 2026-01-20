@@ -22,9 +22,9 @@ import {
   Loader2,
   CalendarCheck,
 } from "lucide-react";
-import axios from "axios";
 import TableMeetingMinutes from "@/components/MeetingMinutes/table-meeting-minutes";
 import AddMeeting from "@/components/MeetingMinutes/add-meeting"
+import api from "@/lib/axios";
 
 const rooms = [
   "Ruang Rapat Manterawu lt. 2",
@@ -91,7 +91,7 @@ export default function NotulensiRapatPage() {
       notulen: item.notetaker,
       status: item.status,
       hasNotulensi: item.hasNotulensi,
-  }))
+    }))
 
   const fetchMeetings = useCallback(async () => {
     try {
@@ -106,13 +106,10 @@ export default function NotulensiRapatPage() {
         (key) => params[key] === undefined && delete params[key]
       )
 
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings`,
+      const res = await api.get(
+        `/api/meetings`,
         {
           params,
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
         }
       )
 
@@ -151,7 +148,7 @@ export default function NotulensiRapatPage() {
             Export Laporan
           </Button>
 
-          <AddMeeting 
+          <AddMeeting
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}
             isLoading={isLoading}
@@ -276,7 +273,7 @@ export default function NotulensiRapatPage() {
         </Card>
       </div>
 
-      <TableMeetingMinutes isLoading={isLoading} meetings={meetings} 
+      <TableMeetingMinutes isLoading={isLoading} meetings={meetings}
         searchQuery={searchQuery}
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}

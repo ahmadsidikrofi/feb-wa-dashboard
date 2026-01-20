@@ -10,11 +10,11 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import axios from 'axios'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from "@/components/ui/checkbox"
 import { ActivityMultiSelect } from './activity-multi-select'
+import api from '@/lib/axios'
 
 const docTypeOptions = [
     { label: "MoA", value: "MoA" },
@@ -115,7 +115,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
         const normalizeDate = (dateString) => {
             if (!dateString) return null
             const date = new Date(dateString)
-            if (isNaN(date.getTime())) return null 
+            if (isNaN(date.getTime())) return null
             return date.toISOString() // Mengubah "2024-01-01" jadi "2024-01-01T00:00:00.000Z"
         }
 
@@ -150,11 +150,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 hasSoftcopy: values.hasSoftcopy,
             }
 
-            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`, payload, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                }
-            })
+            const res = await api.put(`/api/partnership/${partnershipId}`, payload)
             console.log(res);
 
             toast.success("Approval berhasil diperbarui")
@@ -171,11 +167,11 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
             setIsLoading(false)
         }
     }
-    
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto text-left" variant="ghost"><FileEdit className='text-emerald-500'/>Edit Partnership</Button>
+                <Button className="w-full sm:w-auto text-left" variant="ghost"><FileEdit className='text-emerald-500' />Edit Partnership</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-4xl w-full p-6">
                 <DialogHeader>

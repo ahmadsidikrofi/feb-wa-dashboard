@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import {
   Card,
   CardContent,
@@ -36,6 +35,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import AddActivity from "@/components/ActivityMonitoring/add-activity";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import EditActivity from "@/components/ActivityMonitoring/edit-activity";
+import api from "@/lib/axios";
 
 // Data dummy untuk unit dan prodi
 const units = [
@@ -228,13 +228,10 @@ export default function MonitoringKegiatanPage() {
       // Remove undefined params
       Object.keys(params).forEach(key => params[key] === undefined && delete params[key])
 
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring`,
+      const res = await api.get(
+        `/api/activity-monitoring`,
         {
           params,
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
         }
       )
 

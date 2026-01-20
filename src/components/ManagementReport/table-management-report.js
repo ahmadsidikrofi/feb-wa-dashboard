@@ -6,16 +6,16 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-  } from "@/components/ui/card";
+} from "@/components/ui/card";
 
-  import {
+import {
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
-  } from "@/components/ui/table";
+} from "@/components/ui/table";
 
 import { Checkbox } from "../ui/checkbox";
 import { Edit3, ExternalLink, PlusCircleIcon, Search, SearchX, PackageOpenIcon, Loader2, X } from "lucide-react";
@@ -23,31 +23,31 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from "@/hooks/use-debounce";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
 } from "@/components/ui/pagination";
+import api from "@/lib/axios";
 
 const formatRangeInfo = (pagination, currentPage) => {
-  const total = pagination?.totalItems ?? 0
-  const pageSize = pagination?.pageSize ?? 0
+    const total = pagination?.totalItems ?? 0
+    const pageSize = pagination?.pageSize ?? 0
 
-  if (total === 0 || pageSize === 0) {
-    return "0–0 dari 0"
-  }
+    if (total === 0 || pageSize === 0) {
+        return "0–0 dari 0"
+    }
 
-  const safePage = Math.max(currentPage || 1, 1)
-  const start = (safePage - 1) * pageSize + 1
-  const end = Math.min(safePage * pageSize, total)
+    const safePage = Math.max(currentPage || 1, 1)
+    const start = (safePage - 1) * pageSize + 1
+    const end = Math.min(safePage * pageSize, total)
 
-  return `${start} – ${end} dari ${total} data`
+    return `${start} – ${end} dari ${total} data`
 }
 
 const TableManagementReport = ({
@@ -90,11 +90,8 @@ const TableManagementReport = ({
                 year: yearFilter || undefined
             }
 
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports`, {
+            const res = await api.get(`/api/management-reports`, {
                 params: params,
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
             })
 
             if (res.data && res.data.success) {
@@ -163,16 +160,11 @@ const TableManagementReport = ({
         setToggleLoading((prev) => ({ ...prev, [key]: true }))
 
         try {
-            await axios.patch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports/${indicatorId}/toggle`,
+            await api.patch(
+                `/api/management-reports/${indicatorId}/toggle`,
                 {
                     quarter,
                     value: !currentStatus,
-                },
-                {
-                    headers: {
-                        "ngrok-skip-browser-warning": true,
-                    },
                 }
             )
 
@@ -202,7 +194,7 @@ const TableManagementReport = ({
             onEditIndicator(indicator)
         }
     }
-    
+
     return (
         <>
             {/* Search and Filters */}

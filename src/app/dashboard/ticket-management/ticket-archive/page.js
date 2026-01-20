@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import TicketDrawer from '@/components/ticket-drawer'
 import axios from 'axios'
+import api from '@/lib/axios'
 
 export default function TicketArchivePage() {
   const [allTickets, setAllTickets] = useState([])
@@ -34,18 +35,10 @@ export default function TicketArchivePage() {
 
   const fetchAllTickets = async () => {
     try {
-      const token = sessionStorage.getItem('auth_token')
+      const response = await api.get(`/api/tickets`)
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": true,
-        }
-      })
-
-      if (response.ok) {
-        const tickets = await response.json()
-        setAllTickets(tickets)
+      if (response.status === 200) {
+        setAllTickets(response.data)
       }
     } catch (error) {
       console.error('Error fetching all tickets:', error)
@@ -132,12 +125,12 @@ export default function TicketArchivePage() {
   const handleResolveTicket = async (ticketId) => {
     if (!ticketId) return
     setUpdatingTicketId(ticketId)
-    
+
     try {
       const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets/${ticketId}/resolve`)
       if (res.status === 200) {
         fetchAllTickets()
-      }  
+      }
     } catch (error) {
       console.error('Gagal menyelesaikan tiket:', error)
     } finally {
@@ -148,7 +141,7 @@ export default function TicketArchivePage() {
   useEffect(() => {
     fetchAllTickets()
   }, [])
-  
+
   useEffect(() => {
     applyFilters()
   }, [applyFilters])
@@ -338,14 +331,14 @@ export default function TicketArchivePage() {
                               {updatingTicketId === ticket.id ? 'Menangani...' : 'Tangani'}
                             </DropdownMenuItem>
                           ) : ticket.status === 'in_progress' ? (
-                              <DropdownMenuItem onClick={() => handleResolveTicket(ticket.id)} disabled={updatingTicketId === ticket.id}>
-                                {updatingTicketId === ticket.id ? (
-                                  <LoaderCircle className="size-4 animate-spin" />
-                                ) : (
-                                  <CheckCircle className="size-4" />
-                                )}
-                                {updatingTicketId === ticket.id ? 'Menyelesaikan...' : 'Selesaikan'}
-                              </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleResolveTicket(ticket.id)} disabled={updatingTicketId === ticket.id}>
+                              {updatingTicketId === ticket.id ? (
+                                <LoaderCircle className="size-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="size-4" />
+                              )}
+                              {updatingTicketId === ticket.id ? 'Menyelesaikan...' : 'Selesaikan'}
+                            </DropdownMenuItem>
                           ) : ""}
                         </DropdownMenuContent>
                       </DropdownMenu>

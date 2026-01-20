@@ -94,7 +94,7 @@ export default function DashboardHome() {
   return (
     <div className="space-y-8 pb-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Selamat Datang di Media Informasi dan Relasi Anda (MIRA) - Fakultas Ekonomi dan Bisnis - Telkom University</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Selamat Datang di MIRA - Fakultas Ekonomi dan Bisnis - Telkom University</h1>
         <p className="text-muted-foreground mt-1">
           Pilih modul yang ingin Anda akses di bawah ini.
         </p>

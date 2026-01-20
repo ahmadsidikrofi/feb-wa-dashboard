@@ -12,6 +12,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
+import api from "@/lib/axios";
 
 const iconMap = {
   FileText,
@@ -29,43 +30,34 @@ const KontrakManagement = () => {
 
     const fetchStats = async () => {
       try {
-        setIsLoading(true);
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contract-management/stats`,
-          {
-            cache: "no-store",
-          }
-        );
+        setIsLoading(true)
+        const res = await api.get("/api/contract-management/stats")
 
-        if (!res.ok) {
-          console.error("Gagal mengambil data stats:", res.statusText);
-          return;
+        if (!res.data.success) {
+          console.error("Gagal mengambil data stats:", res.data.message)
+          return
         }
 
-        const json = await res.json();
-
-        if (!ignore && json?.success && Array.isArray(json.data)) {
-          const mapped = json.data.map((item) => ({
-            ...item,
-            iconKey: item.iconKey,
-          }));
-          setStatsData(mapped);
-        }
+        const mapped = res.data.data.map((item) => ({
+          ...item,
+          iconKey: item.iconKey,
+        }))
+        setStatsData(mapped)
       } catch (error) {
-        console.error("Error fetch stats:", error);
+        console.error("Error fetch stats:", error)
       } finally {
         if (!ignore) {
-          setIsLoading(false);
+          setIsLoading(false)
         }
       }
     };
 
-    fetchStats();
+    fetchStats()
 
     return () => {
-      ignore = true;
-    };
-  }, []);
+      ignore = true
+    }
+  }, [])
 
   return (
     <div className="space-y-6">

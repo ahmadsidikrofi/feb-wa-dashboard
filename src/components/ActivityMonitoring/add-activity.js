@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { Loader2, Plus } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/axios";
 import { toast } from "sonner";
 
 const AddActivity = ({
@@ -39,13 +39,10 @@ const AddActivity = ({
     const createActivity = async (payload) => {
         setIsLoading(true);
         try {
-            const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring`,
+            const res = await api.post(
+                `/api/activity-monitoring`,
                 payload,
-                {
-                    headers: { "ngrok-skip-browser-warning": true },
-                }
-            );
+            )
             return res.data;
         } finally {
             setIsLoading(false);
@@ -372,7 +369,7 @@ const AddActivity = ({
                         >
                             {isLoading ? (
                                 <span className="flex items-center gap-2">
-                                    <Loader2 className="size-4 animate-spin"/>
+                                    <Loader2 className="size-4 animate-spin" />
                                     Menyimpan...
                                 </span>
                             ) : (

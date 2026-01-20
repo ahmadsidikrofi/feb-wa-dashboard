@@ -10,17 +10,7 @@ import {
 } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   FileText,
   Download,
@@ -29,7 +19,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import TableManagementReport from "@/components/ManagementReport/table-management-report";
-import axios from "axios";
 import AddManagementReport from "@/components/ManagementReport/add-management-report";
 import EditManagementReport from "@/components/ManagementReport/edit-management-report";
 
@@ -238,7 +227,7 @@ export default function LaporanManagementPage() {
         </Card>
       </div>
 
-      <TableManagementReport 
+      <TableManagementReport
         onEditIndicator={handleEditIndicator}
         onAddReport={() => setIsAddDialogOpen(true)}
         onStatusUpdate={handleStatusUpdate}

@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Search, Download, Briefcase, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/axios";
 
 export default function DataTPAPage() {
   const router = useRouter();
@@ -38,30 +38,25 @@ export default function DataTPAPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterLokasi, setFilterLokasi] = useState("all");
 
-  // Fetch data from API
   useEffect(() => {
     const fetchTPA = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/staffs`, {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        });
+        const res = await api.get(`/api/staffs`)
 
         if (res.data?.success) {
-          setTpaData(res.data.data || []);
+          setTpaData(res.data.data || [])
         }
       } catch (error) {
-        console.error("Gagal fetch data TPA:", error);
-        setTpaData([]);
+        console.error("Gagal fetch data TPA:", error)
+        setTpaData([])
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     };
 
-    fetchTPA();
-  }, []);
+    fetchTPA()
+  }, [])
 
   // Get unique values
   const statusList = [...new Set(tpaData.map((d) => d.employmentStatus))].filter(Boolean);

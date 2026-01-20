@@ -13,10 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import DeleteManagementReport from "./delete-management-report";
+import api from "@/lib/axios";
 
 const EditManagementReport = ({
     open,
@@ -66,12 +66,8 @@ const EditManagementReport = ({
                 tw4: selectedIndicator.tw4 || false,
             }
 
-            await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports/${selectedIndicator.id}`, payload, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
-            
+            await api.put(`/api/management-reports/${selectedIndicator.id}`, payload)
+
             onSuccess?.()
         } catch (error) {
             console.error("Gagal update indikator:", error);
@@ -88,7 +84,7 @@ const EditManagementReport = ({
                     <DialogTitle>Edit Indikator</DialogTitle>
                     <DialogDescription className="flex items-center justify-between">
                         Perbarui informasi indikator dan link evidence
-                        <DeleteManagementReport 
+                        <DeleteManagementReport
                             isLoading={isLoading}
                             setIsLoading={setIsLoading}
                             reportId={selectedIndicator.id}

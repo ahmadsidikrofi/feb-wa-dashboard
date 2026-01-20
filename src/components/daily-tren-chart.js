@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import api from "@/lib/axios"
 
 const chartConfig = {
   count: {
@@ -36,11 +37,7 @@ export function DailyTrenChart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-trends`, {
-          headers: {
-            "ngrok-skip-browser-warning": "69420",
-          },
-        })
+        const res = await api.get(`/api/dashboard/stats/ticket-trends`)
         const data = res.data
         setChartData(Array.isArray(data) ? data : [])
 

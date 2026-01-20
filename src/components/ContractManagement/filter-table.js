@@ -42,17 +42,17 @@ const FilterTableContractManagement = ({ filters, setFilters, onReset }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
 
-            <DropdownMenuSub>
-                <DropdownMenuSubTrigger>🐚 Kategori</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup value={filters.category || ""} onValueChange={(value) => handleFilterChange('category', value)}>
-                        <DropdownMenuRadioItem value="">Semua Kategori</DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="Financial">Financial</DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="NonFinancial">Non Financial</DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="InternalBusinessProcess">Internal Business Process</DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                </DropdownMenuSubContent>
-            </DropdownMenuSub>
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>🐚 Kategori</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                        <DropdownMenuRadioGroup value={filters.category || ""} onValueChange={(value) => handleFilterChange('category', value)}>
+                            <DropdownMenuRadioItem value="">Semua Kategori</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="Financial">Financial</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="NonFinancial">Non Financial</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="InternalBusinessProcess">Internal Business Process</DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                </DropdownMenuSub>
                 <DropdownMenuSeparator />
 
                 <DropdownMenuSub>
@@ -85,7 +85,7 @@ const FilterTableContractManagement = ({ filters, setFilters, onReset }) => {
                 {activeFilterCount > 0 && (
                     <>
                         <DropdownMenuSeparator />
-                        <div className="p-2"> 
+                        <div className="p-2">
                             <Button
                                 variant="ghost"
                                 size="sm"

@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Search, Download, GraduationCap, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/axios";
 
 export default function DataDosenPage() {
   const router = useRouter();
@@ -43,25 +43,21 @@ export default function DataDosenPage() {
     const fetchDosen = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/lecturers`, {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        });
+        const res = await api.get(`/api/lecturers`)
 
         if (res.data?.success) {
           setDosenData(res.data.data || []);
         }
       } catch (error) {
-        console.error("Gagal fetch data dosen:", error);
-        setDosenData([]);
+        console.error("Gagal fetch data dosen:", error)
+        setDosenData([])
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     };
 
-    fetchDosen();
-  }, []);
+    fetchDosen()
+  }, [])
 
   // Get unique prodi and pendidikan values
   const prodiList = [...new Set(dosenData.map((d) => d.prodi))].filter(Boolean);

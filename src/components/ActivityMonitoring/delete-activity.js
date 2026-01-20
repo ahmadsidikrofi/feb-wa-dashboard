@@ -13,10 +13,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "../ui/button";
 import { ArrowLeft, LoaderCircle, LoaderIcon, Trash2 } from "lucide-react";
-import axios from "axios";
 import { useState } from "react";
-import { DropdownMenuItem } from "../ui/dropdown-menu";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 const DeleteActivity = ({ onSuccess, activityId }) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -25,13 +24,13 @@ const DeleteActivity = ({ onSuccess, activityId }) => {
     const handleDeleteActivity = async (activityId) => {
         try {
             setIsLoading(true)
-            const res = axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/activity-monitoring/${activityId}`)
+            const res = api.delete(`/api/activity-monitoring/${activityId}`)
             await new Promise(resolve => setTimeout(resolve, 3000))
             if (res.status === 204) {
-              toast.success("Aktivitas yang kamu pilih telah berhasil dihapus", {
-                  style: { background: "#fee2e2", color: "#991b1b" },
-                  className: "border border-red-500"
-              })
+                toast.success("Aktivitas yang kamu pilih telah berhasil dihapus", {
+                    style: { background: "#fee2e2", color: "#991b1b" },
+                    className: "border border-red-500"
+                })
             }
         } catch (error) {
             console.error("Gagal menghapus aktivitas:", error)
@@ -86,7 +85,7 @@ const DeleteActivity = ({ onSuccess, activityId }) => {
                                 </>
                             ) : (
                                 <>
-                                    <Trash2 className="size-4 mr-2" /> 
+                                    <Trash2 className="size-4 mr-2" />
                                     Lanjutkan
                                 </>
                             )}

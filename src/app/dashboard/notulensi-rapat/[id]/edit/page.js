@@ -23,8 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Save, ArrowLeft, Plus, Trash2, Loader2, BadgeCheckIcon, Timer, CalendarCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import axios from "axios";
 import DeleteMeeting from "@/components/MeetingMinutes/delete-meeting"
+import api from "@/lib/axios";
 
 const ROOM_MAPPING = {
   "Ruang Rapat Manterawu lt. 2": "RuangRapatManterawuLt2",
@@ -78,14 +78,7 @@ export default function EditNotulensiPage({ params }) {
   const fetchMeetingData = async (meetingId) => {
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings/${meetingId}`,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        }
-      )
+      const res = await api.get(`/api/meetings/${meetingId}`)
 
       if (res.data?.success && res.data?.data) {
         const data = res.data.data;
@@ -316,16 +309,7 @@ export default function EditNotulensiPage({ params }) {
           })),
       };
 
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings/${id}`,
-        payload,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await api.put(`/api/meetings/${id}`, payload)
 
       toast.success("Notulensi berhasil diperbarui", {
         style: { background: "#22c55e", color: "#fff" },

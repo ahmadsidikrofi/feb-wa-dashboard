@@ -1,7 +1,6 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import axios from "axios"
 import { Edit, Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import {
@@ -23,6 +22,7 @@ import FilterTablePartnership from "../PartnershipMonitoring/filter-table"
 import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
 import EditContract from "./edit-contract"
+import api from "@/lib/axios"
 
 const formatRangeInfo = (pagination, currentPage) => {
   const total = pagination?.totalItems ?? 0
@@ -81,11 +81,8 @@ const TableContractManagement = () => {
         unit: filters.unit || undefined
       }
 
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contract-management`, {
+      const res = await api.get(`/api/contract-management`, {
         params: params,
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
       })
 
       if (res.data) {

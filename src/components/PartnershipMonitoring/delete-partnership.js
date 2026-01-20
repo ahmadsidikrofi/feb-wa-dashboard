@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "../ui/button";
 import { ArrowLeft, LoaderIcon, Trash2 } from "lucide-react";
-import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 const DeletePartnership = ({ partnershipId, onSuccess }) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -24,20 +24,16 @@ const DeletePartnership = ({ partnershipId, onSuccess }) => {
     const handleDeleteContact = async (partnershipId) => {
         setIsLoading(true)
         try {
-            const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
+            const res = await api.delete(`/api/partnership/${partnershipId}`)
             await new Promise(resolve => setTimeout(resolve, 3000))
             if (res.status === 204) {
-              toast.success("Partnership berhasil dihapus dengan baik", {
-                  style: { background: "#fee2e2", color: "#991b1b" },
-                  className: "border border-red-500"
-              })
-              if (onSuccess) {
-                onSuccess()
-              }
+                toast.success("Partnership berhasil dihapus dengan baik", {
+                    style: { background: "#fee2e2", color: "#991b1b" },
+                    className: "border border-red-500"
+                })
+                if (onSuccess) {
+                    onSuccess()
+                }
             }
         } catch (error) {
             console.error("Gagal menghapus partnership:", error)
@@ -87,7 +83,7 @@ const DeletePartnership = ({ partnershipId, onSuccess }) => {
                             </>
                         ) : (
                             <>
-                                <Trash2 className="size-4 mr-2" /> 
+                                <Trash2 className="size-4 mr-2" />
                                 Lanjutkan
                             </>
                         )}

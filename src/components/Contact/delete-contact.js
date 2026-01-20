@@ -13,10 +13,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "../ui/button";
 import { ArrowLeft, LoaderCircle, LoaderIcon, Trash2 } from "lucide-react";
-import axios from "axios";
 import { useState } from "react";
-import { DropdownMenuItem } from "../ui/dropdown-menu";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 const DeleteContact = ({ isLoading, setIsLoading, contactId, getContacts }) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -24,17 +23,13 @@ const DeleteContact = ({ isLoading, setIsLoading, contactId, getContacts }) => {
     const handleDeleteContact = async (contactId) => {
         setIsLoading(true)
         try {
-            const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts/${contactId}`, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
+            const res = await api.delete(`/api/contacts/${contactId}`)
             await new Promise(resolve => setTimeout(resolve, 3000))
             if (res.status === 204) {
-              toast.success("Kontak penerima ini telah berhasil dihapus", {
-                  style: { background: "#fee2e2", color: "#991b1b" },
-                  className: "border border-red-500"
-              })
+                toast.success("Kontak penerima ini telah berhasil dihapus", {
+                    style: { background: "#fee2e2", color: "#991b1b" },
+                    className: "border border-red-500"
+                })
             }
         } catch (error) {
             console.error("Gagal menghapus kontak:", error)
@@ -89,7 +84,7 @@ const DeleteContact = ({ isLoading, setIsLoading, contactId, getContacts }) => {
                                 </>
                             ) : (
                                 <>
-                                    <Trash2 className="size-4 mr-2" /> 
+                                    <Trash2 className="size-4 mr-2" />
                                     Lanjutkan
                                 </>
                             )}

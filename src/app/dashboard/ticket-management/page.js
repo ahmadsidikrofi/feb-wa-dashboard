@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import TicketDrawer from '@/components/ticket-drawer'
 import { DailyTrenChart } from '@/components/daily-tren-chart'
 import { TicketPerCategoryChart } from '@/components/ticket-per-category-chart'
+import api from '@/lib/axios'
 
 export default function Dashboard() {
   const [statusData, setStatusData] = useState({
@@ -29,25 +30,13 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
-      
-      // Fetch summary data
-      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const status = await statsResponse.json()
-      setStatusData(status)
+      const [statsResponse, ticketsResponse] = await Promise.all([
+        api.get('/api/dashboard/stats'),
+        api.get('/api/tickets')
+      ])
 
-      // Fetch recent tickets
-      const ticketsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tickets`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
-      const tickets = await ticketsResponse.json()
-      setRecentTickets(tickets.slice(0, 5))
+      setStatusData(statsResponse.data)
+      setRecentTickets(ticketsResponse.data.slice(0, 5))
       setLoading(false)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -178,8 +167,8 @@ export default function Dashboard() {
             <TableBody>
               {recentTickets.length > 0 ? (
                 recentTickets.map((ticket) => (
-                  <TableRow 
-                    key={ticket.id} 
+                  <TableRow
+                    key={ticket.id}
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => handleTicketClick(ticket.message?.conversation?.id)}
                   >

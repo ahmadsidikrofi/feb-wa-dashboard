@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import axios from "axios"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -18,6 +17,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty"
+import api from "@/lib/axios"
 
 
 const activityStatusOptions = [
@@ -78,8 +78,8 @@ const ActivityCard = ({ activity, value, onChange }) => {
                                 onClick={() => onChange({ ...value, status: option.value })}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
                                 ${isSelected
-                                    ? `${option.color} text-white shadow-md scale-105`
-                                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:scale-[1.02]'}`}
+                                        ? `${option.color} text-white shadow-md scale-105`
+                                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:scale-[1.02]'}`}
                             >
                                 <Icon className="w-4 h-4" />
                                 <span className="text-xs">{option.label}</span>
@@ -146,13 +146,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                 }))
             };
 
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`,
-                payload,
-                {
-                    headers: { "ngrok-skip-browser-warning": true }
-                }
-            );
+            await api.put(`/api/partnership/${partnershipId}`, payload,)
 
             toast.success("Status aktivitas berhasil diperbarui");
             setOpen(false);
@@ -171,7 +165,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button className="w-full sm:w-auto" variant="ghost">
-                    <CheckCircle2 className="text-emerald-500"/> Edit Status Aktivitas
+                    <CheckCircle2 className="text-emerald-500" /> Edit Status Aktivitas
                 </Button>
             </DialogTrigger>
 
@@ -219,7 +213,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                                     <Dock className="size-8" />
                                                 </EmptyMedia>
                                                 <EmptyTitle>
-                                                    Kosongnya Ruang Lingkup Mitra 
+                                                    Kosongnya Ruang Lingkup Mitra
                                                 </EmptyTitle>
                                                 <EmptyDescription>
                                                     Tidak ada mitra yang dapat dikelola statusnya. Silakan ubah mitra kerjasama terlebih dahulu.
@@ -232,7 +226,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                                     onClick={() => setOpen(false)}
                                                     disabled={isLoading}
                                                 >
-                                                    <FileOutputIcon className="size-4"/>
+                                                    <FileOutputIcon className="size-4" />
                                                     Tutup
                                                 </button>
                                             </EmptyContent>

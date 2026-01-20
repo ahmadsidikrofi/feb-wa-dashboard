@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import api from "@/lib/axios"
 
 const chartConfig = {
     total: {
@@ -60,11 +61,7 @@ export function TicketPerCategoryChart() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/stats/ticket-categories`, {
-                    headers: {
-                        "ngrok-skip-browser-warning": true,
-                      },
-                })
+                const res = await api.get(`/api/dashboard/stats/ticket-categories`)
                 const data = res.data
                 console.log("Response data:", data);
                 setChartData(data)

@@ -21,7 +21,7 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
     const [error, setError] = useState(null)
     const [updatingTicketId, setUpdatingTicketId] = useState(null)
     const [apiResponse, setApiResponse] = useState(null)
-    
+
     useEffect(() => {
         if (!open || !conversationId) return
 
@@ -30,11 +30,7 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
             setIsLoading(true)
             setError(null)
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/conversations/${conversationId}`, {
-                    headers: {
-                        "ngrok-skip-browser-warning": true,
-                      },
-                })
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/conversations/${conversationId}`)
                 if (!res.ok) throw new Error(`Gagal memuat data (${res.status})`)
                 const data = await res.json()
                 if (isCancelled) return
@@ -57,8 +53,8 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
 
     const messagesToDisplay = apiResponse?.conversation || []
     const activeTicket = apiResponse?.activeTicket
-    
-    return ( 
+
+    return (
         <Drawer open={open} onOpenChange={onOpenChange} direction="right">
             <DrawerContent className="ml-auto h-screen w-full max-w-full bg-background p-0 sm:max-w-lg">
                 <div className="flex h-full flex-col">
@@ -107,12 +103,12 @@ const TicketDrawer = ({ open, onOpenChange, conversationId }) => {
                     </div>
 
                     <DrawerFooter className="border-t bg-card">
-            
+
                     </DrawerFooter>
                 </div>
             </DrawerContent>
         </Drawer>
-     );
+    );
 }
 
 function ChatBubble({ message, flagged, tickets }) {
@@ -147,14 +143,14 @@ function ChatBubble({ message, flagged, tickets }) {
                     {tickets.map((ticket) => (
                         <div key={ticket.id} className="flex items-center gap-2 text-xs">
                             <span className="text-muted-foreground">Tiket #{ticket.id}:</span>
-                            <Badge 
-                                variant={ticket.status === 'open' ? 'default' : 
-                                        ticket.status === 'in_progress' ? 'secondary' : 'outline'}
+                            <Badge
+                                variant={ticket.status === 'open' ? 'default' :
+                                    ticket.status === 'in_progress' ? 'secondary' : 'outline'}
                                 className="text-[10px] py-0 px-2 h-5"
                             >
                                 {ticket.status === 'open' ? 'Open' :
-                                 ticket.status === 'in_progress' ? 'In Progress' :
-                                 ticket.status === 'resolved' ? 'Resolved' : ticket.status}
+                                    ticket.status === 'in_progress' ? 'In Progress' :
+                                        ticket.status === 'resolved' ? 'Resolved' : ticket.status}
                             </Badge>
                             {ticket.assignedTo && (
                                 <span className="text-muted-foreground">• {ticket.assignedTo}</span>
@@ -164,7 +160,7 @@ function ChatBubble({ message, flagged, tickets }) {
                 </div>
             )}
         </div>
-        
+
     )
 }
 
@@ -224,5 +220,5 @@ function formatDateTime(iso) {
         return ""
     }
 }
- 
+
 export default TicketDrawer;

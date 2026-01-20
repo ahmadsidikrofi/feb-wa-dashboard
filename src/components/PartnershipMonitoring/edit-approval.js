@@ -4,8 +4,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Button } from '../ui/button'
 import { Form } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
 import { toast } from 'sonner'
+import api from '@/lib/axios';
 
 const approvalStatusOptions = [
   { value: 'Approved', label: 'Approved', color: 'bg-emerald-500', icon: CheckCircle2 },
@@ -180,15 +180,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
         approvalRektor: values.approvalRektor || null,
       };
 
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/${partnershipId}`,
-        payload,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          }
-        }
-      );
+      await api.put(`/api/partnership/${partnershipId}`, payload)
 
       toast.success("Approval berhasil diperbarui")
       form.reset()
@@ -209,7 +201,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto text-left" variant="ghost"><CheckCircleIcon className='text-yellow-500'/>Status Approval</Button>
+        <Button className="w-full sm:w-auto text-left" variant="ghost"><CheckCircleIcon className='text-yellow-500' />Status Approval</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent dark:bg-transparent">
         <Form {...form}>

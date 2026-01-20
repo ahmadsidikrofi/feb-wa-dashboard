@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, GraduationCap, Briefcase, ArrowRight, TrendingUp, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -26,6 +25,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import api from "@/lib/axios"
 
 export default function DataPegawaiPage() {
   const router = useRouter();
@@ -37,45 +37,34 @@ export default function DataPegawaiPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-        
-        // Fetch lecturers
-        const lecturersRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/lecturers`, {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        });
-        
-        // Fetch staffs
-        const staffsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/staffs`, {
-          headers: {
-            "ngrok-skip-browser-warning": true,
-          },
-        });
+        setIsLoading(true)
+
+        const lecturersRes = await api.get(`/api/lecturers`)
+        const staffsRes = await api.get(`/api/staffs`)
 
         if (lecturersRes.data?.success) {
-          setLecturers(lecturersRes.data.data || []);
+          setLecturers(lecturersRes.data.data || [])
         }
-        
+
         if (staffsRes.data?.success) {
-          setStaffs(staffsRes.data.data || []);
+          setStaffs(staffsRes.data.data || [])
         }
       } catch (error) {
-        console.error("Gagal fetch data pegawai:", error);
+        console.error("Gagal fetch data pegawai:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     };
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   // Calculate stats from API data
   const stats = {
     totalDosen: lecturers.length,
     totalTPA: staffs.length,
     totalPegawai: lecturers.length + staffs.length,
-  };
+  }
 
   // Calculate dosen by pendidikan
   const dosenByPendidikanData = lecturers.reduce((acc, dosen) => {
@@ -120,7 +109,7 @@ export default function DataPegawaiPage() {
     } else if (staff.employmentStatus?.includes("TLH Borongan")) {
       statusName = "TLH Borongan";
     }
-    
+
     const existing = acc.find((item) => item.name === statusName);
     if (existing) {
       existing.value += 1;
@@ -167,7 +156,7 @@ export default function DataPegawaiPage() {
       description: "Data lengkap dosen dan pengajar FEB",
       icon: GraduationCap,
       total: stats.totalDosen,
-      path: "/dashboard/data-pegawai/dosen",
+      path: "/dashboard/jumlah-pegawai/dosen",
       color: "bg-blue-50 text-blue-600 dark:bg-blue-950",
       stats: [
         { label: "S3", value: String(lecturers.filter((d) => d.education === "S3").length) },
@@ -180,7 +169,7 @@ export default function DataPegawaiPage() {
       description: "Data Tenaga Pendukung Akademik FEB",
       icon: Briefcase,
       total: stats.totalTPA,
-      path: "/dashboard/data-pegawai/tpa",
+      path: "/dashboard/jumlah-pegawai/tpa",
       color: "bg-green-50 text-green-600 dark:bg-green-950",
       stats: [
         { label: "Pegawai Tetap", value: String(staffs.filter((s) => s.employmentStatus?.includes("Pegawai Tetap")).length) },
@@ -270,8 +259,8 @@ export default function DataPegawaiPage() {
                         </div>
                       ))}
                     </div>
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       onClick={() => router.push(category.path)}
                     >
                       Data Detail

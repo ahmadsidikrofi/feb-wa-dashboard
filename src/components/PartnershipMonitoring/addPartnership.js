@@ -10,11 +10,11 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import axios from 'axios'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from "@/components/ui/checkbox"
 import { ActivityMultiSelect } from './activity-multi-select'
+import api from '@/lib/axios'
 
 const docTypeOptions = [
     { label: "MoA", value: "MoA" },
@@ -82,9 +82,9 @@ const partnershipSchema = z.object({
     picInternal: z.string().optional().or(z.literal("")),
     docNumberInternal: z.string().optional().or(z.literal("")),
     docNumberExternal: z.string().optional().or(z.literal("")),
-    partnershipType: z.enum(["Akademik", "Penelitian", "Abdimas"], { 
-        required_error: "Pilih tipe kerjasama", 
-        invalid_type_error: "Pilih tipe kerjasama" 
+    partnershipType: z.enum(["Akademik", "Penelitian", "Abdimas"], {
+        required_error: "Pilih tipe kerjasama",
+        invalid_type_error: "Pilih tipe kerjasama"
     }),
     activityType: z.array(z.enum([
         "JointDegree", "DoubleDegree", "JointClass", "StudentExchange",
@@ -149,11 +149,7 @@ const AddPartnership = ({ getPartnershipData }) => {
 
         try {
             setIsLoading(true)
-            await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership`, payload, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                }
-            })
+            await api.post(`/api/partnership`, payload)
             getPartnershipData(1)
             toast.success("Mitra berhasil ditambahkan")
             form.reset()
@@ -277,7 +273,7 @@ const AddPartnership = ({ getPartnershipData }) => {
                                                 <Input placeholder="Nama PIC Eksternal" {...field} />
                                             </FormControl>
                                             <div >
-                                                <FormMessage className="break-words whitespace-pre-line"/>
+                                                <FormMessage className="break-words whitespace-pre-line" />
                                             </div>
                                         </FormItem>
                                     )}
@@ -379,7 +375,7 @@ const AddPartnership = ({ getPartnershipData }) => {
                                         <FormItem>
                                             <FormLabel>Jenis Aktivitas</FormLabel>
                                             <FormControl>
-                                                <ActivityMultiSelect 
+                                                <ActivityMultiSelect
                                                     value={field.value}
                                                     onValueChange={field.onChange}
                                                     activityTypeOptions={activityTypeOptions}

@@ -7,7 +7,7 @@ import { toast } from "sonner"
 const AuthContext = createContext({
     user: null,
     token: null,
-    login: (token, adminData) => { },
+    login: (token, userData) => { },
     logout: () => { },
     isLoading: true,
 })
@@ -22,18 +22,23 @@ export function AuthProvider({ children }) {
         const storedToken = sessionStorage.getItem('auth_token')
         const storedUser = sessionStorage.getItem('auth_user')
 
-        if (storedToken && storedUser) {
-            setToken(storedToken)
-            setUser(JSON.parse(storedUser))
+        if (storedToken && storedUser && storedUser !== "undefined") {
+            try {
+                setToken(storedToken)
+                setUser(JSON.parse(storedUser))
+            } catch (err) {
+                console.error("Invalid auth_user in sessionStorage", err)
+                sessionStorage.removeItem("auth_user")
+            }
         }
         setIsLoading(false)
     }, [])
 
-    const login = (token, adminData) => {
+    const login = (token, userData) => {
         sessionStorage.setItem('auth_token', token)
-        sessionStorage.setItem('auth_user', JSON.stringify(adminData))
+        sessionStorage.setItem('auth_user', JSON.stringify(userData))
         setToken(token)
-        setUser(adminData)
+        setUser(userData)
         router.push('/dashboard')
     }
 

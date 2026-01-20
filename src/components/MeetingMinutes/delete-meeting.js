@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "../ui/button";
 import { ArrowLeft, LoaderCircle, LoaderIcon, Trash2 } from "lucide-react";
-import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
 
 const DeleteMeeting = ({ isLoading, setIsLoading, meetingId }) => {
     const router = useRouter()
@@ -27,12 +27,8 @@ const DeleteMeeting = ({ isLoading, setIsLoading, meetingId }) => {
 
         try {
             setIsLoading(true)
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/meetings/${meetingId}`, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
-            
+            await api.delete(`/api/meetings/${meetingId}`)
+
             toast.success("Data notulensi dan meeting berhasil dihapus")
             router.push("/dashboard/notulensi-rapat")
             // onSuccess?.()
@@ -89,7 +85,7 @@ const DeleteMeeting = ({ isLoading, setIsLoading, meetingId }) => {
                                 </>
                             ) : (
                                 <>
-                                    <Trash2 className="size-4 mr-2" /> 
+                                    <Trash2 className="size-4 mr-2" />
                                     Lanjutkan
                                 </>
                             )}

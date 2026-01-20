@@ -7,6 +7,7 @@ import { GrowthTrendByYearChart } from "@/components/PartnershipMonitoring/growt
 import { ProportionPartnershipCategory } from "@/components/PartnershipMonitoring/proportion-partnership-cateogory-chart"
 import { ScopeChart } from "@/components/PartnershipMonitoring/scope-chart"
 import TableImplementation from "@/components/PartnershipMonitoring/table-implementation"
+import api from "@/lib/axios"
 
 const Penerapan = () => {
     const [statusData, setStatusData] = useState({
@@ -17,19 +18,19 @@ const Penerapan = () => {
     })
 
     const fetchDashboardData = async () => {
-        // Fetch summary data
-        const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/stats`, {
-            headers: {
-                "ngrok-skip-browser-warning": true,
-            },
-        })
-        const status = await statsResponse.json()
-        setStatusData(status.data)
+        try {
+            const response = await api.get('api/partnership/stats')
+            setStatusData(response.data.data)
+            console.log(response);
+
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error)
+        }
     }
 
     useEffect(() => {
         fetchDashboardData()
-      }, [])
+    }, [])
     return (
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -107,7 +108,7 @@ const Penerapan = () => {
                 <ProportionPartnershipCategory />
                 <ScopeChart />
             </div>
-    
+
             <TableImplementation />
         </div>
     )

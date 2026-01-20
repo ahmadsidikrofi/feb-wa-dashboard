@@ -18,7 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import axios from "axios"
+import api from "@/lib/axios"
 
 export const description = "A bar chart with a label"
 
@@ -35,13 +35,9 @@ export function GrowthTrendByYearChart() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/partnership/chart`, {
-        headers: {
-          "ngrok-skip-browser-warning": true,
-        },
-      })
+      const res = await api.get(`/api/partnership/chart`)
       const rawData = res?.data?.data?.documentsByYear || []
-      
+
       const mapp = rawData.map((data) => ({
         tahun: data.name,
         jumlah: data.value,
@@ -52,7 +48,7 @@ export function GrowthTrendByYearChart() {
       if (mapp.length >= 2) {
         const last = mapp[mapp.length - 1].jumlah;
         const prev = mapp[mapp.length - 2].jumlah;
-      
+
         if (prev > 0) {
           const growth = ((last - prev) / prev) * 100;
           setGrowthPercentage(growth);

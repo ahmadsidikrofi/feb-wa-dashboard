@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../ui/input'
 import { EditIcon, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import api from '@/lib/axios'
 
 export const contractManagementSchema = z.object({
     ContractManagementCategory: z.enum([
@@ -58,14 +59,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         if (open && contractId && !hasFetched) {
             const fetchContractDetail = async () => {
                 try {
-                    const res = await axios.get(
-                        `http://localhost:3001/api/contract-management/${contractId}`,
-                        {
-                            headers: {
-                                "ngrok-skip-browser-warning": true,
-                            },
-                        }
-                    )
+                    const res = await api.get(`/api/contract-management/${contractId}`)
 
                     const data = res.data.data || res.data
 
@@ -131,10 +125,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 max: values.max === "" ? null : Number(values.max),
             }
 
-            const res = await axios.put(
-                `http://localhost:3001/api/contract-management/${contractId}`,
-                payload
-            )
+            const res = await api.put(`/api/contract-management/${contractId}`, payload)
 
             if (res.status === 200 || res.status === 201) {
                 setOpen(false)
