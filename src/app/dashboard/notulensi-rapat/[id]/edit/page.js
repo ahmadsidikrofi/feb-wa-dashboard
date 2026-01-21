@@ -315,6 +315,7 @@ export default function EditNotulensiPage({ params }) {
         style: { background: "#22c55e", color: "#fff" },
         iconTheme: { primary: "#22c55e", secondary: "#fff" }
       })
+      router.push(`/dashboard/notulensi-rapat/${id}`)
     } catch (err) {
       console.error("Gagal update notulensi:", err);
       const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Gagal memperbarui notulensi"
@@ -357,7 +358,7 @@ export default function EditNotulensiPage({ params }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push(`/dashboard/notulensi-rapat`)}
+            onClick={() => router.push(`/dashboard/notulensi-rapat/${id}`)}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>

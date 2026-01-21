@@ -88,8 +88,8 @@ const EditActivity = ({
             const payload = {
                 title: formData.namaKegiatan,
                 date: formData.tanggal,
-                startTime: `${formData.tanggal}T${formData.waktuMulai}:00`,
-                endTime: `${formData.tanggal}T${formData.waktuSelesai}:00`,
+                startTime: new Date(`${formData.tanggal}T${formData.waktuMulai}:00`).toISOString(),
+                endTime: new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`).toISOString(),
                 participants: Number(formData.jumlahPeserta) || 0,
                 description: formData.keterangan,
                 unit: formData.unit,
