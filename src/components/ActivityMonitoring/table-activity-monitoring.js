@@ -41,6 +41,8 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
+import { formatCamelCaseLabel } from "@/lib/utils";
+
 const formatRangeInfo = (pagination, currentPage) => {
     const total = pagination?.totalItems ?? 0
     const pageSize = pagination?.pageSize ?? 0
@@ -120,7 +122,7 @@ const TableActivityMonitoring = ({
                                     <SelectItem value="all">Semua Unit</SelectItem>
                                     {units.map((unit) => (
                                         <SelectItem key={unit} value={unit}>
-                                            {unit}
+                                            {formatCamelCaseLabel(unit)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -225,7 +227,7 @@ const TableActivityMonitoring = ({
                                                 <TableCell>
                                                     <div className="flex items-center gap-1">
                                                         <Building2 className="h-3 w-3 text-muted-foreground" />
-                                                        <span className="text-sm">{activity.unit}</span>
+                                                        <span className="text-sm">{formatCamelCaseLabel(activity.unit)}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
@@ -234,7 +236,7 @@ const TableActivityMonitoring = ({
                                                         <span className="text-sm">
                                                             {activity.ruangan === "Lainnya"
                                                                 ? activity.locationDetail
-                                                                : activity.ruangan}
+                                                                : formatCamelCaseLabel(activity.ruangan)}
                                                         </span>
                                                     </div>
                                                 </TableCell>
@@ -466,11 +468,11 @@ const TableActivityMonitoring = ({
                                                         </div>
                                                         <div className="flex items-center gap-2 text-sm">
                                                             <MapPin className="h-4 w-4 text-muted-foreground" />
-                                                            <span>{activity.ruangan || activity.tempat}</span>
+                                                            <span>{activity.ruangan === "Lainnya" ? activity.locationDetail : formatCamelCaseLabel(activity.ruangan)}</span>
                                                         </div>
                                                         <div className="flex items-center gap-2 text-sm">
                                                             <Building2 className="h-4 w-4 text-muted-foreground" />
-                                                            <span>{activity.unit}</span>
+                                                            <span>{formatCamelCaseLabel(activity.unit)}</span>
                                                         </div>
                                                         <div className="flex items-center gap-2 text-sm">
                                                             <Users className="h-4 w-4 text-muted-foreground" />

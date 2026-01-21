@@ -59,26 +59,13 @@ const units = [
   "Prodi S3 Manajemen",
 ];
 
-const prodiList = [
-  "S1 Manajemen",
-  "S1 Administrasi Bisnis",
-  "S1 Akuntansi",
-  "S1 Leisure Management",
-  "S1 Bisnis Digital",
-  "S2 Manajemen",
-  "S2 Manajemen PJJ",
-  "S2 Administrasi Bisnis",
-  "S2 Akuntansi",
-  "S3 Manajemen",
-];
-
 const rooms = [
-  "Ruang Rapat Manterawu lt. 2",
-  "Ruang Rapat Miossu lt. 1",
-  "Ruang Rapat Miossu lt. 2",
-  "Ruang Rapat Maratua lt. 1",
-  "Aula FEB",
-  "Aula Manterawu",
+  "RuangRapatManterawuLt2",
+  "RuangRapatMiossuLt1",
+  "RuangRapatMiossuLt2",
+  "RuangRapatMaratuaLt1",
+  "AulaFEB",
+  "AulaManterawu",
   "Lainnya",
 ]
 
@@ -200,8 +187,8 @@ export default function MonitoringKegiatanPage() {
         waktuMulai: startTime.toTimeString().slice(0, 5),
         waktuSelesai: endTime.toTimeString().slice(0, 5),
         unit: formatCamelCaseLabel(item.unit),
-        ruangan: formatCamelCaseLabel(item.room),
-        tempat: formatCamelCaseLabel(item.room),
+        ruangan: item.room, // Keep raw enum from database
+        tempat: item.room, // Keep raw enum from database
         locationDetail: item.locationDetail || "",
         pejabat: (item.officials || []).map(formatCamelCaseLabel),
         jumlahPeserta: item.participants || 0,

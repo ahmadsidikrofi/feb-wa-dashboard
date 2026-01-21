@@ -23,6 +23,7 @@ import { Button } from "../ui/button";
 import { Loader2, Plus } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import { formatCamelCaseLabel } from "@/lib/utils";
 
 const AddActivity = ({
     isDialogOpen,
@@ -229,7 +230,7 @@ const AddActivity = ({
                                     <SelectContent>
                                         {units.map((unit) => (
                                             <SelectItem key={unit} value={unit}>
-                                                {unit}
+                                                {formatCamelCaseLabel(unit)}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -254,7 +255,7 @@ const AddActivity = ({
                                         <SelectContent>
                                             {rooms.map((room) => (
                                                 <SelectItem key={room} value={room}>
-                                                    {room}
+                                                    {formatCamelCaseLabel(room)}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
