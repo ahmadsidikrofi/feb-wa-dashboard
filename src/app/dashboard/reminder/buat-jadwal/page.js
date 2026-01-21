@@ -15,7 +15,6 @@ import { compareAsc, format, isSameDay } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import axios from "axios";
 import DeleteSchedule from "@/components/Scheduler/delete-schedule";
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,16 +22,17 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { RecipientsMultiSelect } from "@/components/Scheduler/recipient-multi-select";
+import api from "@/lib/axios";
 
 export const scheduleSchema = z.object({
     eventTitle: z.string().min(1, "Judul kegiatan wajib diisi"),
     recipients: z.array(
         z.object({
-          id: z.number(),
-          name: z.string(),
-          phoneNumber: z.string(),
+            id: z.number(),
+            name: z.string(),
+            phoneNumber: z.string(),
         })
-      ).min(1, { message: "Minimal satu penerima harus dipilih" }),
+    ).min(1, { message: "Minimal satu penerima harus dipilih" }),
     eventDescription: z.string().min(1, "Deskripsi kegiatan wajib diisi"),
     eventDate: z.date({ required_error: "Tanggal kegiatan wajib dipilih." }),
     time: z.string(),
@@ -101,18 +101,14 @@ const ReminderPage = () => {
     const [contacts, setContacts] = useState([])
 
     const scheduleEvents = async () => {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
-            headers: {
-                "ngrok-skip-browser-warning": true,
-            },
-        })
+        const res = await api.get(`/api/schedules`)
         const data = res.data
         if (Array.isArray(data)) {
             setSchedules(data)
-          } else {
+        } else {
             console.warn("Unexpected API response:", data)
             setSchedules([])
-          }
+        }
     }
 
     const createSchedule = async (values) => {
@@ -131,7 +127,7 @@ const ReminderPage = () => {
             // Format recipients untuk API
             const formattedRecipients = values.recipients.map((r) => ({ id: r.id }))
 
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules`, {
+            const res = await api.post(`/api/schedules`, {
                 eventTitle: values.eventTitle,
                 eventDescription: values.eventDescription,
                 eventTime: combinedEventDateTime,
@@ -143,7 +139,7 @@ const ReminderPage = () => {
                     "ngrok-skip-browser-warning": true,
                 },
             })
-            
+
             if (res.status === 201) {
                 await new Promise(resolve => setTimeout(resolve, 1500))
                 toast.success(`Jadwal pengingat sukses dibuat`, {
@@ -164,7 +160,7 @@ const ReminderPage = () => {
     const handleCancelSchedule = async (scheduleId) => {
         setIsLoading(true)
         try {
-            const res = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/schedules/${scheduleId}/cancel`, {
+            const res = await api.put(`/api/schedules/${scheduleId}/cancel`, {
                 status: 'cancelled'
             })
             if (res.status === 200) {
@@ -182,11 +178,7 @@ const ReminderPage = () => {
 
     const fetchContacts = async () => {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/contacts`, {
-                headers: {
-                    "ngrok-skip-browser-warning": true,
-                },
-            })
+            const res = await api.get(`/api/contacts`)
             setContacts(res.data)
         } catch (error) {
             console.error("Gagal mengambil kontak:", error)
@@ -228,8 +220,8 @@ const ReminderPage = () => {
     //     control: form.control,
     //     name: 'recipients'
     // })
-      
-    return ( 
+
+    return (
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start mt-1 gap-3">
@@ -292,69 +284,69 @@ const ReminderPage = () => {
                                     >Tambah penerima</Button>
                                 </div> */}
 
-                            <FormField
-                                control={form.control}
-                                name={`eventDescription`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-xs">Isi pesan reminder</FormLabel>
-                                        <FormControl>
-                                             <Textarea
-                                                 placeholder="Tulis pesan pengingat di sini..."
-                                                 rows={4}
-                                                 {...field}
-                                             />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* --- WAKTU KEGIATAN (Event Time) --- */}
-                            <div className="grid grid-cols-2 gap-2">
                                 <FormField
                                     control={form.control}
-                                    name={`eventDate`}
+                                    name={`eventDescription`}
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel className="text-xs">Tanggal kegiatan</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                         <Button variant="outline" className={cn("w-full justify-start text-left font-semibold", !field.value && "text-muted-foreground")}>
-                                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                                             {field.value ? format(field.value, "PPP") : <span>Pilih tanggal kegiatan</span>}
-                                                         </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={{ before: new Date() }} initialFocus />
-                                                </PopoverContent>
-                                            </Popover>
+                                        <FormItem>
+                                            <FormLabel className="text-xs">Isi pesan reminder</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Tulis pesan pengingat di sini..."
+                                                    rows={4}
+                                                    {...field}
+                                                />
+                                            </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
 
-                                 <FormField 
-                                     control={form.control}
-                                     name={`time`}
-                                     render={({ field }) => (
-                                         <FormItem>
-                                             <FormLabel className="text-xs">Jam kegiatan</FormLabel>
-                                             <FormControl>
-                                                 <Input
-                                                     type="time"
-                                                     {...field}
-                                                 />
-                                             </FormControl>
-                                             <FormMessage />
-                                         </FormItem>
-                                     )}
-                                />
-                            </div>
+                                {/* --- WAKTU KEGIATAN (Event Time) --- */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <FormField
+                                        control={form.control}
+                                        name={`eventDate`}
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel className="text-xs">Tanggal kegiatan</FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant="outline" className={cn("w-full justify-start text-left font-semibold", !field.value && "text-muted-foreground")}>
+                                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                {field.value ? format(field.value, "PPP") : <span>Pilih tanggal kegiatan</span>}
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={{ before: new Date() }} initialFocus />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                             {/* Waktu Reminder */}
+                                    <FormField
+                                        control={form.control}
+                                        name={`time`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-xs">Jam kegiatan</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="time"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                {/* Waktu Reminder */}
                                 <div className="grid grid-cols-2  gap-2">
                                     <FormField
                                         control={form.control}
@@ -417,7 +409,7 @@ const ReminderPage = () => {
                 {/* Left Panel: calender */}
                 <div className="flex-1 flex justify-center h-[80%]">
                     {isMounted ? (
-                    <Calendar
+                        <Calendar
                             mode="single"
                             selected={selectedDate}
                             onSelect={(d) => d && setSelectedDate(d)}
@@ -455,10 +447,10 @@ const ReminderPage = () => {
                             )}
                         </CardContent>
                     </Card>
-            </div>
+                </div>
             </section>
         </div>
     );
 }
- 
+
 export default ReminderPage;

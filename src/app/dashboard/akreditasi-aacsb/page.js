@@ -122,15 +122,15 @@ export default function AkreditasiAACSBPage() {
             <div className="text-sm">
               <p className="font-semibold mb-2">9 Standar Utama:</p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                <li>Standard 1: Mission, Impact, and Innovation</li>
-                <li>Standard 2: Strategic Planning</li>
-                <li>Standard 3: Student Admissions</li>
-                <li>Standard 4: Learning & Teaching</li>
-                <li>Standard 5: Faculty Sufficiency</li>
-                <li>Standard 6: Faculty Management</li>
-                <li>Standard 7: Professional Staff</li>
-                <li>Standard 8: Academic Resources</li>
-                <li>Standard 9: Financial Strategies</li>
+                <li>Standard 1: Strategic Planning</li>
+                <li>Standard 2: Physical, Virtual, and Financial Resources</li>
+                <li>Standard 3: Faculty and Professional Resources</li>
+                <li>Standard 4: Curriculum</li>
+                <li>Standard 5: Assurance of Learning</li>
+                <li>Standard 6: Learner Progression</li>
+                <li>Standard 7: Teaching Effectiveness and Impact</li>
+                <li>Standard 8: Impact of Scholarship</li>
+                <li>Standard 9: Engagement and Societal Impact</li>
               </ul>
             </div>
           </CardContent>

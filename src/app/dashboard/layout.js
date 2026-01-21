@@ -65,7 +65,16 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"
+
+const ROLES = {
+  ADMIN: "admin",
+  DEKANAT: "dekanat",
+  KAUR: "kaur",
+  KAPRODI: "kaprodi",
+  DOSEN: "dosen",
+  MAHASISWA: "mahasiswa"
+}
 
 const navigation = [
   {
@@ -77,6 +86,7 @@ const navigation = [
     name: "Ticket Management",
     href: "/dashboard/ticket-management",
     icon: TicketXIcon,
+    allowedRoles: [ROLES.ADMIN],
     submenu: [
       { name: "Dashboard", href: "/dashboard/ticket-management" },
       { name: "Ticket Archive", href: "/dashboard/ticket-management/ticket-archive" },
@@ -87,11 +97,13 @@ const navigation = [
     name: "Daftar Agenda",
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR]
   },
   {
     name: "Reminder",
     href: "/dashboard/reminder",
     icon: AlarmClock,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
     submenu: [
       { name: "Tambah Penerima", href: "/dashboard/reminder/tambah-penerima" },
       { name: "Buat Jadwal", href: "/dashboard/reminder/buat-jadwal" },
@@ -102,11 +114,13 @@ const navigation = [
     name: "Notulensi Rapat",
     href: "/dashboard/notulensi-rapat",
     icon: Inbox,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Partnership Monitoring",
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
     submenu: [
       { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
       { name: "Persetujuan", href: "/dashboard/partnership-monitoring/persetujuan" },
@@ -117,37 +131,43 @@ const navigation = [
     name: "Kontrak Manajemen",
     href: "/dashboard/kontrak-management",
     icon: Newspaper,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Sasaran Mutu",
     href: "/dashboard/sasaran-mutu",
     icon: Crosshair,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Laporan Manajemen",
     href: "/dashboard/laporan-management",
     icon: Newspaper,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Akreditasi LAMEMBA",
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
   },
   {
     name: "Akreditasi AACSB",
     href: "/dashboard/akreditasi-aacsb",
     icon: Award,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
   },
   {
     name: "Data Pegawai",
-    href: "/dashboard/data-pegawai",
+    href: "/dashboard/jumlah-pegawai",
     icon: Users,
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.DOSEN],
   },
   { name: "Fullscreen", action: "fullscreen", icon: ScreenShare },
-];
+]
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { setTheme } = useTheme()
 
   return (
     <DropdownMenu>
@@ -215,15 +235,26 @@ export function UserButton({ user, logout, showLogout = false }) {
 }
 
 function AppSidebar({ isFullscreen, handleFullscreen }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { user, logout, isLoading } = useAuth();
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
+  const router = useRouter()
+  const pathname = usePathname()
+  const { user, logout, isLoading } = useAuth()
+  const { state } = useSidebar()
+  const isCollapsed = state === "collapsed"
+  const userRole = user?.role
+
+  const filteredNavigation = navigation.filter((item) => {
+    // A. Jika tidak ada batasan role, tampilkan (return true)
+    if (!item.allowedRoles || item.allowedRoles.length === 0) {
+      return true
+    }
+
+    // B. Jika ada batasan, cek apakah role user ada di daftar allowedRoles
+    return item.allowedRoles.includes(userRole)
+  })
 
   const handleNavigation = (href) => {
-    router.push(href);
-  };
+    router.push(href)
+  }
 
   return (
     <Sidebar className="border-r" collapsible="icon">
@@ -249,7 +280,7 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
 
       <SidebarContent className="overflow-y-auto">
         <SidebarMenu className="px-2 cursor-pointer">
-          {navigation.map((item, index) => {
+          {filteredNavigation.map((item, index) => {
             // Jika menu adalah fullscreen
             if (item.action === "fullscreen") {
               return (
@@ -421,8 +452,8 @@ export default function DashboardLayout({ children }) {
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
+    }
+  }, [])
 
   return (
     <SidebarProvider defaultOpen={true}>
