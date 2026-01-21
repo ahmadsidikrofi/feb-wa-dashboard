@@ -11,9 +11,20 @@ import {
   Newspaper,
   GraduationCap,
   Award,
-  Users
+  Users,
+  Crosshair
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
+
+const ROLES = {
+  ADMIN: "admin",
+  DEKANAT: "dekanat",
+  KAUR: "kaur",
+  KAPRODI: "kaprodi",
+  DOSEN: "dosen",
+  MAHASISWA: "mahasiswa"
+}
 
 const menuItems = [
   {
@@ -22,13 +33,15 @@ const menuItems = [
     href: "/dashboard/ticket-management",
     icon: TicketXIcon,
     color: "bg-blue-500/10 text-blue-500",
+    allowedRoles: [ROLES.ADMIN],
   },
   {
-    name: "Daftar Kegiatan",
+    name: "Daftar Agenda",
     description: "Pantau dan kelola agenda kegiatan unit dan program studi untuk menghindari konflik jadwal",
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
     color: "bg-purple-500/10 text-purple-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
   },
   {
     name: "Reminder",
@@ -36,6 +49,7 @@ const menuItems = [
     href: "/dashboard/reminder",
     icon: AlarmClock,
     color: "bg-orange-500/10 text-orange-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Notulensi Rapat",
@@ -43,6 +57,7 @@ const menuItems = [
     href: "/dashboard/notulensi-rapat",
     icon: Inbox,
     color: "bg-green-500/10 text-green-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Partnership Monitoring",
@@ -50,20 +65,31 @@ const menuItems = [
     href: "/dashboard/partnership-monitoring",
     icon: ParkingMeter,
     color: "bg-pink-500/10 text-pink-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Kontrak Manajemen",
     description: "Kelola dokumen kontrak manajemen",
-    href: "/dashboard/kontrak-manajemen",
+    href: "/dashboard/kontrak-management",
     icon: Newspaper,
     color: "bg-yellow-500/10 text-yellow-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
+  },
+  {
+    name: "Sasaran Mutu",
+    description: "Kelola dan pantau sasaran mutu unit",
+    href: "/dashboard/sasaran-mutu",
+    icon: Crosshair,
+    color: "bg-emerald-500/10 text-emerald-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Laporan Manajemen",
     description: "Akses berbagai laporan manajemen FEB",
-    href: "/dashboard/laporan-manajemen",
+    href: "/dashboard/laporan-management",
     icon: Newspaper,
     color: "bg-cyan-500/10 text-cyan-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   },
   {
     name: "Akreditasi LAMEMBA",
@@ -71,6 +97,7 @@ const menuItems = [
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
     color: "bg-red-500/10 text-red-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
   },
   {
     name: "Akreditasi AACSB",
@@ -78,18 +105,32 @@ const menuItems = [
     href: "/dashboard/akreditasi-aacsb",
     icon: Award,
     color: "bg-indigo-500/10 text-indigo-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
   },
   {
-    name: "Jumlah Pegawai",
+    name: "Data Pegawai",
     description: "Rekapitulasi data pegawai FEB",
-    href: "/dashboard/data-pegawai",
+    href: "/dashboard/jumlah-pegawai",
     icon: Users,
     color: "bg-slate-500/10 text-slate-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.DOSEN],
   },
 ]
 
 export default function DashboardHome() {
   const router = useRouter()
+  const { user } = useAuth()
+  const userRole = user?.role
+
+  const filteredNavigation = menuItems.filter((item) => {
+    // A. Jika tidak ada batasan role, tampilkan (return true)
+    if (!item.allowedRoles || item.allowedRoles.length === 0) {
+      return true
+    }
+
+    // B. Jika ada batasan, cek apakah role user ada di daftar allowedRoles
+    return item.allowedRoles.includes(userRole)
+  })
 
   return (
     <div className="space-y-8 pb-8">
@@ -101,7 +142,7 @@ export default function DashboardHome() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {menuItems.map((item) => (
+        {filteredNavigation.map((item) => (
           <Card
             key={item.name}
             className="group hover:border-primary transition-all cursor-pointer hover:shadow-md border-muted-foreground/10"
