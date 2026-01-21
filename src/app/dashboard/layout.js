@@ -97,7 +97,7 @@ const navigation = [
     name: "Daftar Agenda",
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR]
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI]
   },
   {
     name: "Reminder",
