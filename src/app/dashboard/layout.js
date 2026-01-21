@@ -72,6 +72,7 @@ const ROLES = {
   DEKANAT: "dekanat",
   KAUR: "kaur",
   KAPRODI: "kaprodi",
+  SEKPRODI: "sekprodi",
   DOSEN: "dosen",
   MAHASISWA: "mahasiswa"
 }
@@ -97,7 +98,7 @@ const navigation = [
     name: "Daftar Agenda",
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI]
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI]
   },
   {
     name: "Reminder",
@@ -149,19 +150,19 @@ const navigation = [
     name: "Akreditasi LAMEMBA",
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
   },
   {
     name: "Akreditasi AACSB",
     href: "/dashboard/akreditasi-aacsb",
     icon: Award,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI],
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
   },
   {
     name: "Data Pegawai",
     href: "/dashboard/jumlah-pegawai",
     icon: Users,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.DOSEN],
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
   },
   { name: "Fullscreen", action: "fullscreen", icon: ScreenShare },
 ]
