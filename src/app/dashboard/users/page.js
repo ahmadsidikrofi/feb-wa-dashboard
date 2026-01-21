@@ -5,19 +5,20 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, Edit2, Plus, Users, Shield, Lock } from 'lucide-react';
+import { Trash2, Edit2, Users, Lock } from 'lucide-react';
 import api from '@/lib/axios';
 import AddUser from '@/components/Users/add-user';
+import DeleteUser from '@/components/Users/delete-user';
+import EditUserForm from '@/components/Users/edit-user-form';
 
-const ROLES = ['admin', 'dekanat', 'kaprodi', 'dosen', 'kaur', 'mahasiswa'];
+const ROLES = ['admin', 'dekanat', 'kaprodi', 'sekprodi', 'dosen', 'kaur', 'mahasiswa'];
 
 const ROLE_CONFIG = {
     admin: { color: 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400', label: 'Administrator', icon: '🔐' },
     dekanat: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekanat', icon: '🏛️' },
-    kaprodi: { color: 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400', label: 'Kaprodi', icon: '👨‍🎓' },
-    dosen: { color: 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400', label: 'Dosen', icon: '👨‍🎓' },
+    kaprodi: { color: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400', label: 'Kaprodi', icon: '👨‍🎓' },
+    sekprodi: { color: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400', label: 'Sekprodi', icon: '📝' },
+    dosen: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'Dosen', icon: '👨‍🏫' },
     kaur: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Kaur', icon: '📋' },
     mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'mahasiswa', icon: '🧑' },
 }
@@ -25,16 +26,9 @@ const ROLE_CONFIG = {
 
 const UsersPage = () => {
     const [users, setUsers] = useState([]);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [editingId, setEditingId] = useState(null);
-    const [editingDetailId, setEditingDetailId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false)
+    const [selectedUser, setSelectedUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [formData, setFormData] = useState({
-        name: '',
-        username: '',
-        password: '',
-        role: 'kaur',
-    })
 
     const filteredUsers = users.filter(
         (user) =>
@@ -42,28 +36,6 @@ const UsersPage = () => {
             user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.role.toLowerCase().includes(searchQuery.toLowerCase())
     )
-
-    const handleOpenDialog = (user) => {
-        if (user) {
-            setEditingId(user.id);
-            setFormData({
-                name: user.name,
-                username: user.username,
-                password: user.password,
-                role: user.role,
-            });
-        } else {
-            setEditingId(null);
-            setFormData({ name: '', username: '', password: '', role: 'Kaur' });
-        }
-        setIsDialogOpen(true);
-    };
-
-    const handleCloseDialog = () => {
-        setIsDialogOpen(false);
-        setEditingId(null);
-        setFormData({ name: '', username: '', password: '', role: 'Kaur' });
-    }
 
     const fetchUsers = async () => {
         try {
@@ -78,51 +50,28 @@ const UsersPage = () => {
         fetchUsers()
     }, [])
 
-    const handleSubmit = () => {
-        if (!formData.name || !formData.username || !formData.password) {
-            alert('Semua field harus diisi')
-            return;
-        }
-
-        if (editingId) {
-            setUsers(
-                users.map((user) =>
-                    user.id === editingId
-                        ? { ...user, ...formData }
-                        : user
-                )
-            );
-        }
-        handleCloseDialog();
+    const handleSaveSuccess = () => {
+        fetchUsers()
+        setSelectedUser(null)
     }
 
-    const handleDelete = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-            setUsers(users.filter((user) => user.id !== id));
-        }
+    if (selectedUser) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5 p-6">
+                <div className="max-w-7xl mx-auto">
+                    <EditUserForm
+                        user={selectedUser}
+                        onSuccess={handleSaveSuccess}
+                        onGoBack={() => setSelectedUser(null)}
+                    />
+                </div>
+            </div>
+        )
     }
-
-    const handleSaveUserDetail = (updatedUser) => {
-        setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
-        setEditingDetailId(null);
-    };
-
-    //   if (editingDetailId) {
-    //     const editingUser = users.find((u) => u.id === editingDetailId);
-    //     if (editingUser) {
-    //       return (
-    //         <UserEditDetail
-    //           user={editingUser}
-    //           onSave={handleSaveUserDetail}
-    //           onGoBack={() => setEditingDetailId(null)}
-    //         />
-    //       );
-    //     }
-    //   }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
                 {/* Header */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -137,21 +86,21 @@ const UsersPage = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="grid md:grid-cols-4 gap-4">
-                    <Card className="border-border/40 bg-card/40 backdrop-blur-sm">
+                <div className="grid md:grid-cols-4 lg:grid-cols-7 gap-4">
+                    <Card className="border-border/40 bg-card/40 backdrop-blur-sm shadow-sm hover:border-primary/30 transition-colors">
                         <CardContent className="pt-6">
-                            <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">Total User</p>
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total User</p>
                                 <p className="text-3xl font-bold">{users.length}</p>
                             </div>
                         </CardContent>
                     </Card>
                     {ROLES.map((role) => (
-                        <Card key={role} className="border-border/40 bg-card/40 backdrop-blur-sm">
+                        <Card key={role} className="border-border/40 bg-card/40 backdrop-blur-sm shadow-sm hover:border-primary/30 transition-colors">
                             <CardContent className="pt-6">
-                                <div className="space-y-2">
-                                    <p className="text-sm text-muted-foreground">{ROLE_CONFIG[role].label}</p>
-                                    <p className="text-3xl font-bold">{users.filter((u) => u.role === role).length}</p>
+                                <div className="space-y-1">
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{ROLE_CONFIG[role].label}</p>
+                                    <p className="text-2xl font-bold">{users.filter((u) => u.role === role).length}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -161,12 +110,12 @@ const UsersPage = () => {
                 {/* Search & Actions */}
                 <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
                     <div className="flex-1">
-                        <div className="relative">
+                        <div className="relative group">
                             <Input
                                 placeholder="Cari user berdasarkan nama, username, atau role..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-4 pr-10 h-11 bg-card/40 backdrop-blur-sm border-border/40"
+                                className="pl-4 pr-10 h-11 bg-card/40 backdrop-blur-sm border-border/40 group-hover:border-primary/50 transition-all shadow-sm"
                             />
                         </div>
                     </div>
@@ -176,14 +125,14 @@ const UsersPage = () => {
                 {/* User Grid */}
                 <div className="space-y-4">
                     {filteredUsers.length === 0 ? (
-                        <Card className="border-border/40 bg-card/40 backdrop-blur-sm">
-                            <CardContent className="py-12">
-                                <div className="text-center space-y-3">
-                                    <div className="flex justify-center">
-                                        <Users className="w-12 h-12 text-muted-foreground/30" />
+                        <Card className="border-border/40 bg-card/40 backdrop-blur-sm h-64 flex items-center justify-center">
+                            <CardContent>
+                                <div className="text-center space-y-4">
+                                    <div className="flex justify-center opacity-20">
+                                        <Users className="w-16 h-16" />
                                     </div>
-                                    <p className="text-muted-foreground">
-                                        {searchQuery ? 'Tidak ada user yang sesuai dengan pencarian' : 'Belum ada user terdaftar'}
+                                    <p className="text-muted-foreground font-medium text-lg">
+                                        {searchQuery ? `Tidak ada user dengan kata kunci "${searchQuery}"` : 'Belum ada data user yang tersedia'}
                                     </p>
                                 </div>
                             </CardContent>
@@ -191,55 +140,53 @@ const UsersPage = () => {
                     ) : (
                         <div className="grid gap-4">
                             {filteredUsers.map((user) => (
-                                <Card key={user.id} className="border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/50 transition-colors">
+                                <Card key={user.id} className="border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
                                     <CardContent className="p-6">
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                            <div className="flex items-start gap-4 flex-1">
-                                                <div className="p-3 rounded-lg bg-primary/10 dark:bg-primary/20 h-fit">
-                                                    <Lock className="w-5 h-5 text-primary" />
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                                            <div className="flex items-start gap-5 flex-1">
+                                                <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/10 group-hover:bg-primary/20 transition-colors h-fit">
+                                                    <Lock className="w-6 h-6 text-primary" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="text-lg font-semibold truncate">{user.name}</h3>
-                                                    <div className="flex flex-col sm:flex-row gap-3 mt-2 text-sm text-muted-foreground">
-                                                        <div className="flex items-center gap-2">
-                                                            <Lock className="w-4 h-4" />
-                                                            <span className="truncate">{user.username}</span>
+                                                    <h3 className="text-xl font-bold truncate group-hover:text-primary transition-colors">{user.name}</h3>
+                                                    <div className="flex flex-col sm:flex-row gap-4 mt-2 text-sm text-muted-foreground">
+                                                        <div className="flex items-center gap-2 bg-secondary/30 px-2 py-0.5 rounded-md">
+                                                            <Lock className="w-3.5 h-3.5" />
+                                                            <span className="truncate font-medium">{user.username}</span>
                                                         </div>
-                                                        <div className="text-xs">
-                                                            {new Date(user.createdAt).toLocaleDateString('id-ID', {
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="w-1 h-1 rounded-full bg-muted-foreground/40 hidden sm:block" />
+                                                            <span>Terdaftar: {new Date(user.createdAt).toLocaleDateString('id-ID', {
                                                                 year: 'numeric',
                                                                 month: 'short',
                                                                 day: 'numeric',
-                                                            })}
+                                                            })}</span>
                                                         </div>
                                                     </div>
-                                                    <div className="mt-3 flex flex-wrap gap-2">
-                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${ROLE_CONFIG[user.role]?.color || ROLE_CONFIG['kaur'].color}`}>
+                                                    <div className="mt-4 flex flex-wrap gap-2">
+                                                        <span className={`px-4 py-1 rounded-lg text-xs font-bold border shadow-sm ${ROLE_CONFIG[user.role]?.color || ROLE_CONFIG['kaur'].color}`}>
                                                             {ROLE_CONFIG[user.role]?.icon} {ROLE_CONFIG[user.role]?.label || user.role}
                                                         </span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex gap-2 sm:flex-col">
+                                            <div className="flex gap-2 sm:flex-col sm:min-w-32">
                                                 <Button
-                                                    variant="outline"
+                                                    variant="secondary"
                                                     size="sm"
-                                                    onClick={() => handleOpenDialog(user)}
-                                                    className="gap-2 flex-1 sm:flex-none bg-transparent hover:bg-primary/10 dark:hover:bg-primary/20"
+                                                    className="gap-2 flex-1 sm:flex-none h-10 font-semibold"
+                                                    onClick={() => setSelectedUser(user)}
                                                 >
                                                     <Edit2 className="w-4 h-4" />
-                                                    <span className="hidden sm:inline">Ubah</span>
+                                                    Ubah Profile
                                                 </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(user.id)}
-                                                    className="gap-2 flex-1 sm:flex-none"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    <span className="hidden sm:inline">Hapus</span>
-                                                </Button>
+                                                <DeleteUser
+                                                    isLoading={isLoading}
+                                                    setIsLoading={setIsLoading}
+                                                    userId={user.id}
+                                                    onSuccess={fetchUsers}
+                                                />
                                             </div>
                                         </div>
                                     </CardContent>
@@ -249,76 +196,6 @@ const UsersPage = () => {
                     )}
                 </div>
             </div>
-
-            {/* Dialog - Only for Editing now */}
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-lg border-border/40 bg-gradient-to-b from-card to-card/80 backdrop-blur-sm">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-primary" />
-                            Ubah Data User
-                        </DialogTitle>
-                    </DialogHeader>
-
-                    <div className="space-y-5">
-                        <div>
-                            <label className="text-sm font-semibold block mb-2">Nama Lengkap</label>
-                            <Input
-                                placeholder="Masukkan nama lengkap"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="bg-secondary/50 border-border/40 h-10"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-semibold block mb-2">Username</label>
-                            <Input
-                                placeholder="Masukkan username"
-                                value={formData.username}
-                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                className="bg-secondary/50 border-border/40 h-10"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-semibold block mb-2">Password</label>
-                            <Input
-                                type="password"
-                                placeholder="Masukkan password"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                className="bg-secondary/50 border-border/40 h-10"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-semibold block mb-2">Role</label>
-                            <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                                <SelectTrigger className="bg-secondary/50 border-border/40 h-10">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="border-border/40">
-                                    {ROLES.map((role) => (
-                                        <SelectItem key={role} value={role}>
-                                            {ROLE_CONFIG[role].icon} {ROLE_CONFIG[role].label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex gap-3 pt-4">
-                            <Button variant="outline" onClick={handleCloseDialog} className="flex-1 bg-transparent hover:bg-secondary/50">
-                                Batal
-                            </Button>
-                            <Button onClick={handleSubmit} className="flex-1">
-                                Simpan Perubahan
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }
