@@ -52,7 +52,7 @@ const SubmissionDetailDrawer = ({ partnership }) => {
         const validDate = new Date(partnership.validUntil)
         const today = new Date()
         const diffMonths = (validDate - today) / (1000 * 60 * 60 * 24 * 30)
-        
+
         if (diffMonths > 6) return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
         if (diffMonths > 3) return "bg-amber-500/10 text-amber-600 border-amber-500/20"
         return "bg-red-500/10 text-red-600 border-red-500/20"
@@ -72,28 +72,28 @@ const SubmissionDetailDrawer = ({ partnership }) => {
     ]
 
     const getApprovalStyle = (status) => {
-        switch(status) {
-            case 'Approved': 
-                return { 
-                    bgIcon: 'bg-emerald-500', 
+        switch (status) {
+            case 'Approved':
+                return {
+                    bgIcon: 'bg-emerald-500',
                     shadow: 'shadow-emerald-500/30',
                     icon: <CheckCircle2 className="w-3 h-3 text-white" />,
                     bgCard: 'bg-emerald-50/50 border-emerald-100',
                     text: 'text-emerald-700',
                     label: 'Disetujui'
                 }
-            case 'Returned': 
-                return { 
-                    bgIcon: 'bg-red-500', 
+            case 'Returned':
+                return {
+                    bgIcon: 'bg-red-500',
                     shadow: 'shadow-red-500/30',
                     icon: <XCircle className="w-3 h-3 text-white" />,
                     bgCard: 'bg-red-50/50 border-red-100',
                     text: 'text-red-700',
                     label: 'Dikembalikan'
                 }
-            case 'Submitted': 
-                return { 
-                    bgIcon: 'bg-blue-500', 
+            case 'Submitted':
+                return {
+                    bgIcon: 'bg-blue-500',
                     shadow: 'shadow-blue-500/30',
                     icon: <Clock className="w-3 h-3 text-white" />,
                     bgCard: 'bg-blue-50/50 border-blue-100',
@@ -101,8 +101,8 @@ const SubmissionDetailDrawer = ({ partnership }) => {
                     label: 'Diajukan'
                 }
             default:
-                return { 
-                    bgIcon: 'bg-slate-200', 
+                return {
+                    bgIcon: 'bg-slate-200',
                     shadow: '',
                     icon: <MinusCircle className="w-3 h-3 text-slate-500" />,
                     bgCard: 'bg-slate-50 border-slate-100',
@@ -115,9 +115,9 @@ const SubmissionDetailDrawer = ({ partnership }) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 w-full text-left sm:w-auto">
+                <Button variant="ghost" size="sm" className="gap-2 w-full text-left sm:w-auto w-full">
                     <CircleFadingArrowUpIcon className="size-4 text-primary" />
-                    <span className="text-sm font-medium">Detail</span>
+                    <span className="text-sm font-medium">Detail Partnership</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl p-0 sm:max-w-4xl">
@@ -262,17 +262,17 @@ const SubmissionDetailDrawer = ({ partnership }) => {
 
                                     return (
                                         <div key={index} className={`relative flex gap-3 pb-2`}>
-                                            
-                                            <div 
+
+                                            <div
                                                 className={`absolute left-[11px] top-6 -bottom-3 w-0.5 ${lineColor}`}
                                                 aria-hidden="true"
                                             />
-                            
+
                                             {/* 2. ICON BULAT */}
                                             <div className={`relative z-10 w-6 h-6 rounded-full ${style.bgIcon} ${style.shadow} flex items-center justify-center shrink-0`}>
                                                 {style.icon}
                                             </div>
-                            
+
                                             {/* 3. CARD INFO */}
                                             <div className={`flex-1 flex items-center justify-between p-3 rounded-xl border ${style.bgCard} -mt-1`}>
                                                 <span className="text-sm font-semibold text-slate-700">{step.label}</span>
@@ -378,7 +378,7 @@ const SubmissionDetailDrawer = ({ partnership }) => {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-2 items-center justify-end">
                         <Button
-                            onClick={() => window.open(partnership.docLink, '_blank')} 
+                            onClick={() => window.open(partnership.docLink, '_blank')}
                             className="bg-gradient-to-r from-[#e31e25] to-red-900 text-white py-4 rounded-md font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
                         >
                             <ExternalLink className="w-5 h-5" />

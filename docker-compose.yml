@@ -1,0 +1,115 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine # Gunakan versi yang ringan
+    container_name: mira_postgres_dev
+    environment:
+      POSTGRES_USER: user_dev
+      POSTGRES_PASSWORD: password_dev
+      POSTGRES_DB: mira_db_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+
+## Solusi (step by step, aman)
+### ✅ 1. Install Docker Desktop (Windows)
+
+Download dari situs resmi:
+
+* Docker Desktop for Windows
+
+⚠️ Pastikan:
+
+* Windows 10/11 **64-bit**
+* WSL2 aktif (biasanya installer akan bantu)
+
+Setelah install:
+
+* **Restart laptop**
+* Jalankan **Docker Desktop**
+* Tunggu sampai statusnya: 🟢 *Docker is running*
+
+---
+
+### ✅ 2. Pastikan WSL2 aktif (kalau diminta)
+
+Di PowerShell **Run as Administrator**:
+
+```powershell
+wsl --install
+```
+
+Lalu restart.
+
+---
+
+### ✅ 3. Buka terminal BARU
+
+Ini penting. Terminal lama **tidak baca PATH baru**.
+
+Lalu test:
+
+```powershell
+docker --version
+docker compose version
+```
+
+Kalau keluar versi → aman ✅
+
+---
+
+## Catatan penting soal `docker compose`
+
+Sekarang ada **dua gaya**:
+
+✔️ **Benar (versi baru):**
+
+```bash
+docker compose up -d
+```
+
+❌ **Versi lama:**
+
+```bash
+docker-compose up -d
+```
+
+Kalau Docker Desktop versi baru → pakai yang pertama (punyamu sudah benar 👍).
+
+---
+
+## Kalau Docker sudah terinstall tapi masih error
+
+Biasanya ini beres dengan:
+
+1. Tutup semua terminal
+2. Pastikan Docker Desktop **RUNNING**
+3. Restart Windows
+
+Kalau masih:
+
+* Docker Desktop → Settings → **Reset to factory defaults**
+
+---
+
+## Ringkasan
+
+🧠 Error ini **bukan dari project kamu**
+❌ `docker` belum dikenali sistem
+✅ Install Docker Desktop + restart + buka terminal baru
+
+---
+
+Kalau mau, bilang:
+
+* Windows versi berapa
+* atau kirim screenshot Docker Desktop kamu
+
+Nanti aku arahkan biar **langsung bisa `docker compose up -d` tanpa drama** 🐳🔥
+
+###

@@ -12,7 +12,8 @@ import {
   GraduationCap,
   Award,
   Users,
-  Crosshair
+  Crosshair,
+  Sparkles
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -135,11 +136,57 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-8 pb-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Selamat Datang di MIRA - Fakultas Ekonomi dan Bisnis - Telkom University</h1>
-        <p className="text-muted-foreground mt-1">
-          Pilih modul yang ingin Anda akses di bawah ini.
-        </p>
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 p-8 md:p-12 shadow-sm">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="space-y-6 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="h-3 w-3" />
+              Integrated Management Information System
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
+                Selamat Datang, <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">
+                  {user?.fullName || 'Sobat MIRA'}
+                </span>
+              </h1>
+              <p className="text-lg font-medium text-foreground/80">
+                MIRA FEB - Telkom University
+              </p>
+            </div>
+
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+              Selamat datang di pusat kendali MIRA. Pantau kegiatan, kelola dokumen,
+              dan tingkatkan produktivitas Fakultas Ekonomi dan Bisnis dalam satu platform terintegrasi.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-sm border border-border rounded-xl shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-sm font-semibold">Sistem Aktif</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-sm border border-border rounded-xl shadow-sm">
+                <span className="text-sm font-bold text-primary">FEB</span>
+                <span className="w-1 h-3 bg-border rounded-full" />
+                <span className="text-sm font-medium text-muted-foreground">Telkom University</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden xl:block relative w-64 h-64">
+            {/* Decorative graphic placeholder or icon large */}
+            <div className="absolute inset-0 bg-primary/5 rounded-full animate-pulse" />
+            <div className="absolute inset-4 bg-primary/10 rounded-full" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Sparkles className="h-32 w-32 text-primary opacity-20" />
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative element background */}
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

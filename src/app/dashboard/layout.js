@@ -462,7 +462,7 @@ export default function DashboardLayout({ children }) {
         <AppSidebar isFullscreen={isFullscreen} handleFullscreen={handleFullscreen} />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+          <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
             <div className="flex h-14 items-center px-4 gap-2">
               <SidebarTrigger className="-ml-1" />
               <div className="flex-1" />
