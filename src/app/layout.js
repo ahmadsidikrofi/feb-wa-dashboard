@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+import RoleGuard from "@/components/Auth/RoleGuard";
 
 const raleway = Nunito({
   variable: "--font-raleway",

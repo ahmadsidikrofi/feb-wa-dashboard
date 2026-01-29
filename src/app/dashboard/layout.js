@@ -67,105 +67,8 @@ import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge"
 
-const ROLES = {
-  ADMIN: "admin",
-  DEKANAT: "dekanat",
-  KAUR: "kaur",
-  KAPRODI: "kaprodi",
-  SEKPRODI: "sekprodi",
-  DOSEN: "dosen",
-  MAHASISWA: "mahasiswa"
-}
-
-const navigation = [
-  {
-    name: "Home",
-    href: "/dashboard",
-    icon: Home,
-  },
-  {
-    name: "Ticket Management",
-    href: "/dashboard/ticket-management",
-    icon: TicketXIcon,
-    allowedRoles: [ROLES.ADMIN],
-    submenu: [
-      { name: "Dashboard", href: "/dashboard/ticket-management" },
-      { name: "Ticket Archive", href: "/dashboard/ticket-management/ticket-archive" },
-      { name: "Tickets", href: "/dashboard/ticket-management/tickets" },
-    ],
-  },
-  {
-    name: "Daftar Agenda",
-    href: "/dashboard/monitoring-kegiatan",
-    icon: List,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI]
-  },
-  {
-    name: "Reminder",
-    href: "/dashboard/reminder",
-    icon: AlarmClock,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
-    submenu: [
-      { name: "Tambah Penerima", href: "/dashboard/reminder/tambah-penerima" },
-      { name: "Buat Jadwal", href: "/dashboard/reminder/buat-jadwal" },
-      { name: "Google Calendar", href: "/dashboard/reminder/google-calendar" },
-    ],
-  },
-  {
-    name: "Notulensi Rapat",
-    href: "/dashboard/notulensi-rapat",
-    icon: Inbox,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
-  },
-  {
-    name: "Partnership Monitoring",
-    href: "/dashboard/partnership-monitoring",
-    icon: ParkingMeter,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
-    submenu: [
-      { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
-      { name: "Persetujuan", href: "/dashboard/partnership-monitoring/persetujuan" },
-      { name: "Penerapan", href: "/dashboard/partnership-monitoring/penerapan" },
-    ],
-  },
-  {
-    name: "Kontrak Manajemen",
-    href: "/dashboard/kontrak-management",
-    icon: Newspaper,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
-  },
-  {
-    name: "Sasaran Mutu",
-    href: "/dashboard/sasaran-mutu",
-    icon: Crosshair,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
-  },
-  {
-    name: "Laporan Manajemen",
-    href: "/dashboard/laporan-management",
-    icon: Newspaper,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
-  },
-  {
-    name: "Akreditasi LAMEMBA",
-    href: "/dashboard/akreditasi-lamemba",
-    icon: GraduationCap,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
-  },
-  {
-    name: "Akreditasi AACSB",
-    href: "/dashboard/akreditasi-aacsb",
-    icon: Award,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
-  },
-  {
-    name: "Data Pegawai",
-    href: "/dashboard/jumlah-pegawai",
-    icon: Users,
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
-  },
-  { name: "Fullscreen", action: "fullscreen", icon: ScreenShare },
-]
+import { navigation, ROLES } from "@/lib/navigation";
+import RoleGuard from "@/components/Auth/RoleGuard";
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
@@ -243,6 +146,8 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
   const isCollapsed = state === "collapsed"
   const userRole = user?.role
 
+  const fullscreenItem = { name: "Fullscreen", action: "fullscreen", icon: ScreenShare }
+
   const filteredNavigation = navigation.filter((item) => {
     // A. Jika tidak ada batasan role, tampilkan (return true)
     if (!item.allowedRoles || item.allowedRoles.length === 0) {
@@ -252,6 +157,9 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
     // B. Jika ada batasan, cek apakah role user ada di daftar allowedRoles
     return item.allowedRoles.includes(userRole)
   })
+
+  // Tambahkan item fullscreen ke navigasi untuk sidebar saja
+  const sidebarNavigation = [...filteredNavigation, fullscreenItem]
 
   const handleNavigation = (href) => {
     router.push(href)
@@ -281,7 +189,7 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
 
       <SidebarContent className="overflow-y-auto">
         <SidebarMenu className="px-2 cursor-pointer">
-          {filteredNavigation.map((item, index) => {
+          {sidebarNavigation.map((item, index) => {
             // Jika menu adalah fullscreen
             if (item.action === "fullscreen") {
               return (
@@ -308,6 +216,7 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
                 </SidebarMenuItem>
               );
             }
+
 
             // Jika menu memiliki submenu
             if (item.submenu && item.submenu.length > 0) {
@@ -457,20 +366,22 @@ export default function DashboardLayout({ children }) {
   }, [])
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar isFullscreen={isFullscreen} handleFullscreen={handleFullscreen} />
+    <RoleGuard>
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar isFullscreen={isFullscreen} handleFullscreen={handleFullscreen} />
 
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
-            <div className="flex h-14 items-center px-4 gap-2">
-              <SidebarTrigger className="-ml-1" />
-              <div className="flex-1" />
-            </div>
-          </header>
-          <main className="flex-1 overflow-auto p-4">{children}</main>
+          <div className="flex-1 flex flex-col min-w-0">
+            <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
+              <div className="flex h-14 items-center px-4 gap-2">
+                <SidebarTrigger className="-ml-1" />
+                <div className="flex-1" />
+              </div>
+            </header>
+            <main className="flex-1 overflow-auto p-4">{children}</main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </RoleGuard>
   );
 }

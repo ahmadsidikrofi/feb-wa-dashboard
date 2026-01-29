@@ -3,8 +3,28 @@
 import { LoginForm } from "@/components/login-form";
 import Image from "next/image";
 import FloatingLines from "@/components/FloatingLines";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || user) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-slate-900">
+        <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex min-h-svh items-center justify-center bg-slate-900 px-4 py-12 sm:px-6 lg:px-8">
       <div className="absolute inset-0">

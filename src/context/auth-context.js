@@ -43,11 +43,15 @@ export function AuthProvider({ children }) {
     }
 
     const logout = () => {
+        sessionStorage.setItem('is_logging_out', 'true')
         sessionStorage.removeItem('auth_token')
         sessionStorage.removeItem('auth_user')
         setToken(null)
         setUser(null)
-        toast.success('Jangan lupa kembali lagi ya!')
+        toast.success("Jangan lupa kembali lagi ya!", {
+            style: { background: "#059669", color: "#d1fae5" },
+            className: "border border-emerald-500"
+        })
         router.push('/')
     }
 

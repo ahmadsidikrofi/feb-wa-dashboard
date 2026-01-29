@@ -17,16 +17,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-
-const ROLES = {
-  ADMIN: "admin",
-  DEKANAT: "dekanat",
-  KAUR: "kaur",
-  KAPRODI: "kaprodi",
-  SEKPRODI: "sekprodi",
-  DOSEN: "dosen",
-  MAHASISWA: "mahasiswa"
-}
+import { ROLES } from '@/lib/navigation'
 
 const menuItems = [
   {
