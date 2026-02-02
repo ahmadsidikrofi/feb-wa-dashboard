@@ -18,6 +18,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { ROLES } from '@/lib/navigation'
+import Image from 'next/image'
 
 const menuItems = [
   {
@@ -169,8 +170,13 @@ export default function DashboardHome() {
             {/* Decorative graphic placeholder or icon large */}
             <div className="absolute inset-0 bg-primary/5 rounded-full animate-pulse" />
             <div className="absolute inset-4 bg-primary/10 rounded-full" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="h-32 w-32 text-primary opacity-20" />
+            <div className="absolute inset-0 flex items-center justify-center mt-8">
+              <Image
+                src="/logo-feb.png"
+                alt="Dashboard"
+                width={200}
+                height={200}
+              />
             </div>
           </div>
         </div>
