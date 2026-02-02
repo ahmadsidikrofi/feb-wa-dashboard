@@ -102,7 +102,7 @@ export default function DataDosenPage() {
         <div>
           <Button
             variant="ghost"
-            onClick={() => router.push("/dashboard/data-pegawai")}
+            onClick={() => router.push("/dashboard/jumlah-pegawai")}
             className="mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
