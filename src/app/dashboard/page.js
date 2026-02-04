@@ -40,7 +40,7 @@ const menuItems = [
   {
     name: "Reminder",
     description: "Atur pengingat dan jadwal notifikasi",
-    href: "/dashboard/reminder",
+    href: "/dashboard/reminder/buat-jadwal",
     icon: AlarmClock,
     color: "bg-orange-500/10 text-orange-500",
     allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
@@ -56,7 +56,7 @@ const menuItems = [
   {
     name: "Partnership Monitoring",
     description: "Pantau kerjasama dengan mitra luar",
-    href: "/dashboard/partnership-monitoring",
+    href: "/dashboard/partnership-monitoring/pengajuan",
     icon: ParkingMeter,
     color: "bg-pink-500/10 text-pink-500",
     allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
@@ -172,6 +172,7 @@ export default function DashboardHome() {
             <div className="absolute inset-4 bg-primary/10 rounded-full" />
             <div className="absolute inset-0 flex items-center justify-center mt-8">
               <Image
+                className='transparent/10'
                 src="/logo-feb.png"
                 alt="Dashboard"
                 width={200}

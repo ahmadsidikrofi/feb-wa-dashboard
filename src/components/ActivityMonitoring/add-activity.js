@@ -304,7 +304,7 @@ const AddActivity = ({
                                             }}
                                             className="rounded"
                                         />
-                                        <span className="text-sm">{official}</span>
+                                        <span className="text-sm">{formatCamelCaseLabel(official)}</span>
                                     </label>
                                 ))}
                             </div>
@@ -330,11 +330,11 @@ const AddActivity = ({
                             <Label htmlFor="keterangan">Keterangan</Label>
                             <Textarea
                                 id="keterangan"
-                                value={formData.keterangan || "Isi keterangan singkat"}
+                                value={formData.keterangan}
                                 onChange={(e) =>
                                     setFormData({ ...formData, keterangan: e.target.value })
                                 }
-                                placeholder="Informasi tambahan tentang kegiatan"
+                                placeholder="Tuliskan keterangan atau informasi tambahan kegiatan di sini..."
                                 rows={3}
                             />
                         </div>

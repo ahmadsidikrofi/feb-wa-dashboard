@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { Eye, CheckCircle, AlertCircle, Clock, ArrowLeft } from "lucide-react";
 
 const mockData = [
   {
@@ -47,14 +47,15 @@ const mockData = [
 ];
 
 export default function TableAkreditasiAACSB({ searchQuery }) {
-  const [data] = useState(mockData);
+  const [data] = useState(mockData)
+  const [selectedItem, setSelectedItem] = useState(null)
 
   const filteredData = searchQuery
     ? data.filter(
-        (item) =>
-          item.programStudi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.fakultas.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      (item) =>
+        item.programStudi.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.fakultas.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : data;
 
   const getStatusBadge = (status) => {
@@ -86,63 +87,157 @@ export default function TableAkreditasiAACSB({ searchQuery }) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Program Studi</TableHead>
-              <TableHead>Fakultas</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Target Selesai</TableHead>
-              <TableHead>PIC</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="text-center text-muted-foreground"
-                >
-                  Tidak ada data ditemukan
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredData.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">
-                    {item.programStudi}
-                  </TableCell>
-                  <TableCell>{item.fakultas}</TableCell>
-                  <TableCell>{getStatusBadge(item.statusAkreditasi)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${item.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium">
-                        {item.progress}%
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.targetSelesai}</TableCell>
-                  <TableCell className="text-sm">{item.pic}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+    <div className="relative overflow-x-auto">
+      <div className="flex min-w-full gap-4">
+        <div
+          className={`transition-all duration-300 ${selectedItem ? "min-w-[60%]" : "min-w-full"
+            }`}
+        >
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Program Studi</TableHead>
+                  <TableHead>Fakultas</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Progress</TableHead>
+                  <TableHead>Target Selesai</TableHead>
+                  <TableHead>PIC</TableHead>
+                  <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredData.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-muted-foreground"
+                    >
+                      Tidak ada data ditemukan
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredData.map((item) => {
+                    const isActive = selectedItem?.id === item.id;
+
+                    return (
+                      <TableRow
+                        key={item.id}
+                        className={isActive ? "bg-muted/50" : ""}
+                      >
+                        <TableCell className="font-medium">
+                          {item.programStudi}
+                        </TableCell>
+                        <TableCell>{item.fakultas}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(item.statusAkreditasi)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{ width: `${item.progress}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium">
+                              {item.progress}%
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{item.targetSelesai}</TableCell>
+                        <TableCell className="text-sm">
+                          {item.pic}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setSelectedItem(
+                                isActive ? null : item
+                              )
+                            }
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* =========================
+            DETAIL PANEL
+        ========================= */}
+        {selectedItem && (
+          <div className="min-w-[40%] max-w-[40%] border rounded-md p-4 bg-background transition-all duration-300">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">
+                  {selectedItem.programStudi}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Detail Akreditasi AACSB
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedItem(null)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">Fakultas</p>
+                <p className="font-medium">
+                  {selectedItem.fakultas}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-muted-foreground">Status</p>
+                {getStatusBadge(selectedItem.statusAkreditasi)}
+              </div>
+
+              <div>
+                <p className="text-muted-foreground">PIC</p>
+                <p className="font-medium">{selectedItem.pic}</p>
+              </div>
+
+              <div>
+                <p className="text-muted-foreground">Target Selesai</p>
+                <p className="font-medium">
+                  {selectedItem.targetSelesai}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-muted-foreground mb-1">Progress</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{
+                        width: `${selectedItem.progress}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="font-medium">
+                    {selectedItem.progress}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

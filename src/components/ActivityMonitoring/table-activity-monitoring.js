@@ -217,9 +217,9 @@ const TableActivityMonitoring = ({
                                                         <div className="font-medium">
                                                             {activity.namaKegiatan}
                                                         </div>
-                                                        {activity.description && (
-                                                            <div className="text-xs text-muted-foreground mt-1">
-                                                                {activity.description}
+                                                        {activity.keterangan && (
+                                                            <div className="text-xs text-muted-foreground mt-1 truncate max-w-[260px]" title={activity.keterangan}>
+                                                                {activity.keterangan}
                                                             </div>
                                                         )}
                                                     </div>
@@ -254,7 +254,7 @@ const TableActivityMonitoring = ({
                                                                     ) : (
                                                                         <UserCheck className="h-3 w-3 text-muted-foreground" />
                                                                     )}
-                                                                    <span className="text-xs">{p}</span>
+                                                                    <span className="text-xs">{formatCamelCaseLabel(p)}</span>
                                                                 </div>
                                                             )
                                                         })}
@@ -490,7 +490,7 @@ const TableActivityMonitoring = ({
                                                                             variant="outline"
                                                                             className="text-xs"
                                                                         >
-                                                                            {p}
+                                                                            {formatCamelCaseLabel(p)}
                                                                         </Badge>
                                                                     ))}
                                                                 </div>

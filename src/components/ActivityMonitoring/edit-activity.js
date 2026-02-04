@@ -291,7 +291,7 @@ const EditActivity = ({
                                             }}
                                             className="rounded"
                                         />
-                                        <span className="text-sm">{official}</span>
+                                        <span className="text-sm">{formatCamelCaseLabel(official)}</span>
                                     </label>
                                 ))}
                             </div>
