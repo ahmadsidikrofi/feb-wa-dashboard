@@ -29,11 +29,20 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
         e.preventDefault()
         setIsLoading(true)
 
+        if (!formData.judulRapat || !formData.tanggal || !formData.waktuMulai || !formData.waktuSelesai || !formData.pemimpin || !formData.notulen || !formData.agenda) {
+            toast.error("Harap isi semua bidang yang bertanda bintang (*).", {
+                style: { background: "#b91c1c", color: "#fef2f2" },
+            });
+            setIsLoading(false)
+            return
+        }
+
         if (!formData.ruangan) {
             toast.error("Ruangan belum dipilih. Silakan pilih ruangan terlebih dahulu.", {
                 style: { background: "#b91c1c", color: "#fef2f2" },
                 iconTheme: { primary: "#b91c1c", secondary: "#fff" },
             });
+            setIsLoading(false)
             return
         }
 
@@ -42,6 +51,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
             (!formData.locationDetail || formData.locationDetail.trim() === "")
         ) {
             toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.");
+            setIsLoading(false)
             return
         }
 
@@ -53,6 +63,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                     iconTheme: { primary: "#b91c1c", secondary: "#fff" },
                 }
             );
+            setIsLoading(false)
             return
         }
 
@@ -71,7 +82,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                 actionItems: [],
                 agendas: [
                     {
-                        title: "Pembahasan Utama",
+                        title: formData.agenda || "Pembahasan Utama",
                         discussion: null,
                         decision: null
                     }
@@ -117,7 +128,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                         Isi formulir untuk menambahkan jadwal rapat baru
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="judulRapat">Judul Rapat *</Label>
@@ -127,7 +138,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                 onChange={(e) =>
                                     setFormData({ ...formData, judulRapat: e.target.value })
                                 }
-                                required
+
                                 placeholder="Contoh: Rapat Koordinasi Kurikulum"
                             />
                         </div>
@@ -142,7 +153,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                     onChange={(e) =>
                                         setFormData({ ...formData, tanggal: e.target.value })
                                     }
-                                    required
+
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -157,7 +168,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                             waktuMulai: e.target.value,
                                         })
                                     }
-                                    required
+
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -172,7 +183,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                             waktuSelesai: e.target.value,
                                         })
                                     }
-                                    required
+
                                 />
                             </div>
                         </div>
@@ -184,7 +195,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                 onValueChange={(value) =>
                                     setFormData({ ...formData, ruangan: value })
                                 }
-                                required
+
                             >
                                 <SelectTrigger id="ruangan" className="w-full">
                                     <SelectValue placeholder="Pilih ruangan" />
@@ -199,18 +210,19 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                             </Select>
                         </div>
 
-                        <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? `` : `hidden`}`}>
-                            <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
-                            <Input
-                                id="locationDetail"
-                                value={formData.locationDetail}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, locationDetail: e.target.value })
-                                }
-                                required
-                                placeholder="Contoh: Hotel Papandayan"
-                            />
-                        </div>
+                        {formData.ruangan === "Lainnya" && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
+                                <Input
+                                    id="locationDetail"
+                                    value={formData.locationDetail}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, locationDetail: e.target.value })
+                                    }
+                                    placeholder="Contoh: Hotel Papandayan"
+                                />
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
@@ -221,7 +233,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                     onChange={(e) =>
                                         setFormData({ ...formData, pemimpin: e.target.value })
                                     }
-                                    required
+
                                     placeholder="Contoh: Wakil Dekan I"
                                 />
                             </div>
@@ -233,7 +245,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                     onChange={(e) =>
                                         setFormData({ ...formData, notulen: e.target.value })
                                     }
-                                    required
+
                                     placeholder="Nama petugas notulen"
                                 />
                             </div>
@@ -245,7 +257,7 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
                                     onChange={(e) =>
                                         setFormData({ ...formData, agenda: e.target.value })
                                     }
-                                    required
+
                                     placeholder="Tuliskan topik atau agenda rapat"
                                 />
                             </div>

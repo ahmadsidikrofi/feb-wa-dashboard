@@ -52,6 +52,7 @@ export default function NotulensiRapatPage() {
     locationDetail: "",
     pemimpin: "",
     notulen: "",
+    agenda: "",
     keterangan: "",
   })
 
