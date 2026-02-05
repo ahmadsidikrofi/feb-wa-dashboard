@@ -82,9 +82,13 @@ export default function NotulensiRapatPage() {
       waktu: `${new Date(item.startTime).toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC"
       })} - ${new Date(item.endTime).toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC"
       })}`,
       ruangan: item.room,
       locationDetail: item.locationDetail,

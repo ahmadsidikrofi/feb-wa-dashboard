@@ -53,10 +53,14 @@ export default function NotulensiDetailPage({ params }) {
         const formattedStartTime = startTime.toLocaleTimeString("id-ID", {
           hour: "2-digit",
           minute: "2-digit",
+          hour12: false,
+          timeZone: "UTC"
         });
         const formattedEndTime = endTime.toLocaleTimeString("id-ID", {
           hour: "2-digit",
           minute: "2-digit",
+          hour12: false,
+          timeZone: "UTC"
         });
         const waktuFormatted = `${formattedStartTime} - ${formattedEndTime}`;
 
@@ -247,7 +251,7 @@ export default function NotulensiDetailPage({ params }) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Waktu</p>
-                <p className="font-medium">{notulensi.waktu} WIB</p>
+                <p className="font-medium">{notulensi.waktu}</p>
               </div>
             </div>
 

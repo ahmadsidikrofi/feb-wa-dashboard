@@ -55,7 +55,6 @@ export default function EditNotulensiPage({ params }) {
     locationDetail: "",
     pemimpin: "",
     notulen: "",
-    notulen: "",
     status: "Terjadwal",
     catatan: "Catatan belum dibuat",
   })
@@ -90,8 +89,9 @@ export default function EditNotulensiPage({ params }) {
         const endTime = new Date(data.endTime)
 
         const toTimeInputValue = (date) => {
-          const h = String(date.getHours()).padStart(2, "0");
-          const m = String(date.getMinutes()).padStart(2, "0");
+          if (!(date instanceof Date) || isNaN(date)) return "";
+          const h = String(date.getUTCHours()).padStart(2, "0");
+          const m = String(date.getUTCMinutes()).padStart(2, "0");
           return `${h}:${m}`;
         }
 
@@ -376,7 +376,7 @@ export default function EditNotulensiPage({ params }) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* Informasi Rapat */}
         <Card>
           <CardHeader>
@@ -402,25 +402,6 @@ export default function EditNotulensiPage({ params }) {
                   }
                   required
                 />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="status">Status Rapat</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, status: value })
-                  }
-                >
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Terjadwal">Terjadwal</SelectItem>
-                    <SelectItem value="Berlangsung">Berlangsung</SelectItem>
-                    <SelectItem value="Selesai">Selesai</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
