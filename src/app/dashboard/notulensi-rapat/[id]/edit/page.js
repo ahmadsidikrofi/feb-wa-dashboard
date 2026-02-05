@@ -90,8 +90,8 @@ export default function EditNotulensiPage({ params }) {
 
         const toTimeInputValue = (date) => {
           if (!(date instanceof Date) || isNaN(date)) return "";
-          const h = String(date.getUTCHours()).padStart(2, "0");
-          const m = String(date.getUTCMinutes()).padStart(2, "0");
+          const h = String(date.getHours()).padStart(2, "0");
+          const m = String(date.getMinutes()).padStart(2, "0");
           return `${h}:${m}`;
         }
 
@@ -276,18 +276,15 @@ export default function EditNotulensiPage({ params }) {
     try {
       setIsFetching(true);
 
-      // Prepare payload sesuai format API (sama dengan format POST request)
       const payload = {
         title: formData.judulRapat,
         date: formData.tanggal,
-        startTime: `${formData.tanggal}T${formData.waktuMulai}:00`,
-        endTime: `${formData.tanggal}T${formData.waktuSelesai}:00`,
+        startTime: new Date(`${formData.tanggal}T${formData.waktuMulai}:00`).toISOString(),
+        endTime: new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`).toISOString(),
         room: ROOM_MAPPING[formData.ruangan] || formData.ruangan || "",
         locationDetail: formData.locationDetail || "",
         leader: formData.pemimpin || "",
-        leader: formData.pemimpin || "",
         notetaker: formData.notulen || "",
-        status: formData.status,
         participants: pesertaList.filter((p) => p.trim() !== ""),
         agendas: pembahasanList
           .filter((p) => p.agenda.trim() !== "")

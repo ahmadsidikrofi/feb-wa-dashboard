@@ -54,13 +54,11 @@ export default function NotulensiDetailPage({ params }) {
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
-          timeZone: "UTC"
         });
         const formattedEndTime = endTime.toLocaleTimeString("id-ID", {
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
-          timeZone: "UTC"
         });
         const waktuFormatted = `${formattedStartTime} - ${formattedEndTime}`;
 

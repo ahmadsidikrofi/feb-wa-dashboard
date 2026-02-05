@@ -71,8 +71,8 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
             const payload = {
                 title: formData.judulRapat,
                 date: formData.tanggal,
-                startTime: `${formData.tanggal}T${formData.waktuMulai}:00`,
-                endTime: `${formData.tanggal}T${formData.waktuSelesai}:00`,
+                startTime: new Date(`${formData.tanggal}T${formData.waktuMulai}:00`).toISOString(),
+                endTime: new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`).toISOString(),
                 room: formData.ruangan,
                 locationDetail: formData.locationDetail,
                 leader: formData.pemimpin,
