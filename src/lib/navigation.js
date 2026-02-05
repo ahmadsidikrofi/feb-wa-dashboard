@@ -53,7 +53,7 @@ export const navigation = [
         submenu: [
             { name: "Tambah Penerima", href: "/dashboard/reminder/tambah-penerima" },
             { name: "Buat Jadwal", href: "/dashboard/reminder/buat-jadwal" },
-            { name: "Google Calendar", href: "/dashboard/reminder/google-calendar" },
+            // { name: "Google Calendar", href: "/dashboard/reminder/google-calendar" },
         ],
     },
     {

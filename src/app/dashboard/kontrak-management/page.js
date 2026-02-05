@@ -32,7 +32,7 @@ const KontrakManagement = () => {
       try {
         setIsLoading(true)
         const res = await api.get("/api/contract-management/stats")
-
+        console.log(res.data)
         if (!res.data.success) {
           console.error("Gagal mengambil data stats:", res.data.message)
           return
@@ -107,7 +107,7 @@ const KontrakManagement = () => {
                   </p>
                 </CardContent>
               </Card>
-            );
+            )
           })}
         </div>
       </div>

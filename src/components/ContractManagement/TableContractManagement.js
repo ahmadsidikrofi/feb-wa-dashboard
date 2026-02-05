@@ -23,6 +23,7 @@ import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
 import EditContract from "./edit-contract"
 import api from "@/lib/axios"
+import DeleteContract from "./delete-contract"
 
 const formatRangeInfo = (pagination, currentPage) => {
   const total = pagination?.totalItems ?? 0
@@ -321,21 +322,18 @@ const TableContractManagement = () => {
                               setSelectedContractId(row.id)
                               setOpen(true)
                             }}
+                            className="cursor-pointer"
                           >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => {
-                              // Lakukan aksi hapus data di sini
-                              // onDelete(row)
-                            }}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2 text-red-500" />
-                            Hapus
-                          </DropdownMenuItem>
+                          <DeleteContract
+                            contractId={row.id}
+                            onSuccess={getContractData}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                          />
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

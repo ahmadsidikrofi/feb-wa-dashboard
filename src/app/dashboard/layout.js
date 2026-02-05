@@ -21,30 +21,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Home,
-  Inbox,
-  List,
   LogOut,
-  Menu,
   ScreenShare,
   ScreenShareOff,
-  Moon,
   Sun,
-  AlarmClock,
   LoaderIcon,
   ChevronRightIcon,
-  CornerRightDown,
-  ParkingMeter,
-  Ellipsis,
   UserCog2,
-  TicketXIcon,
-  Newspaper,
-  GraduationCap,
-  Award,
-  Users,
   Settings2,
   Monitor,
-  Crosshair,
+  Moon,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -65,7 +51,6 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge"
 
 import { navigation, ROLES } from "@/lib/navigation";
 import RoleGuard from "@/components/Auth/RoleGuard";
