@@ -126,11 +126,13 @@ export default function EditNotulensiPage({ params }) {
           setAgendaList(agendaTitles);
 
           const pembahasanData = data.agendas.map((agenda) => ({
+            id: agenda.id,
             agenda: agenda.title || "",
             pembahasan: agenda.discussion || "",
             keputusan: agenda.decision || "",
             actionItems: agenda.actionItems && agenda.actionItems.length > 0
               ? agenda.actionItems.map(ai => ({
+                id: ai.id,
                 tugas: ai.task || "",
                 penanggungJawab: ai.pic || "",
                 deadline: ai.deadline ? new Date(ai.deadline).toISOString().split("T")[0] : "",
@@ -289,6 +291,7 @@ export default function EditNotulensiPage({ params }) {
         agendas: pembahasanList
           .filter((p) => p.agenda.trim() !== "")
           .map((item) => ({
+            id: item.id,
             title: item.agenda,
             discussion: item.pembahasan?.trim() || null,
             decision: item.keputusan?.trim() || null,
@@ -296,6 +299,7 @@ export default function EditNotulensiPage({ params }) {
               ? item.actionItems
                 .filter(ai => ai.tugas.trim() !== "")
                 .map(ai => ({
+                  id: ai.id,
                   task: ai.tugas,
                   pic: ai.penanggungJawab?.trim() || null,
                   deadline: ai.deadline ? `${ai.deadline}T00:00:00` : null,
