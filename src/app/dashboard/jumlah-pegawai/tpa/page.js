@@ -29,6 +29,7 @@ import {
 import { ArrowLeft, Search, Download, Briefcase, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import ExportExcelButton from "@/components/shared/ExportExcelButton";
 
 export default function DataTPAPage() {
   const router = useRouter();
@@ -78,12 +79,7 @@ export default function DataTPAPage() {
     const matchLokasi = filterLokasi === "all" || tpa.workUnit === filterLokasi;
 
     return matchSearch && matchStatus && matchLokasi;
-  });
-
-  const handleExport = () => {
-    // Logic to export data
-    alert("Export data TPA ke CSV");
-  };
+  })
 
   const getStatusBadge = (status) => {
     if (status?.includes("Pegawai Tetap")) {
@@ -102,7 +98,23 @@ export default function DataTPAPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    );
+    )
+  }
+
+  const tpaColumns = [
+    { header: "Nama", key: "name", width: 50 },
+    { header: "NIP", key: "nip", width: 15 },
+    { header: "Unit Kerja", key: "workUnit", width: 50 },
+    { header: "Status Kepegawaian", key: "employmentStatus", width: 40 },
+  ]
+
+  const handleMapData = (item) => {
+    return {
+      name: item.name,
+      nip: item.nip,
+      workUnit: item.workUnit,
+      employmentStatus: item.employmentStatus,
+    }
   }
 
   return (
@@ -123,10 +135,13 @@ export default function DataTPAPage() {
             Data Tenaga Pendukung Akademik Fakultas Ekonomi dan Bisnis
           </p>
         </div>
-        <Button onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" />
-          Export Data
-        </Button>
+        <ExportExcelButton
+          apiEndpoint="/api/staffs"
+          fileName="Data_TPA"
+          sheetName="Data TPA"
+          columns={tpaColumns}
+          mapData={handleMapData}
+        />
       </div>
 
       {/* Stats Cards */}

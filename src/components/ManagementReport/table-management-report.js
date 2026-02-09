@@ -34,6 +34,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import api from "@/lib/axios";
+import ExportExcelButton from "../shared/ExportExcelButton";
 
 const formatRangeInfo = (pagination, currentPage) => {
     const total = pagination?.totalItems ?? 0
@@ -168,7 +169,6 @@ const TableManagementReport = ({
                 }
             )
 
-            // Beri tahu parent kalau ada perubahan status (mis. untuk toast)
             if (onStatusUpdate) {
                 onStatusUpdate(indicatorId, quarter, !currentStatus)
             }
@@ -195,6 +195,29 @@ const TableManagementReport = ({
         }
     }
 
+    const managementReportColumns = [
+        { header: 'No', key: 'no', width: 5 },
+        { header: 'Indikator', key: 'indicator', width: 40 },
+        { header: 'Link bukti', key: 'evidenceLink', width: 40, style: { alignment: { wrapText: true } } },
+        { header: 'Tahun', key: 'year', width: 8 },
+        { header: 'Triwulan 1', key: 'tw1', width: 15 },
+        { header: 'Triwulan 2', key: 'tw2', width: 15 },
+        { header: 'Triwulan 3', key: 'tw3', width: 15 },
+        { header: 'Triwulan 4', key: 'tw4', width: 15 },
+    ]
+
+    const handleMapData = (item) => {
+        return {
+            indicator: item.indicator,
+            evidenceLink: item.evidenceLink,
+            year: item.year,
+            tw1: item.tw1,
+            tw2: item.tw2,
+            tw3: item.tw3,
+            tw4: item.tw4,
+        }
+    }
+
     return (
         <>
             {/* Search and Filters */}
@@ -218,35 +241,49 @@ const TableManagementReport = ({
                                 </button>
                             )}
                         </div>
-                        <Select
-                            value={String(yearFilter)}
-                            onValueChange={(value) => setYearFilter(parseInt(value))}
-                        >
-                            <SelectTrigger className="w-full sm:w-48">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {yearOptions.map((year) => (
-                                    <SelectItem key={year} value={String(year)}>
-                                        Tahun {year}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Select
-                            value={String(rowFilter)}
-                            onValueChange={(value) => setRowFilter(parseInt(value))}
-                        >
-                            <SelectTrigger className="w-full sm:w-48">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="10">Menampilkan 10 data</SelectItem>
-                                <SelectItem value="25">Menampilkan 25 data</SelectItem>
-                                <SelectItem value="50">Menampilkan 50 data</SelectItem>
-                                <SelectItem value="100">Menampilkan 100 data</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="hidden xl:block max-sm:block">
+                            <ExportExcelButton
+                                apiEndpoint="/api/management-reports"
+                                fileName="Rekap_Lapman"
+                                sheetName="Laporan Manajemen"
+                                columns={managementReportColumns}
+                                mapData={handleMapData}
+                            />
+                        </div>
+                        <div className="hidden xl:block max-sm:block">
+                            <Select
+                                className="hidden lg:block max-sm:block"
+                                value={String(yearFilter)}
+                                onValueChange={(value) => setYearFilter(parseInt(value))}
+                            >
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {yearOptions.map((year) => (
+                                        <SelectItem key={year} value={String(year)}>
+                                            Tahun {year}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <Select
+                                value={String(rowFilter)}
+                                onValueChange={(value) => setRowFilter(parseInt(value))}
+                            >
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="10">Menampilkan 10 data</SelectItem>
+                                    <SelectItem value="25">Menampilkan 25 data</SelectItem>
+                                    <SelectItem value="50">Menampilkan 50 data</SelectItem>
+                                    <SelectItem value="100">Menampilkan 100 data</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div>
                             <Button onClick={onAddReport}>
                                 <PlusCircleIcon className="h-4 w-4 mr-2" />

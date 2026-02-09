@@ -15,12 +15,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import api from "@/lib/axios";
+import { toast } from "sonner";
 
 const AddManagementReport = ({ open, onOpenChange, onSuccess, isLoading, setIsLoading }) => {
     const [selectedIndicator, setSelectedIndicator] = useState({
         indicator: "",
         evidenceLink: "",
-        year: 2025,
+        year: new Date().getFullYear(),
         tw1: false,
         tw2: false,
         tw3: false,
@@ -28,6 +29,27 @@ const AddManagementReport = ({ open, onOpenChange, onSuccess, isLoading, setIsLo
     })
 
     const handleSaveEdit = async () => {
+        if (!selectedIndicator.indicator) {
+            return toast.error("Oops... Indikator jangan dibiarkan kosong ya", {
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
+        }
+
+        if (!selectedIndicator.year) {
+            return toast.error("Oops... Tahun jangan dibiarkan kosong ya", {
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
+        }
+
+        if (!selectedIndicator.tw1 && !selectedIndicator.tw2 && !selectedIndicator.tw3 && !selectedIndicator.tw4) {
+            return toast.error("Oops... Minimal pilih salah satu Triwulan (TW) ya", {
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
+        }
+
         try {
             setIsLoading(true)
             const payload = {
@@ -41,11 +63,12 @@ const AddManagementReport = ({ open, onOpenChange, onSuccess, isLoading, setIsLo
             }
 
             const res = await api.post(`/api/management-reports`, payload)
-            console.log(res);
 
             onSuccess?.()
+            toast.success("Berhasil menambahkan indikator")
         } catch (error) {
             console.error("Gagal menyimpan management report:", error)
+            toast.error("Gagal menyimpan management report")
         } finally {
             setIsLoading(false)
         }

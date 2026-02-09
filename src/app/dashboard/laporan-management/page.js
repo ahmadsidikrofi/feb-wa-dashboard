@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import TableManagementReport from "@/components/ManagementReport/table-management-report";
 import AddManagementReport from "@/components/ManagementReport/add-management-report";
 import EditManagementReport from "@/components/ManagementReport/edit-management-report";
+import ExportExcelButton from "@/components/shared/ExportExcelButton";
 
 export default function LaporanManagementPage() {
   const [selectedIndicator, setSelectedIndicator] = useState(null)
@@ -38,22 +39,24 @@ export default function LaporanManagementPage() {
   });
 
   // Calculate stats
-  const totalIndicators = stats.total;
-  const completedTW1 = stats.completedTW1;
-  const completedTW2 = stats.completedTW2;
-  const completedTW3 = stats.completedTW3;
-  const completedTW4 = stats.completedTW4;
+  const totalIndicators = stats.total
+  const completedTW1 = stats.completedTW1
+  const completedTW2 = stats.completedTW2
+  const completedTW3 = stats.completedTW3
+  const completedTW4 = stats.completedTW4
 
   const handleStatusUpdate = async (indicatorId, quarter, value) => {
     try {
-      // TODO: Implement API call to update status
-      // await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/management-reports/${indicatorId}`, {
-      //   [quarter]: value
-      // });
-      toast.success("Status berhasil diperbarui");
+      toast.success("Status berhasil diperbarui", {
+        style: { background: "#dcfce7", color: "#166534" },
+        className: "border border-green-500"
+      })
     } catch (error) {
-      console.error("Gagal update status:", error);
-      toast.error("Gagal memperbarui status");
+      console.error("Gagal update status:", error)
+      toast.error("Gagal memperbarui status", {
+        style: { background: "#fee2e2", color: "#991b1b" },
+        className: "border border-red-500"
+      })
     }
   };
 
@@ -64,7 +67,9 @@ export default function LaporanManagementPage() {
 
   const handleStatsUpdate = (newStats) => {
     setStats(newStats);
-  };
+  }
+
+
 
   return (
     <div className="space-y-6">
@@ -77,12 +82,6 @@ export default function LaporanManagementPage() {
           <p className="text-muted-foreground">
             Monitoring indikator laporan manajemen fakultas per triwulan
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export Excel
-          </Button>
         </div>
       </div>
 
@@ -241,7 +240,10 @@ export default function LaporanManagementPage() {
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSuccess={() => {
-          toast.success("Data Laporan Manajemen berhasil ditambahkan")
+          toast.success("Data Laporan Manajemen berhasil ditambahkan", {
+            style: { background: "#dcfce7", color: "#166534" },
+            className: "border border-green-500"
+          })
           setIsAddDialogOpen(false)
           setRefreshKey((prev) => prev + 1)
         }}
@@ -254,7 +256,10 @@ export default function LaporanManagementPage() {
         onOpenChange={setIsEditDialogOpen}
         selectedIndicator={selectedIndicator}
         onSuccess={() => {
-          toast.success("Data Laporan Manajemen berhasil diubah")
+          toast.success("Data Laporan Manajemen berhasil diubah", {
+            style: { background: "#dcfce7", color: "#166534" },
+            className: "border border-green-500"
+          })
           setIsEditDialogOpen(false)
           setRefreshKey((prev) => prev + 1)
         }}

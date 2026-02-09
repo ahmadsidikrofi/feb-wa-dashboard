@@ -25,6 +25,7 @@ import {
 import TableMeetingMinutes from "@/components/MeetingMinutes/table-meeting-minutes";
 import AddMeeting from "@/components/MeetingMinutes/add-meeting"
 import api from "@/lib/axios";
+import ExportExcelButton from "@/components/shared/ExportExcelButton";
 
 const rooms = [
   "Ruang Rapat Manterawu lt. 2",
@@ -34,6 +35,18 @@ const rooms = [
   "Aula FEB",
   "Aula Manterawu",
   "Lainnya",
+]
+
+const meetingColumns = [
+  { header: "No", key: "no", width: 5 },
+  { header: "Judul Rapat", key: "title", width: 40 },
+  { header: "Tanggal", key: "date", width: 20 },
+  { header: "Waktu", key: "time", width: 20 },
+  { header: "Lokasi / Ruangan", key: "location", width: 30 },
+  { header: "Pimpinan", key: "leader", width: 25 },
+  { header: "Notulis", key: "notetaker", width: 25 },
+  { header: "Status", key: "status", width: 15 },
+  { header: "Dokumen Notulensi", key: "hasNotulensi", width: 20 },
 ]
 
 export default function NotulensiRapatPage() {
@@ -146,10 +159,33 @@ export default function NotulensiRapatPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export Laporan
-          </Button>
+          <ExportExcelButton
+            apiEndpoint="/api/meetings"
+            fileName="Rekap_Notulensi"
+            sheetName="Meetings"
+            columns={meetingColumns}
+            // Kita butuh mapData karena format tanggal di API mungkin ISO String
+            mapData={(item) => ({
+              title: item.title,
+              date: new Date(item.date).toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              }),
+              time: `${new Date(item.startTime).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })} - ${new Date(item.endTime).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`,
+              location: item.room === "Lainnya" ? item.locationDetail : item.room,
+              leader: item.leader,
+              notetaker: item.notetaker,
+              status: item.status,
+              hasNotulensi: item.hasNotulensi ? "Tersedia" : "Belum Tersedia",
+            })}
+          />
 
           <AddMeeting
             isDialogOpen={isDialogOpen}

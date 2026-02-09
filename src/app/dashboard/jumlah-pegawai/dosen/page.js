@@ -29,6 +29,7 @@ import {
 import { ArrowLeft, Search, Download, GraduationCap, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import ExportExcelButton from "@/components/shared/ExportExcelButton";
 
 export default function DataDosenPage() {
   const router = useRouter();
@@ -80,12 +81,31 @@ export default function DataDosenPage() {
     const matchPendidikan = filterPendidikan === "all" || dosen.education === filterPendidikan;
 
     return matchSearch && matchProdi && matchPendidikan;
-  });
+  })
 
-  const handleExport = () => {
-    // Logic to export data
-    alert("Export data dosen ke CSV");
-  };
+  const lecturerColumns = [
+    { header: 'No', key: 'no', width: 6 },
+    { header: 'NIP', key: 'nip', width: 15 },
+    { header: 'Gelar Depan', key: 'frontTitle', width: 20 },
+    { header: 'Nama Dosen', key: 'name', width: 50 },
+    { header: 'Gelar Belakang', key: 'backTitle', width: 20 },
+    { header: 'Prodi', key: 'prodi', width: 15 },
+    { header: 'Kode Dosen', key: 'lecturerCode', width: 8 },
+    { header: 'Edukasi', key: 'education', width: 15 },
+  ]
+
+  const handleMapData = (item) => {
+    return {
+      nip: item.nip,
+      nuptk: item.nuptk,
+      frontTitle: item.frontTitle,
+      name: item.name,
+      backTitle: item.backTitle,
+      prodi: item.prodi,
+      lecturerCode: item.lecturerCode,
+      education: item.education,
+    }
+  }
 
   if (isLoading) {
     return (
@@ -113,10 +133,13 @@ export default function DataDosenPage() {
             Data lengkap dosen dan pengajar Fakultas Ekonomi dan Bisnis
           </p>
         </div>
-        <Button onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" />
-          Export Data
-        </Button>
+        <ExportExcelButton
+          apiEndpoint="/api/lecturers"
+          fileName="Data_Dosen"
+          sheetName="Data Dosen"
+          columns={lecturerColumns}
+          mapData={handleMapData}
+        />
       </div>
 
       {/* Stats Cards */}

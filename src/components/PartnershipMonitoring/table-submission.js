@@ -25,6 +25,7 @@ import EditSubmission from "./edit-submission"
 import EditApproval from "./edit-approval"
 import DeletePartnership from "./delete-partnership"
 import api from "@/lib/axios"
+import ExportExcelButton from "../shared/ExportExcelButton"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -138,6 +139,126 @@ const TableSubmission = () => {
     setFilters({ scope: null, docType: null, status: null, archive: null })
   }
 
+  const partnershipColumns = [
+    { header: 'No', key: 'no', width: 5 },
+
+    // -- Identitas Utama --
+    { header: 'Tahun', key: 'yearIssued', width: 8 },
+    { header: 'Nama Mitra', key: 'partnerName', width: 35, style: { alignment: { wrapText: true } } },
+    { header: 'Tipe Dokumen', key: 'docType', width: 15 },
+    { header: 'Jenis Kerjasama', key: 'partnershipType', width: 15 },
+    { header: 'Lingkup', key: 'scope', width: 15 },
+
+    // -- Dokumen & Nomor --
+    { header: 'No. Internal', key: 'docNumberInternal', width: 25 },
+    { header: 'No. Eksternal', key: 'docNumberExternal', width: 25 },
+    { header: 'Link Dokumen', key: 'docLink', width: 30 },
+
+    // -- Tanggal & Durasi --
+    { header: 'Tgl Dibuat', key: 'dateCreated', width: 15 },
+    { header: 'Tgl TTD', key: 'dateSigned', width: 15 },
+    { header: 'Berlaku Hingga', key: 'validUntil', width: 15 },
+    { header: 'Durasi', key: 'duration', width: 15 },
+    { header: 'Tipe Penandatanganan', key: 'signingType', width: 20 },
+
+    // -- PIC (Person In Charge) --
+    { header: 'PIC Internal', key: 'picInternal', width: 20 },
+    { header: 'PIC Eksternal', key: 'picExternal', width: 20 },
+    { header: 'Telp PIC Eksternal', key: 'picExternalPhone', width: 20 },
+
+    // -- ACTIVITIES (Sub-Kolom Visual) --
+    // Kita set 'vertical: top' biar sejajar atas kalau datanya banyak
+    { header: 'Kegiatan (Tipe)', key: 'actType', width: 20, style: { alignment: { wrapText: true, vertical: 'top' } } },
+    { header: 'Kegiatan (Status)', key: 'actStatus', width: 20, style: { alignment: { wrapText: true, vertical: 'top' } } },
+    { header: 'Kegiatan (Catatan)', key: 'actNotes', width: 30, style: { alignment: { wrapText: true, vertical: 'top' } } },
+
+    // -- Approval Status (Wadek, Dekan, dll) --
+    { header: 'Appr. Wadek 1', key: 'approvalWadek1', width: 15 },
+    { header: 'Appr. Wadek 2', key: 'approvalWadek2', width: 15 },
+    { header: 'Appr. Kabag KST', key: 'approvalKabagKST', width: 15 },
+    { header: 'Appr. Dir SPIO', key: 'approvalDirSPIO', width: 15 },
+    { header: 'Appr. Kaur Legal', key: 'approvalKaurLegal', width: 15 },
+    { header: 'Appr. Kabag Sekpim', key: 'approvalKabagSekpim', width: 15 },
+    { header: 'Appr. Dir SPS', key: 'approvalDirSPS', width: 15 },
+    { header: 'Appr. Dekan', key: 'approvalDekan', width: 15 },
+    { header: 'Appr. Warek 1', key: 'approvalWarek1', width: 15 },
+    { header: 'Appr. Rektor', key: 'approvalRektor', width: 15 },
+
+    // -- Lainnya --
+    { header: 'Catatan Umum', key: 'notes', width: 30 },
+    { header: 'Hardcopy', key: 'hasHardcopy', width: 12 },
+    { header: 'Softcopy', key: 'hasSoftcopy', width: 12 },
+    { header: 'Last Updated', key: 'updatedAt', width: 20 },
+  ]
+
+  const handleMapData = (item) => {
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('id-ID') : '-';
+
+    const fmtBool = (b) => b ? "Ada" : "Tidak";
+
+    // --- LOGIC SUB-KOLOM ACTIVITIES ---
+    // Kita gabungkan jadi string dengan ENTER (\n) sebagai pemisah
+    let actType = "-";
+    let actStatus = "-";
+    let actNotes = "-";
+
+    if (item.activities && item.activities.length > 0) {
+      // Map masing-masing field lalu join dengan Newline
+      actType = item.activities.map(a => `• ${a.type}`).join('\n');
+      actStatus = item.activities.map(a => a.status).join('\n');
+      actNotes = item.activities.map(a => a.notes || '-').join('\n');
+    }
+
+    return {
+      // Identity
+      yearIssued: item.yearIssued,
+      partnerName: item.partnerName,
+      docType: item.docType,
+      partnershipType: item.partnershipType,
+      scope: item.scope,
+
+      // Docs
+      docNumberInternal: item.docNumberInternal || '-',
+      docNumberExternal: item.docNumberExternal || '-',
+      docLink: item.docLink || '-',
+
+      // Dates
+      dateCreated: fmtDate(item.dateCreated),
+      dateSigned: fmtDate(item.dateSigned),
+      validUntil: fmtDate(item.validUntil),
+      duration: item.duration || '-',
+      signingType: item.signingType || '-',
+
+      // PIC
+      picInternal: item.picInternal || '-',
+      picExternal: item.picExternal || '-',
+      picExternalPhone: item.picExternalPhone || '-',
+
+      // 🔥 ACTIVITIES (Displit jadi 3 kolom tapi sejajar barisnya)
+      actType: actType,
+      actStatus: actStatus,
+      actNotes: actNotes,
+
+      // Approvals (Mapping satu-satu biar rapi)
+      approvalWadek1: item.approvalWadek1 || '-',
+      approvalWadek2: item.approvalWadek2 || '-',
+      approvalKabagKST: item.approvalKabagKST || '-',
+      approvalDirSPIO: item.approvalDirSPIO || '-',
+      approvalKaurLegal: item.approvalKaurLegal || '-',
+      approvalKabagSekpim: item.approvalKabagSekpim || '-',
+      approvalDirSPS: item.approvalDirSPS || '-',
+      approvalDekan: item.approvalDekan || '-',
+      approvalWarek1: item.approvalWarek1 || '-',
+      approvalRektor: item.approvalRektor || '-',
+
+      // Meta
+      notes: item.notes || '-',
+      hasHardcopy: fmtBool(item.hasHardcopy),
+      hasSoftcopy: fmtBool(item.hasSoftcopy),
+      updatedAt: fmtDate(item.updatedAt),
+    };
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -162,6 +283,16 @@ const TableSubmission = () => {
               <X className="h-4 w-4" />
             </button>
           )}
+        </div>
+        <div>
+          <ExportExcelButton
+            apiEndpoint="/api/partnership"
+            fileName="Rekap_Partnership"
+            sheetName="Partnership"
+            columns={partnershipColumns}
+            mapData={handleMapData}
+            queryParams={filters}
+          />
         </div>
         <div className="flex items-center gap-4">
           <Select
