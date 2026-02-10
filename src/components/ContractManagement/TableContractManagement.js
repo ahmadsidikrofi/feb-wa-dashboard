@@ -24,6 +24,7 @@ import FilterTableContractManagement from "./filter-table"
 import EditContract from "./edit-contract"
 import api from "@/lib/axios"
 import DeleteContract from "./delete-contract"
+import ExportExcelButton from "../shared/ExportExcelButton"
 
 const formatRangeInfo = (pagination, currentPage) => {
   const total = pagination?.totalItems ?? 0
@@ -131,6 +132,42 @@ const TableContractManagement = () => {
     setFilters({ category: null, quarterly: null, unit: null })
   }
 
+  const contractManagementColumns = [
+    { header: 'No', key: 'no', width: 5 },
+    { header: 'Triwulan', key: 'quarterly', width: 8 },
+    { header: 'Responsibility', key: 'responsibility', width: 45 },
+    { header: 'unit', key: 'unit', width: 8 },
+    { header: 'bobot', key: 'weight', width: 8 },
+    { header: 'target', key: 'target', width: 8 },
+    { header: 'realisasi', key: 'realization', width: 15 },
+    { header: 'pencapaian', key: 'achievement', width: 15 },
+    { header: 'max', key: 'max', width: 8 },
+    { header: 'min', key: 'min', width: 8 },
+    { header: 'Persentase realisasi (%)', key: 'persReal', width: 25 },
+    { header: 'nilai', key: 'value', width: 8 },
+    { header: 'input', key: 'input', width: 8 },
+    { header: 'monitor', key: 'monitor', width: 8 },
+  ]
+
+  const handleMapData = (item) => {
+    return {
+      ContractManagementCategory: item.ContractManagementCategory,
+      responsibility: item.responsibility,
+      quarterly: item.quarterly,
+      unit: item.unit,
+      weight: item.weight || '-',
+      target: item.target || '-',
+      realization: item.realization || '-',
+      achievement: item.achievement || '-',
+      max: item.max || '-',
+      min: item.min || '-',
+      persReal: item.persReal || '-',
+      value: item.value || '-',
+      input: item.input || '-',
+      monitor: item.monitor || '-',
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -139,7 +176,7 @@ const TableContractManagement = () => {
           setFilters={setFilters}
           onReset={handleResetFilters}
         />
-        <div className="relative flex-1">
+        <div className="relative flex-1 hidden max-sm:flex lg:flex">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Cari berdasarkan responsibility...."
@@ -170,6 +207,16 @@ const TableContractManagement = () => {
               <SelectItem value="3000">Semua Data</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div>
+          <ExportExcelButton
+            apiEndpoint="/api/contract-management"
+            data={contractData}
+            fileName="Kontrak-Manajemen"
+            sheetName="Kontrak-Manajemen"
+            columns={contractManagementColumns}
+            mapData={handleMapData}
+          />
         </div>
 
         <AddContract getContractData={getContractData} />
