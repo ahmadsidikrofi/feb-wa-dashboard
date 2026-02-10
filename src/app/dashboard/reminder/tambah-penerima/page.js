@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Contact2, LoaderIcon } from 'lucide-react'
+import { Contact, Contact2, LoaderIcon, PlusCircleIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -118,9 +118,8 @@ function TambahPenerimaPage() {
     <section className='space-y-6'>
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex max-sm:flex-col sm:flex-col lg:flex-row items-start mt-1 gap-3">
-          <Contact2 className="size-10 text-emerald-600" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-emerald-600">Kumpulan Penerima Reminder</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-red-600">Kumpulan Penerima Reminder</h1>
             <p className="text-muted-foreground">
               Daftar penerima reminder yang telah ditambahkan
             </p>
@@ -130,7 +129,7 @@ function TambahPenerimaPage() {
           <div className='relative flex gap-2'>
             {/* <Input className="w-full" placeholder="Cari kontak penerima" /> */}
             <DialogTrigger asChild>
-              <Button className=" sm:w-auto">+ Tambah kontak</Button>
+              <Button className=" sm:w-auto"><PlusCircleIcon /> Tambah kontak</Button>
             </DialogTrigger>
           </div>
 

@@ -48,7 +48,7 @@ const DeleteContact = ({ isLoading, setIsLoading, contactId, getContacts }) => {
             if (!isLoading) setIsOpen(open)
         }}>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" className="w-full text-left" size="sm" aria-label="Hapus">
+                <Button variant="ghost" className="w-full justify-start text-left" size="sm" aria-label="Hapus">
                     <Trash2 className="size-4 text-destructive" /> Hapus
                 </Button>
             </AlertDialogTrigger>

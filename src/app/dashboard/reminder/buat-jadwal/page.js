@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { AlarmClock, AlarmClockIcon, CalendarIcon, GalleryVertical, GalleryVerticalEnd, Loader2, LoaderCircle, Mail, MoreHorizontal, PencilLine, X } from "lucide-react";
+import { AlarmClock, AlarmClockIcon, CalendarIcon, GalleryVertical, GalleryVerticalEnd, Loader2, LoaderCircle, Mail, MoreHorizontal, PencilLine, PlusCircle, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { compareAsc, format, isSameDay } from "date-fns"
 import { id as localeId } from "date-fns/locale"
@@ -225,9 +225,11 @@ const ReminderPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start mt-1 gap-3">
-                    <AlarmClockIcon className="size-10 text-emerald-600" />
+                    <div className='bg-red-500/10 text-red-500 p-4 rounded-full'>
+                        <AlarmClockIcon className="size-10" />
+                    </div>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-emerald-600">Reminder Ibu Dekan</h1>
+                        <h1 className="text-3xl font-bold tracking-tight text-red-500">Reminder Ibu Dekan</h1>
                         <p className="text-muted-foreground">
                             Pengingat kegiatan penting agar tidak terlewat
                         </p>
@@ -235,7 +237,7 @@ const ReminderPage = () => {
                 </div>
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button className="w-full sm:w-auto">+ Buat Jadwal Baru</Button>
+                        <Button className="w-full sm:w-auto"><PlusCircle /> Buat Jadwal Baru</Button>
                     </DialogTrigger>
 
                     <DialogContent className="max-w-lg">

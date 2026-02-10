@@ -531,15 +531,6 @@ ${activity.keterangan}`;
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={exportAllToGoogleCalendar}
-            className="gap-2"
-          >
-            <CalendarPlus className="h-4 w-4" />
-            Export ke Google Calendar
-          </Button>
-
           <AddActivity
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}

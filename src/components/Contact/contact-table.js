@@ -17,7 +17,7 @@ const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {
         return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })
     }
 
-    return ( 
+    return (
         <div className="overflow-x-auto rounded-lg border">
             <div className="md:overflow-x-auto xl:w-full">
                 <Table className="">
@@ -62,11 +62,11 @@ const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {
                                                 <Ellipsis />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                            <DropdownMenuLabel className="text-left">Edit / Hapus Kontak</DropdownMenuLabel>
+                                        <DropdownMenuContent className="w-4/5">
+                                            <DropdownMenuLabel className="text-left font-bold">Edit / Hapus Kontak</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
                                             <EditContact getContacts={getContacts} contact={contact} />
-                                            <DeleteContact getContacts={getContacts} contactId={contact.id} isLoading={isLoading} setIsLoading={setIsLoading}/>
+                                            <DeleteContact getContacts={getContacts} contactId={contact.id} isLoading={isLoading} setIsLoading={setIsLoading} />
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
@@ -83,7 +83,7 @@ const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {
                 </Table>
             </div>
         </div>
-     );
+    );
 }
- 
+
 export default ContactTable;
