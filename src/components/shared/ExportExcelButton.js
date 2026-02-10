@@ -97,7 +97,7 @@ export default function ExportExcelButton({
             disabled={isLoading}
             className="gap-2 dark:bg-green-900 dark:text-green-50 dark:border-green-200 dark:hover:bg-green-100 dark:hover:text-green-800 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
         >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+            {isLoading ? <Loader2 className="size-4 animate-spin" /> : <FileSpreadsheet className="size-4" />}
             {isLoading ? "Downloading..." : "Export Laporan"}
         </Button>
     );

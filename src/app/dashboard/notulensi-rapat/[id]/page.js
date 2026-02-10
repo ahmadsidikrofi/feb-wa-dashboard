@@ -31,6 +31,7 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import ExportPdfButton from "@/components/shared/ExportPdfButton";
 
 export default function NotulensiDetailPage({ params }) {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function NotulensiDetailPage({ params }) {
           judulRapat: data.title || "",
           tanggal: data.date,
           waktu: waktuFormatted,
-          tempat: data.location || "",
+          tempat: data.room || "",
           pemimpin: data.leader || "",
           notulen: data.notetaker || "",
           status: data.status || "",
@@ -208,10 +209,10 @@ export default function NotulensiDetailPage({ params }) {
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Download PDF
-          </Button>
+          <ExportPdfButton
+            data={notulensi}
+            fileName={`Notulensi Rapat - ${notulensi.judulRapat}`}
+          />
         </div>
       </div>
 
