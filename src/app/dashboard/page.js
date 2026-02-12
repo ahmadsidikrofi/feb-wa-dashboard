@@ -19,6 +19,9 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { ROLES } from '@/lib/navigation'
 import Image from 'next/image'
+import { MorphingText } from '@/components/ui/text-morphing'
+import { HighlightText } from '@/components/ui/highlight-text'
+import { TypewriterText } from '@/components/ui/typewritter-text'
 
 const menuItems = [
   {
@@ -133,14 +136,19 @@ export default function DashboardHome() {
           <div className="space-y-6 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
               <Sparkles className="h-3 w-3" />
-              Integrated Management Information System
+              <HighlightText variant="box" className="text-primary">
+                Integrated Management Information System
+              </HighlightText>
             </div>
 
             <div className="space-y-2">
               <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
                 Selamat Datang, <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">
-                  {user?.fullName || 'Sobat MIRA'}
+                <span>
+                  <TypewriterText
+                    words={["Sobat Mira", `${user?.name || "Sahabat Mira"}`]}
+                    className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60"
+                  />
                 </span>
               </h1>
               <p className="text-lg font-medium text-foreground/80">
@@ -149,8 +157,18 @@ export default function DashboardHome() {
             </div>
 
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-              Selamat datang di pusat kendali MIRA. Pantau kegiatan, kelola dokumen,
-              dan tingkatkan produktivitas Fakultas Ekonomi dan Bisnis dalam satu platform terintegrasi.
+              Selamat datang di pusat kendali MIRA. {" "}
+              <MorphingText
+                words={[
+                  "Pantau Kegiatan",
+                  "Kelola Dokumen",
+                  "Tingkatkan Produktivitas",
+                ]}
+                interval={3000}
+                animationDuration={0.5}
+                className="whitespace-nowrap"
+              />
+              {" "} Fakultas Ekonomi dan Bisnis dalam satu platform terintegrasi.
             </p>
 
             <div className="flex flex-wrap gap-3">

@@ -86,7 +86,7 @@ export function LoginForm({
 
         <Field>
           <FieldLabel htmlFor="username" className="text-white">Username</FieldLabel>
-          <Input id="username" placeholder="nyomanpaul" {...register("username")} />
+          <Input id="username" placeholder="Masukkan username kamu" {...register("username")} className="border border-white/10" />
           {errors.username && (
             <p className="text-rose-500 text-sm">{errors.username.message}</p>
           )}
@@ -103,7 +103,7 @@ export function LoginForm({
               placeholder="**********"
               id="password"
               type={pwVisible ? "text" : "password"}
-              className="pr-10"
+              className="pr-10 border border-white/10"
               {...register("password")}
             />
             <Button
@@ -136,7 +136,7 @@ export function LoginForm({
             )}
           </Button>
         </Field>
-        <FieldSeparator>Atau lanjut saja dengan</FieldSeparator>
+        <FieldSeparator className="bg-blend-color">Atau lanjut saja dengan</FieldSeparator>
         <Field>
           <Button variant="outline" type="button" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
