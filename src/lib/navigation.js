@@ -116,4 +116,10 @@ export const navigation = [
         icon: GitGraph,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
+    {
+        name: "Evidence Audit",
+        href: "/dashboard/evidence-audit",
+        icon: GitGraph,
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+    },
 ]
