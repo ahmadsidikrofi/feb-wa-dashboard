@@ -6,10 +6,12 @@ import FloatingLines from "@/components/FloatingLines";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const router = useRouter()
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -69,11 +71,13 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex justify-center">
-          <div className="w-full">
-            <LoginForm />
+        <GoogleOAuthProvider clientId={clientId}>
+          <div className="flex justify-center">
+            <div className="w-full">
+              <LoginForm />
+            </div>
           </div>
-        </div>
+        </GoogleOAuthProvider>
       </div>
     </div>
   );
