@@ -117,8 +117,8 @@ export const navigation = [
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
     {
-        name: "Evidence Audit",
-        href: "/dashboard/evidence-audit",
+        name: "RTM",
+        href: "/dashboard/rtm",
         icon: GitGraph,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
