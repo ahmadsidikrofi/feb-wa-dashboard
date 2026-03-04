@@ -861,7 +861,7 @@ export default function EvidenceAuditPage() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
-                        Evidence Audit
+                        RTM
                     </h1>
                     <p className="text-muted-foreground">
                         Daftar riwayat dan bukti audit berserta tautan lampirannya
@@ -871,7 +871,7 @@ export default function EvidenceAuditPage() {
 
             <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur">
                 <CardHeader>
-                    <CardTitle>Data Evidence 2025</CardTitle>
+                    <CardTitle>Data RTM 2025</CardTitle>
                     <CardDescription>
                         Visualisasi bukti audit berdasarkan risalah rapat berkala
                     </CardDescription>
