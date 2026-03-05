@@ -540,6 +540,8 @@ ${activity.keterangan}`
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
         filteredActivities={filteredActivities}
+        fetchActivities={fetchActivities}
+        setActivities={setActivities}
         isLoading={isLoading}
         pagination={pagination}
         currentPage={currentPage}

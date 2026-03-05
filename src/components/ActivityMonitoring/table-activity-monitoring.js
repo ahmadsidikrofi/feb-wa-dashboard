@@ -23,6 +23,8 @@ import { formatCamelCaseLabel } from "@/lib/utils";
 import TabsTableView from "./tabs-table-view";
 import TabsBoardView from "./tabs-board-view";
 import TabsCalendarView from "./tabs-calendar-view";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 
 const TableActivityMonitoring = ({
     viewMode,
@@ -35,6 +37,8 @@ const TableActivityMonitoring = ({
     filterStatus,
     setFilterStatus,
     filteredActivities,
+    fetchActivities,
+    setActivities,
     isLoading = false,
     pagination = { totalItems: 0, totalPages: 0, currentPage: 1, pageSize: 10 },
     currentPage = 1,
@@ -44,6 +48,58 @@ const TableActivityMonitoring = ({
     onEdit,
     onSuccess
 }) => {
+
+    const handleEventMove = async (draggedEvent, targetDateStr) => {
+        const oldStartDate = new Date(draggedEvent.tanggal)
+        const newStartDate = new Date(targetDateStr)
+        let newEndDateStr = null
+
+        // Geser tanggal berakhir jika acaranya multi-hari
+        if (draggedEvent.tanggalBerakhir) {
+            const oldEndDate = new Date(draggedEvent.tanggalBerakhir);
+            const diffTime = oldEndDate.getTime() - oldStartDate.getTime();
+            const newEndDate = new Date(newStartDate.getTime() + diffTime);
+            newEndDateStr = newEndDate.toISOString().split("T")[0]
+        }
+
+        // OPTIMISTIC UI UPDATE
+        setActivities((prevActivities) =>
+            prevActivities.map((act) => {
+                if (act.id === draggedEvent.id) {
+                    return {
+                        ...act,
+                        // Update dengan key yang sesuai dengan form dan state FE kamu
+                        tanggal: targetDateStr,
+                        ...(newEndDateStr && { tanggalBerakhir: newEndDateStr }),
+
+                        // RESET SEMUA INDIKATOR KONFLIK agar visual instan jadi Normal (biru)
+                        status: "Normal",
+                        hasConflict: false,
+                        conflictTypes: [],
+                        conflictType: null,
+                        conflictingOfficialsList: [],
+                    }
+                }
+                return act
+            })
+        );
+
+        try {
+            await api.patch(`/api/activity-monitoring/${draggedEvent.id}`, {
+                tanggal: targetDateStr,
+            })
+
+            fetchActivities(currentPage)
+
+        } catch (error) {
+            toast.error(error.response.data.message || "Gagal menyimpan perubahan ke server", {
+                position: 'top-center',
+            })
+
+            fetchActivities(currentPage)
+        }
+    }
+
     return (
         <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-4">
             <Card>
@@ -120,7 +176,7 @@ const TableActivityMonitoring = ({
 
             {/* Calendar View */}
             <TabsContent value="calendar" className="mt-0">
-                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} />
+                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} />
             </TabsContent>
         </Tabs>
     )

@@ -164,7 +164,7 @@ const AddActivity = ({
                             <Label htmlFor="namaKegiatan">Nama Kegiatan *</Label>
                             <Input
                                 id="namaKegiatan"
-                                value={formData.namaKegiatan}
+                                value={formData.namaKegiatan || ""}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
@@ -181,7 +181,7 @@ const AddActivity = ({
                                 <Input
                                     id="tanggal"
                                     type="date"
-                                    value={formData.tanggal}
+                                    value={formData.tanggal || ""}
                                     onChange={(e) =>
                                         setFormData({ ...formData, tanggal: e.target.value })
                                     }
@@ -193,7 +193,8 @@ const AddActivity = ({
                                 <Input
                                     id="tanggalBerakhir"
                                     type="date"
-                                    value={formData.tanggalBerakhir}
+                                    value={formData.tanggalBerakhir || ""}
+                                    min={new Date().toISOString().split("T")[0]}
                                     onChange={(e) =>
                                         setFormData({ ...formData, tanggalBerakhir: e.target.value })
                                     }
@@ -207,7 +208,7 @@ const AddActivity = ({
                                 <Input
                                     id="waktuMulai"
                                     type="time"
-                                    value={formData.waktuMulai}
+                                    value={formData.waktuMulai || ""}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
@@ -222,7 +223,7 @@ const AddActivity = ({
                                 <Input
                                     id="waktuSelesai"
                                     type="time"
-                                    value={formData.waktuSelesai}
+                                    value={formData.waktuSelesai || ""}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
@@ -352,7 +353,7 @@ const AddActivity = ({
                             <Input
                                 id="jumlahPeserta"
                                 type="number"
-                                value={formData.jumlahPeserta}
+                                value={formData.jumlahPeserta || ""}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
@@ -367,7 +368,7 @@ const AddActivity = ({
                             <Label htmlFor="keterangan">Keterangan</Label>
                             <Textarea
                                 id="keterangan"
-                                value={formData.keterangan}
+                                value={formData.keterangan || ""}
                                 onChange={(e) =>
                                     setFormData({ ...formData, keterangan: e.target.value })
                                 }

@@ -179,6 +179,7 @@ const EditActivity = ({
                                     id="edit-tanggalBerakhir"
                                     type="date"
                                     value={formData.tanggalBerakhir || ""}
+                                    min={new Date().toISOString().split("T")[0]}
                                     onChange={(e) =>
                                         setFormData({ ...formData, tanggalBerakhir: e.target.value })
                                     }
