@@ -85,6 +85,7 @@ const AddActivity = ({
             const payload = {
                 title: formData.namaKegiatan,
                 date: formData.tanggal,
+                endDate: formData.tanggalBerakhir,
                 startTime: new Date(`${formData.tanggal}T${formData.waktuMulai}:00`).toISOString(),
                 endTime: new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`).toISOString(),
                 participants: Number(formData.jumlahPeserta) || 0,
@@ -104,6 +105,7 @@ const AddActivity = ({
             setFormData({
                 namaKegiatan: "",
                 tanggal: "",
+                tanggalBerakhir: "",
                 waktuMulai: "",
                 waktuSelesai: "",
                 unit: "",
@@ -128,6 +130,7 @@ const AddActivity = ({
                 setFormData({
                     namaKegiatan: "",
                     tanggal: "",
+                    tanggalBerakhir: "",
                     waktuMulai: "",
                     waktuSelesai: "",
                     unit: "",
@@ -172,9 +175,9 @@ const AddActivity = ({
                             />
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="tanggal">Tanggal *</Label>
+                                <Label htmlFor="tanggal">Tanggal Mulai *</Label>
                                 <Input
                                     id="tanggal"
                                     type="date"
@@ -185,6 +188,20 @@ const AddActivity = ({
                                     required
                                 />
                             </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="tanggalBerakhir">Tanggal Berakhir</Label>
+                                <Input
+                                    id="tanggalBerakhir"
+                                    type="date"
+                                    value={formData.tanggalBerakhir}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, tanggalBerakhir: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="waktuMulai">Waktu Mulai *</Label>
                                 <Input
@@ -370,6 +387,7 @@ const AddActivity = ({
                                 setFormData({
                                     namaKegiatan: "",
                                     tanggal: "",
+                                    tanggalBerakhir: "",
                                     waktuMulai: "",
                                     waktuSelesai: "",
                                     unit: "",

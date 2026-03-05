@@ -18,7 +18,9 @@ const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBa
                     {/* Group activities by date */}
                     {Object.entries(
                         filteredActivities.reduce((acc, activity) => {
-                            const date = new Date(activity.tanggal).toLocaleDateString(
+                            const dateObj = activity.tanggal ? new Date(activity.tanggal) : null;
+                            const isDateValid = dateObj && !isNaN(dateObj.getTime());
+                            const date = isDateValid ? dateObj.toLocaleDateString(
                                 "id-ID",
                                 {
                                     weekday: "long",
@@ -26,32 +28,38 @@ const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBa
                                     month: "long",
                                     year: "numeric",
                                 }
-                            );
+                            ) : "Tidak Ada Tanggal";
                             if (!acc[date]) acc[date] = [];
                             acc[date].push(activity);
                             return acc;
                         }, {})
                     )
                         .sort(([dateA], [dateB]) => {
-                            const a = filteredActivities.find(
-                                (act) =>
-                                    new Date(act.tanggal).toLocaleDateString("id-ID", {
-                                        weekday: "long",
-                                        day: "numeric",
-                                        month: "long",
-                                        year: "numeric",
-                                    }) === dateA
-                            );
-                            const b = filteredActivities.find(
-                                (act) =>
-                                    new Date(act.tanggal).toLocaleDateString("id-ID", {
-                                        weekday: "long",
-                                        day: "numeric",
-                                        month: "long",
-                                        year: "numeric",
-                                    }) === dateB
-                            );
-                            return new Date(a.tanggal) - new Date(b.tanggal);
+                            if (dateA === "Tidak Ada Tanggal") return 1;
+                            if (dateB === "Tidak Ada Tanggal") return -1;
+
+                            const a = filteredActivities.find((act) => {
+                                const dObj = act.tanggal ? new Date(act.tanggal) : null;
+                                return dObj && !isNaN(dObj.getTime()) && dObj.toLocaleDateString("id-ID", {
+                                    weekday: "long",
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                }) === dateA;
+                            });
+                            const b = filteredActivities.find((act) => {
+                                const dObj = act.tanggal ? new Date(act.tanggal) : null;
+                                return dObj && !isNaN(dObj.getTime()) && dObj.toLocaleDateString("id-ID", {
+                                    weekday: "long",
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                }) === dateB;
+                            });
+
+                            const timeA = a && a.tanggal && !isNaN(new Date(a.tanggal).getTime()) ? new Date(a.tanggal).getTime() : 0;
+                            const timeB = b && b.tanggal && !isNaN(new Date(b.tanggal).getTime()) ? new Date(b.tanggal).getTime() : 0;
+                            return timeA - timeB;
                         })
                         .map(([date, dayActivities]) => (
                             <div key={date} className="space-y-3">

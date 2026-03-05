@@ -89,6 +89,7 @@ const EditActivity = ({
             const payload = {
                 title: formData.namaKegiatan,
                 date: formData.tanggal,
+                endDate: formData.tanggalBerakhir,
                 startTime: new Date(`${formData.tanggal}T${formData.waktuMulai}:00`).toISOString(),
                 endTime: new Date(`${formData.tanggal}T${formData.waktuSelesai}:00`).toISOString(),
                 participants: Number(formData.jumlahPeserta) || 0,
@@ -108,6 +109,7 @@ const EditActivity = ({
             setFormData({
                 namaKegiatan: "",
                 tanggal: "",
+                tanggalBerakhir: "",
                 waktuMulai: "",
                 waktuSelesai: "",
                 unit: "",
@@ -158,9 +160,9 @@ const EditActivity = ({
                             />
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="edit-tanggal">Tanggal *</Label>
+                                <Label htmlFor="edit-tanggal">Tanggal Mulai *</Label>
                                 <Input
                                     id="edit-tanggal"
                                     type="date"
@@ -171,6 +173,20 @@ const EditActivity = ({
                                     required
                                 />
                             </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit-tanggalBerakhir">Tanggal Berakhir</Label>
+                                <Input
+                                    id="edit-tanggalBerakhir"
+                                    type="date"
+                                    value={formData.tanggalBerakhir || ""}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, tanggalBerakhir: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-waktuMulai">Waktu Mulai *</Label>
                                 <Input
@@ -371,6 +387,7 @@ const EditActivity = ({
                                 setFormData({
                                     namaKegiatan: "",
                                     tanggal: "",
+                                    tanggalBerakhir: "",
                                     waktuMulai: "",
                                     waktuSelesai: "",
                                     unit: "",

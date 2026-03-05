@@ -103,15 +103,23 @@ const TabsTableView = ({
                                         key={activity.id}
                                         className={activity.hasConflict ? "bg-red-50 dark:bg-red-800" : ""}
                                     >
-                                        <TableCell className="font-medium">
-                                            {new Date(activity.tanggal).toLocaleDateString(
-                                                "id-ID",
-                                                {
-                                                    day: "numeric",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                }
-                                            )}
+                                        <TableCell className="font-medium whitespace-nowrap">
+                                            {activity.tanggal && !isNaN(new Date(activity.tanggal).getTime()) ? (
+                                                <>
+                                                    {new Date(activity.tanggal).toLocaleDateString("id-ID", {
+                                                        day: "numeric",
+                                                        month: "short",
+                                                        year: "numeric",
+                                                    })}
+                                                    {activity.tanggalBerakhir && !isNaN(new Date(activity.tanggalBerakhir).getTime()) && (
+                                                        <> - <br />{new Date(activity.tanggalBerakhir).toLocaleDateString("id-ID", {
+                                                            day: "numeric",
+                                                            month: "short",
+                                                            year: "numeric",
+                                                        })}</>
+                                                    )}
+                                                </>
+                                            ) : "-"}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-1 text-sm">

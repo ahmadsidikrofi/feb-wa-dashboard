@@ -117,6 +117,7 @@ export default function MonitoringKegiatanPage() {
   const [formData, setFormData] = useState({
     namaKegiatan: "",
     tanggal: "",
+    tanggalBerakhir: "",
     waktuMulai: "",
     waktuSelesai: "",
     unit: "",
@@ -166,20 +167,25 @@ export default function MonitoringKegiatanPage() {
 
   const mapApiDataToComponent = (apiData) => {
     return apiData.map((item) => {
-      const date = new Date(item.date)
-      const startTime = new Date(item.startTime)
-      const endTime = new Date(item.endTime)
+      const date = item.date ? new Date(item.date) : null
+      const endDate = item.endDate ? new Date(item.endDate) : null
+      const startTime = item.startTime ? new Date(item.startTime) : null
+      const endTime = item.endTime ? new Date(item.endTime) : null
 
       const conflictTypes = parseConflictTypes(item.status)
       const hasConflict = item.status !== "Normal" && item.status !== null
+
+      const getValidDateStr = (d) => d && !isNaN(d.getTime()) ? d.toISOString().split("T")[0] : ""
+      const getValidTimeStr = (d) => d && !isNaN(d.getTime()) ? d.toTimeString().slice(0, 5) : ""
 
       return {
         id: item.id,
         namaKegiatan: item.title,
         keterangan: item.description,
-        tanggal: date.toISOString().split("T")[0],
-        waktuMulai: startTime.toTimeString().slice(0, 5),
-        waktuSelesai: endTime.toTimeString().slice(0, 5),
+        tanggal: getValidDateStr(date),
+        tanggalBerakhir: getValidDateStr(endDate),
+        waktuMulai: getValidTimeStr(startTime),
+        waktuSelesai: getValidTimeStr(endTime),
         unit: item.unit,
         ruangan: item.room, // Keep raw enum from database
         tempat: item.room, // Keep raw enum from database
@@ -545,6 +551,7 @@ ${activity.keterangan}`
           setFormData({
             namaKegiatan: activity.namaKegiatan,
             tanggal: activity.tanggal,
+            tanggalBerakhir: activity.tanggalBerakhir,
             waktuMulai: activity.waktuMulai,
             waktuSelesai: activity.waktuSelesai,
             unit: activity.unit,
