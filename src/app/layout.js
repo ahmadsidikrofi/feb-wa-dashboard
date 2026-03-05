@@ -25,6 +25,7 @@ export default function RootLayout({ children }) {
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          themes={['light', 'dark', 'emerald', 'retro', 'synthwave', 'valentine']}
         >
           <main>
             <AuthProvider>

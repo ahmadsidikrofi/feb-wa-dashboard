@@ -255,21 +255,21 @@ const TableContractManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead
-                  className="sticky left-0 z-20 bg-white dark:bg-gray-900"
+                  className="sticky left-0 z-10 bg-secondary dark:bg-gray-900"
                   style={{ minWidth: '60px' }}
                 >
                   No
                 </TableHead>
 
                 <TableHead
-                  className="sticky left-[60px] z-20 bg-white dark:bg-gray-900"
+                  className="sticky left-[60px] z-10 bg-secondary dark:bg-gray-900"
                   style={{ minWidth: '90px' }}
                 >
                   Triwulan
                 </TableHead>
 
                 <TableHead
-                  className="sticky left-[150px] z-20 bg-white dark:bg-gray-900"
+                  className="sticky left-[150px] z-10 bg-secondary dark:bg-gray-900"
                   style={{ minWidth: '280px' }}
                 >
                   Responsibility
@@ -294,21 +294,21 @@ const TableContractManagement = () => {
                 return (
                   <TableRow key={row.id || idx}>
                     <TableCell
-                      className="sticky left-0 z-10 bg-white dark:bg-gray-900"
+                      className="sticky left-0 z-10 bg-secondary dark:bg-gray-900"
                       style={{ minWidth: '60px' }}
                     >
                       {rowNumber}
                     </TableCell>
 
                     <TableCell
-                      className="sticky left-[60px] z-10 bg-white dark:bg-gray-900"
+                      className="sticky left-[60px] z-10 bg-secondary dark:bg-gray-900"
                       style={{ minWidth: '90px' }}
                     >
                       {row.quarterly || "-"}
                     </TableCell>
 
                     <TableCell
-                      className="sticky left-[150px] z-10 bg-white dark:bg-gray-900 whitespace-pre-line"
+                      className="sticky left-[150px] z-10 bg-secondary dark:bg-gray-900 whitespace-pre-line"
                       style={{ minWidth: '480px' }}
                       title={row.responsibility || "-"}
                     >

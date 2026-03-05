@@ -33,6 +33,7 @@ import {
   Moon,
   MoreVertical,
   User,
+  Palette,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -41,6 +42,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -56,6 +60,7 @@ import Link from "next/link";
 
 import { navigation, ROLES } from "@/lib/navigation";
 import RoleGuard from "@/components/Auth/RoleGuard";
+import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
 
 export function UserDropdown({ user, logout, isCollapsed }) {
   const { setTheme, theme } = useTheme();
@@ -141,7 +146,41 @@ export function UserDropdown({ user, logout, isCollapsed }) {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className="rounded-lg cursor-pointer my-0.5 py-2">
+            <div className="flex items-center gap-2.5">
+              <Palette className="size-4 opacity-70" />
+              <span>Appearance</span>
+            </div>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-border/40">
+              <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("emerald")} className="cursor-pointer">
+                Emerald
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("retro")} className="cursor-pointer">
+                Retro
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("synthwave")} className="cursor-pointer">
+                Synthwave
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("valentine")} className="cursor-pointer">
+                Valentine
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
+                System
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+
+        {/* <DropdownMenuItem
           onClick={(e) => {
             e.preventDefault();
             setTheme(theme === "dark" ? "light" : "dark");
@@ -155,7 +194,7 @@ export function UserDropdown({ user, logout, isCollapsed }) {
           <kbd className="hidden md:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
             M
           </kbd>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         <div className="h-px bg-border/50 my-1 -mx-1" />
 
