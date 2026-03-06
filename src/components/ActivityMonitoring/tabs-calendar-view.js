@@ -1,11 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DndContext, PointerSensor, pointerWithin, useSensor, useSensors } from "@dnd-kit/core";
 import { DraggableEventBlock, DroppableDayCell } from "./dates-droppable";
 
-const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove }) => {
+const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelect }) => {
     const [currentDate, setCurrentDate] = useState(new Date())
+    const [isSelecting, setIsSelecting] = useState(false)
+    const [selectionStart, setSelectionStart] = useState(null)
+    const [selectionEnd, setSelectionEnd] = useState(null)
 
     // ===== Helper =====
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
@@ -166,6 +169,55 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove }) => {
         }
     }
 
+    // Fungsi untuk mengecek apakah suatu tanggal berada di dalam rentang sorotan
+    const isDateInSelection = (dateKey) => {
+        if (!isSelecting || !selectionStart || !selectionEnd) return false;
+        const current = new Date(dateKey).getTime();
+        const start = new Date(selectionStart).getTime();
+        const end = new Date(selectionEnd).getTime();
+        return current >= Math.min(start, end) && current <= Math.max(start, end)
+    }
+
+    const handleMouseDown = (dateKey) => {
+        setIsSelecting(true);
+        setSelectionStart(dateKey);
+        setSelectionEnd(dateKey); // Awal klik, start dan end sama
+    }
+
+    const handleMouseEnter = (dateKey) => {
+        if (isSelecting) {
+            setSelectionEnd(dateKey); // Update rentang saat diseret
+        }
+    }
+
+    const handleMouseUp = () => {
+        if (isSelecting && selectionStart && selectionEnd) {
+            // Tentukan mana yang lebih awal (karena user bisa seret dari kanan ke kiri)
+            const d1 = new Date(selectionStart);
+            const d2 = new Date(selectionEnd);
+            const startDate = d1 <= d2 ? selectionStart : selectionEnd;
+            const endDate = d1 > d2 ? selectionStart : selectionEnd;
+
+            // Panggil fungsi dari Parent untuk buka modal!
+            // (Kita akan buat prop onDateSelect nanti di parent)
+            if (onDateSelect) {
+                // Jika hanya 1 hari, kirim endDate null. Jika lebih, kirim endDate.
+                onDateSelect(startDate, startDate === endDate ? null : endDate);
+            }
+        }
+
+        // Reset state
+        setIsSelecting(false);
+        setSelectionStart(null);
+        setSelectionEnd(null);
+    }
+
+    useEffect(() => {
+        const handleGlobalMouseUp = () => setIsSelecting(false)
+        window.addEventListener('mouseup', handleGlobalMouseUp)
+        return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
+    }, [])
+
     return (
         <Card className="bg-white/40 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm">
             <CardHeader>
@@ -219,13 +271,25 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove }) => {
                                 <div
                                     key={weekIndex}
                                     className="relative grid grid-cols-7"
-                                    style={{ minHeight: Math.max(rowHeight, 140) }}
+                                    style={{ minHeight: Math.max(rowHeight, 150) }}
                                 >
                                     {/* Sel-sel tanggal (background + nomor) */}
                                     {week.map((day, dayIndex) => {
-                                        const isToday = new Date().toDateString() === day.fullDate.toDateString();
+                                        const isToday = new Date().toDateString() === day.fullDate.toDateString()
+                                        const dateKey = toDateKey(day.fullDate)
+                                        const isSelected = isDateInSelection(dateKey)
+
                                         return (
-                                            <DroppableDayCell key={dayIndex} day={day} isToday={isToday} />
+                                            <DroppableDayCell
+                                                key={dayIndex}
+                                                day={day}
+                                                dateKey={dateKey}
+                                                isToday={isToday}
+                                                isSelected={isSelected}
+                                                onMouseDown={() => handleMouseDown(dateKey)}
+                                                onMouseEnter={() => handleMouseEnter(dateKey)}
+                                                onMouseUp={handleMouseUp}
+                                            />
                                         );
                                     })}
 

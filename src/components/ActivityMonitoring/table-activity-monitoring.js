@@ -46,6 +46,9 @@ const TableActivityMonitoring = ({
     getStatusBadge,
     exportToGoogleCalendar,
     onEdit,
+    setEditingId,
+    setIsDialogOpen,
+    setFormData,
     onSuccess
 }) => {
 
@@ -98,6 +101,28 @@ const TableActivityMonitoring = ({
 
             fetchActivities(currentPage)
         }
+    }
+
+    const handleDateSelect = (startDate, endDate) => {
+        // Kosongkan form dari data sisa edit sebelumnya
+        setFormData({
+            namaKegiatan: "",
+            tanggal: startDate,
+            tanggalBerakhir: endDate || "",
+            waktuMulai: "",
+            waktuSelesai: "",
+            unit: "",
+            otherUnit: "",
+            ruangan: "",
+            locationDetail: "",
+            pejabat: [],
+            jumlahPeserta: "",
+            keterangan: "",
+        })
+
+        setEditingId(null)
+
+        setIsDialogOpen(true);
     }
 
     return (
@@ -176,7 +201,7 @@ const TableActivityMonitoring = ({
 
             {/* Calendar View */}
             <TabsContent value="calendar" className="mt-0">
-                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} />
+                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} />
             </TabsContent>
         </Tabs>
     )

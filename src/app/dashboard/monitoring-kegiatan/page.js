@@ -549,6 +549,9 @@ ${activity.keterangan}`
         getStatusBadge={getStatusBadge}
         exportToGoogleCalendar={exportToGoogleCalendar}
         onSuccess={() => fetchActivities(currentPage)}
+        setEditingId={setEditingId}
+        setIsDialogOpen={setIsDialogOpen}
+        setFormData={setFormData}
         onEdit={(activity) => {
           setFormData({
             namaKegiatan: activity.namaKegiatan,

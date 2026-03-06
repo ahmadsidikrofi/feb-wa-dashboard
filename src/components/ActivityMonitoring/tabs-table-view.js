@@ -101,7 +101,7 @@ const TabsTableView = ({
                                 filteredActivities.map((activity) => (
                                     <TableRow
                                         key={activity.id}
-                                        className={activity.hasConflict ? "bg-red-50 dark:bg-red-800" : ""}
+                                        className={activity.hasConflict ? "bg-secondary/50 dark:bg-red-800" : ""}
                                     >
                                         <TableCell className="font-medium whitespace-nowrap">
                                             {activity.tanggal && !isNaN(new Date(activity.tanggal).getTime()) ? (

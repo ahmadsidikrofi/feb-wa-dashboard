@@ -4,25 +4,38 @@ import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
 // Komponen untuk setiap kotak hari di layer background
-export const DroppableDayCell = ({ day, isToday, children }) => {
-    const dateKey = day.fullDate.toISOString().split("T")[0]
+export const DroppableDayCell = ({
+    day,
+    dateKey,
+    isToday,
+    isSelected,
+    onMouseDown,
+    onMouseEnter,
+    onMouseUp,
+    children
+}) => {
     const { isOver, setNodeRef } = useDroppable({
         id: dateKey,
-    });
+    })
 
     return (
         <div
             ref={setNodeRef}
-            className={`border-r border-b border-border/60 p-1 transition-colors
+            onMouseDown={onMouseDown}
+            onMouseEnter={onMouseEnter}
+            onMouseUp={onMouseUp}
+            className={`border-r border-b border-border/60 p-1 transition-colors select-none cursor-crosshair
                 ${!day.isCurrentMonth ? "bg-muted/30" : ""}
                 ${isOver ? "bg-blue-100/50 dark:bg-blue-900/30" : ""}
+                ${isSelected ? "bg-blue-100 dark:bg-blue-900/40" : ""}
             `}
         >
             <div className="flex justify-center mb-4">
                 <div className={`
-                    w-7 h-7 flex items-center justify-center text-xs rounded-full
+                    w-7 h-7 flex items-center justify-center text-xs rounded-full pointer-events-none
                     ${!day.isCurrentMonth ? "text-muted-foreground" : ""}
-                    ${isToday ? "bg-blue-600 text-white font-semibold" : ""}
+                    ${isToday && !isSelected ? "bg-blue-600 text-white font-semibold" : ""}
+                    ${isSelected && isToday ? "bg-blue-700 text-white font-semibold" : ""}
                 `}>
                     {day.date}
                 </div>
