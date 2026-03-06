@@ -63,7 +63,16 @@ import RoleGuard from "@/components/Auth/RoleGuard";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
 
 export function UserDropdown({ user, logout, isCollapsed }) {
-  const { setTheme, theme } = useTheme();
+  const { setTheme, theme } = useTheme()
+
+  const themes = [
+    { name: "light", bg: "bg-white", primary: "bg-blue-500", secondary: "bg-slate-200", accent: "bg-pink-500" },
+    { name: "dark", bg: "bg-slate-950", primary: "bg-blue-600", secondary: "bg-slate-800", accent: "bg-purple-500" },
+    { name: "emerald", bg: "bg-emerald-500", primary: "bg-emerald-600", secondary: "bg-slate-800", accent: "bg-purple-500" },
+    { name: "synthwave", bg: "bg-[#2d1b4e]", primary: "bg-[#ff7edb]", secondary: "bg-[#36adff]", accent: "bg-[#f97316]" },
+    { name: "retro", bg: "bg-[#ece3ca]", primary: "bg-[#ef9995]", secondary: "bg-[#a4c5c2]", accent: "bg-[#dc8850]" },
+    { name: "valentine", bg: "bg-[#fae7f4]", primary: "bg-[#af4670]", secondary: "bg-[#f3969a]", accent: "bg-[#e96d7b]" },
+  ]
 
   // // Dark mode keyboard shortcut 'M'
   // useEffect(() => {
@@ -154,28 +163,28 @@ export function UserDropdown({ user, logout, isCollapsed }) {
             </div>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-border/40">
-              <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("emerald")} className="cursor-pointer">
-                Emerald
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("retro")} className="cursor-pointer">
-                Retro
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("synthwave")} className="cursor-pointer">
-                Synthwave
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("valentine")} className="cursor-pointer">
-                Valentine
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
-                System
-              </DropdownMenuItem>
+            <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-border/40 min-w-[10rem]">
+
+              {/* Lakukan mapping dari array themes di atas */}
+              {themes.map((t) => (
+                <DropdownMenuItem
+                  key={t.name}
+                  onClick={() => setTheme(t.name)}
+                  className="cursor-pointer flex items-center gap-3 py-2"
+                >
+                  <div className={`${t.bg} flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border/50 shadow-sm`}>
+                    {/* Inner dots menggunakan grid 2x2 agar lebih rapi */}
+                    <div className="grid grid-cols-2 gap-0.5">
+                      <div className={`${t.primary} h-1.5 w-1.5 rounded-full`} />
+                      <div className={`${t.secondary} h-1.5 w-1.5 rounded-full`} />
+                      <div className={`${t.accent} h-1.5 w-1.5 rounded-full`} />
+                      <div className={`${t.bg} h-1.5 w-1.5 rounded-full border-[0.5px] border-black/20 dark:border-white/20`} />
+                    </div>
+                  </div>
+                  <span className="capitalize">{t.name}</span>
+                </DropdownMenuItem>
+              ))}
+
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
@@ -272,7 +281,7 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
                       variant={isFullscreen ? "default" : "link"}
                       className={`${isFullscreen
                         ? "shadow-lg"
-                        : "text-black dark:text-white"
+                        : "dark:text-white"
                         } hover:bg-secondary flex items-center justify-start w-full`}
                       onClick={handleFullscreen}
                     >
