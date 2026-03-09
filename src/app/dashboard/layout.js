@@ -164,8 +164,6 @@ export function UserDropdown({ user, logout, isCollapsed }) {
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-border/40 min-w-[10rem]">
-
-              {/* Lakukan mapping dari array themes di atas */}
               {themes.map((t) => (
                 <DropdownMenuItem
                   key={t.name}

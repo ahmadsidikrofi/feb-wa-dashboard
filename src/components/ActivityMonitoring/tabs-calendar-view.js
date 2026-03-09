@@ -1,8 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useMemo, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DndContext, PointerSensor, pointerWithin, useSensor, useSensors } from "@dnd-kit/core";
-import { DraggableEventBlock, DroppableDayCell } from "./dates-droppable";
+import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import CalendarMobileView from "./calendar-mobile-view";
+import CalendarDesktopView from "./calendar-desktop-view";
 
 const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelect }) => {
     const [currentDate, setCurrentDate] = useState(new Date())
@@ -56,8 +56,10 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
 
     const toDateKey = (date) => {
         const d = new Date(date)
-        d.setHours(0, 0, 0, 0)
-        return d.toISOString().split("T")[0]
+        const year = d.getFullYear()
+        const month = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
     }
 
     // ===== Proses events untuk spanning =====
@@ -158,7 +160,7 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
         const targetDateKey = over.id; // Ini YYYY-MM-DD dari kotak tujuan
 
         // Kalau tanggalnya nggak berubah, abaikan
-        const originalDateKey = new Date(draggedEvent.tanggal).toISOString().split("T")[0];
+        const originalDateKey = toDateKey(draggedEvent.tanggal);
         if (targetDateKey === originalDateKey) return;
 
         // Panggil fungsi ke parent (atau bisa langsung panggil API Axios di sini)
@@ -218,6 +220,31 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
         return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
     }, [])
 
+    const mobileAgendaList = useMemo(() => {
+        const currentMonthActivities = filteredActivities.filter(act => {
+            const actDate = new Date(act.tanggal);
+            return actDate.getMonth() === currentDate.getMonth() &&
+                actDate.getFullYear() === currentDate.getFullYear();
+        });
+
+        currentMonthActivities.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+        const grouped = {};
+        currentMonthActivities.forEach(act => {
+            const dateStr = act.tanggal
+            if (!grouped[dateStr]) {
+                grouped[dateStr] = {
+                    dateObj: new Date(act.tanggal),
+                    events: []
+                };
+            }
+            grouped[dateStr].events.push(act);
+        });
+
+        // Ubah object jadi array biar gampang di-map
+        return Object.values(grouped)
+    }, [filteredActivities, currentDate])
+
     return (
         <Card className="bg-white/40 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm">
             <CardHeader>
@@ -228,145 +255,31 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
             </CardHeader>
 
             <CardContent>
-                <DndContext
-                    sensors={sensors}
-                    onDragEnd={handleDragEnd}
-                    collisionDetection={pointerWithin}
-                >
-                    {/* Header Navigation */}
-                    <div className="flex items-center justify-between mb-4">
-                        <button
-                            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                            className="p-2 rounded-full hover:bg-accent transition"
-                        >
-                            <ChevronLeft size={18} />
-                        </button>
-                        <h2 className="text-lg font-medium capitalize">{monthLabel}</h2>
-                        <button
-                            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                            className="p-2 rounded-full hover:bg-accent transition"
-                        >
-                            <ChevronRight size={18} />
-                        </button>
-                    </div>
+                <div className="md:block hidden">
+                    <CalendarDesktopView
+                        sensors={sensors}
+                        handleDragEnd={handleDragEnd}
+                        currentDate={currentDate}
+                        setCurrentDate={setCurrentDate}
+                        monthLabel={monthLabel}
+                        weeks={weeks}
+                        processedWeekEvents={processedWeekEvents}
+                        MAX_VISIBLE_ROWS={MAX_VISIBLE_ROWS}
+                        DATE_NUMBER_HEIGHT={DATE_NUMBER_HEIGHT}
+                        EVENT_HEIGHT={EVENT_HEIGHT}
+                        EVENT_GAP={EVENT_GAP}
+                        toDateKey={toDateKey}
+                        isDateInSelection={isDateInSelection}
+                        handleMouseDown={handleMouseDown}
+                        handleMouseEnter={handleMouseEnter}
+                        handleMouseUp={handleMouseUp}
+                        onEdit={onEdit}
+                    />
+                </div>
 
-                    {/* Weekday Header */}
-                    <div className="grid grid-cols-7 text-xs uppercase text-muted-foreground mb-2">
-                        {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
-                            <div key={day} className="text-center py-2">{day}</div>
-                        ))}
-                    </div>
-
-                    {/* Calendar Grid - per row/week */}
-                    <div className="border-l border-t border-border/60">
-                        {weeks.map((week, weekIndex) => {
-                            const weekEvs = processedWeekEvents[weekIndex]
-                            const maxRow = weekEvs.length > 0 ? Math.max(...weekEvs.map(e => e.row)) : -1
-                            const visibleRows = Math.min(maxRow + 1, MAX_VISIBLE_ROWS)
-
-                            // Tinggi row = ruang tanggal + ruang events
-                            const rowHeight = DATE_NUMBER_HEIGHT + visibleRows * (EVENT_HEIGHT + EVENT_GAP) + 12
-
-                            return (
-                                <div
-                                    key={weekIndex}
-                                    className="relative grid grid-cols-7"
-                                    style={{ minHeight: Math.max(rowHeight, 150) }}
-                                >
-                                    {/* Sel-sel tanggal (background + nomor) */}
-                                    {week.map((day, dayIndex) => {
-                                        const isToday = new Date().toDateString() === day.fullDate.toDateString()
-                                        const dateKey = toDateKey(day.fullDate)
-                                        const isSelected = isDateInSelection(dateKey)
-
-                                        return (
-                                            <DroppableDayCell
-                                                key={dayIndex}
-                                                day={day}
-                                                dateKey={dateKey}
-                                                isToday={isToday}
-                                                isSelected={isSelected}
-                                                onMouseDown={() => handleMouseDown(dateKey)}
-                                                onMouseEnter={() => handleMouseEnter(dateKey)}
-                                                onMouseUp={handleMouseUp}
-                                            />
-                                        );
-                                    })}
-
-                                    {/* ===== LAYER EVENT (absolute, di atas grid) ===== */}
-                                    <div
-                                        className="absolute inset-0 pointer-events-none mt-2"
-                                        style={{ top: DATE_NUMBER_HEIGHT }}
-                                    >
-                                        {weekEvs
-                                            .filter(ev => ev.row < MAX_VISIBLE_ROWS)
-                                            .map((ev, evIdx) => {
-                                                const { event, colStart, colEnd, isStart, isEnd, row } = ev
-                                                const spanCols = colEnd - colStart + 1
-
-                                                // Width: berapa kolom yang di-span, dikurangi sedikit padding
-                                                const CELL_WIDTH_PERCENT = 100 / 7
-                                                const leftPercent = colStart * CELL_WIDTH_PERCENT
-                                                // Kurangi 2px kanan agar ada gap visual antar kolom
-                                                const widthPercent = spanCols * CELL_WIDTH_PERCENT
-
-                                                const topPx = row * (EVENT_HEIGHT + EVENT_GAP) + EVENT_GAP
-
-                                                const styleProps = {
-                                                    weekIndex, // Lempar buat id unik
-                                                    style: {
-                                                        left: `calc(${leftPercent}% + ${ev.isStart ? 4 : 0}px)`,
-                                                        width: `calc(${widthPercent}% - ${ev.isStart ? 4 : 0}px - ${ev.isEnd ? 4 : 0}px)`,
-                                                        top: topPx,
-                                                        height: EVENT_HEIGHT,
-                                                        zIndex: 10,
-                                                    }
-                                                };
-                                                return (
-                                                    <DraggableEventBlock
-                                                        key={evIdx}
-                                                        eventData={{ event, isStart, isEnd, colStart }}
-                                                        styleProps={styleProps}
-                                                        onEdit={onEdit}
-                                                    />
-                                                );
-                                            })}
-
-                                        {/* "+N lainnya" per kolom hari */}
-                                        {week.map((day, dayIndex) => {
-                                            const dateKey = toDateKey(day.fullDate)
-                                            // Hitung berapa event yang hidden di hari ini
-                                            const hiddenEvents = weekEvs.filter(ev =>
-                                                ev.colStart <= dayIndex &&
-                                                ev.colEnd >= dayIndex &&
-                                                ev.row >= MAX_VISIBLE_ROWS
-                                            )
-                                            if (hiddenEvents.length === 0) return null
-
-                                            const CELL_WIDTH_PERCENT = 100 / 7
-                                            const topPx = MAX_VISIBLE_ROWS * (EVENT_HEIGHT + EVENT_GAP) + EVENT_GAP
-
-                                            return (
-                                                <div
-                                                    key={dateKey}
-                                                    className="absolute text-[10px] text-muted-foreground pointer-events-auto cursor-default select-none"
-                                                    style={{
-                                                        left: `calc(${dayIndex * CELL_WIDTH_PERCENT}% + 4px)`,
-                                                        width: `calc(${CELL_WIDTH_PERCENT}% - 8px)`,
-                                                        top: topPx,
-                                                    }}
-                                                >
-                                                    +{hiddenEvents.length} lainnya
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-
-                                </div>
-                            )
-                        })}
-                    </div>
-                </DndContext>
+                <div className="block md:hidden space-y-6">
+                    <CalendarMobileView mobileAgendaList={mobileAgendaList} />
+                </div>
             </CardContent>
         </Card>
     )

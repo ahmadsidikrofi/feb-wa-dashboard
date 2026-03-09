@@ -5,7 +5,7 @@ import { AuthProvider } from "@/context/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import RoleGuard from "@/components/Auth/RoleGuard";
 
-const raleway = Plus_Jakarta_Sans({
+const fontType = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
@@ -18,7 +18,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${raleway.className} antialiased`}>
+      <body className={`${fontType.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
