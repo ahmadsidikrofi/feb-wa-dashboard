@@ -1,12 +1,11 @@
-import { Geist, Geist_Mono, Nunito, Raleway } from "next/font/google";
+import { Geist, Plus_Jakarta_Sans, Inter, Nunito, Raleway } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import RoleGuard from "@/components/Auth/RoleGuard";
 
-const raleway = Nunito({
-  variable: "--font-raleway",
+const raleway = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
@@ -19,7 +18,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${raleway.variable} antialiased`} >
+      <body className={`${raleway.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
