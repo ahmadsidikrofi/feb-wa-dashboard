@@ -246,7 +246,7 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
     }, [filteredActivities, currentDate])
 
     return (
-        <Card className="bg-white/40 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm">
+        <Card className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm">
             <CardHeader>
                 <CardTitle>Kalender Interaktif</CardTitle>
                 <CardDescription>

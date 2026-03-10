@@ -205,56 +205,62 @@
   --radius: 0rem;
 }
 
-.synthwave {
-  /* Background ungu sangat gelap */
-  --background: oklch(0.18 0.05 280);
-  --foreground: oklch(0.95 0.02 250);
-  --card: oklch(0.22 0.06 280);
-  --card-foreground: oklch(0.95 0.02 250);
-  --popover: oklch(0.22 0.06 280);
-  --popover-foreground: oklch(0.95 0.02 250);
+.caramellatte {
+  /* Background utama pakai base100 */
+  --background: oklch(0.98 0.016 73.684);
+  --foreground: oklch(0.2245 0.075 37.85);
 
-  /* Primary warna Neon Pink menyala */
-  --primary: oklch(0.65 0.25 330);
-  --primary-foreground: oklch(0.15 0.05 280);
+  --card: oklch(0.98 0.016 73.684);
+  --card-foreground: oklch(0.2245 0.075 37.85);
+  --popover: oklch(0.98 0.016 73.684);
+  --popover-foreground: oklch(0.2245 0.075 37.85);
 
-  /* Secondary warna Neon Cyan/Biru terang */
-  --secondary: oklch(0.7 0.15 230);
-  --secondary-foreground: oklch(0.15 0.05 280);
+  /* Primary (Coklat Gelap) */
+  --primary: oklch(0.2245 0.075 37.85);
+  --primary-foreground: oklch(0.98 0.016 73.684);
 
-  --muted: oklch(0.28 0.08 280);
-  --muted-foreground: oklch(0.75 0.05 250);
-  --accent: oklch(0.32 0.1 280);
-  --accent-foreground: oklch(0.95 0.02 250);
+  /* Secondary pakai base200 agar warnanya krem sedikit lebih gelap dari background */
+  --secondary: oklch(0.95 0.038 75.164);
+  --secondary-foreground: oklch(0.2245 0.075 37.85);
 
-  --destructive: oklch(0.6 0.25 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.35 0.1 280);
-  --input: oklch(0.35 0.1 280);
-  --ring: oklch(0.65 0.25 330);
+  /* Muted untuk elemen yang di-disable atau background sekunder */
+  --muted: oklch(0.95 0.038 75.164);
+  --muted-foreground: oklch(0.55 0.195 38.402);
+  /* Pakai warna Neutral untuk teks muted */
 
-  /* Chart Colors Synthwave (Neon vibes) */
-  --chart-1: oklch(0.65 0.25 330);
-  /* Pink */
-  --chart-2: oklch(0.7 0.15 230);
-  /* Cyan */
-  --chart-3: oklch(0.75 0.2 140);
-  /* Greenish */
-  --chart-4: oklch(0.8 0.18 80);
-  /* Yellow/Orange */
-  --chart-5: oklch(0.6 0.2 300);
-  /* Purple */
+  /* Accent (Warna Coklat Karamel Terang) */
+  --accent: oklch(0.4644 0.111 37.85);
+  --accent-foreground: oklch(0.98 0.016 73.684);
 
-  /* Sidebar Synthwave */
-  --sidebar: oklch(0.15 0.04 280);
-  --sidebar-foreground: oklch(0.95 0.02 250);
-  --sidebar-primary: oklch(0.65 0.25 330);
-  --sidebar-primary-foreground: oklch(0.15 0.05 280);
-  --sidebar-accent: oklch(0.28 0.08 280);
-  --sidebar-accent-foreground: oklch(0.95 0.02 250);
-  --sidebar-border: oklch(0.35 0.1 280);
-  --sidebar-ring: oklch(0.65 0.25 330);
-  --radius: 0.3rem;
+  /* Destructive pakai Error dari daisyUI */
+  --destructive: oklch(0.70 0.191 22.216);
+  --destructive-foreground: oklch(0.98 0.016 73.684);
+
+  /* Border dan Input pakai base300 agar garisnya kelihatan jelas tapi soft */
+  --border: oklch(0.90 0.076 70.697);
+  --input: oklch(0.90 0.076 70.697);
+  /* Ring focus pakai warna Accent biar estetik saat input diklik */
+  --ring: oklch(0.4644 0.111 37.85);
+
+  /* Chart Colors (Diambil dari campuran Accent, Neutral, Warning, Success, Info) */
+  --chart-1: oklch(0.4644 0.111 37.85);
+  --chart-2: oklch(0.55 0.195 38.402);
+  --chart-3: oklch(0.82 0.189 84.429);
+  --chart-4: oklch(0.43 0.095 166.913);
+  --chart-5: oklch(0.42 0.199 265.638);
+
+  /* Sidebar styling (menggunakan base200 agar ada pemisah visual dengan konten utama) */
+  --sidebar: oklch(0.95 0.038 75.164);
+  --sidebar-foreground: oklch(0.2245 0.075 37.85);
+  --sidebar-primary: oklch(0.2245 0.075 37.85);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.90 0.076 70.697);
+  --sidebar-accent-foreground: oklch(0.2245 0.075 37.85);
+  --sidebar-border: oklch(0.90 0.076 70.697);
+  --sidebar-ring: oklch(0.4644 0.111 37.85);
+
+  /* Radius dibuat lumayan membulat biar dapet kesan 'bubbly' kayak di gambar */
+  --radius: 0.75rem;
 }
 
 .valentine {
@@ -301,8 +307,72 @@
   --sidebar-accent-foreground: oklch(0.4 0.15 350);
   --sidebar-border: oklch(0.85 0.06 350);
   --sidebar-ring: oklch(0.6 0.2 350);
-  --radius: 2rem;
+  --radius: 1.5rem;
   --font-sans: "Comic Sans MS", "Quicksand", sans-serif;
+}
+
+.aqua {
+  /* Background menggunakan Deep Navy Blue */
+  --background: oklch(0.18 0.03 265);
+  --foreground: oklch(0.95 0.02 250);
+  /* Teks putih kebiruan */
+
+  /* Card dan Popover sedikit lebih terang dari background */
+  --card: oklch(0.24 0.05 265);
+  --card-foreground: oklch(0.95 0.02 250);
+  --popover: oklch(0.24 0.05 265);
+  --popover-foreground: oklch(0.95 0.02 250);
+
+  /* Primary menggunakan biru menyala */
+  --primary: oklch(27% 0.146 265.522);
+  --primary-foreground: oklch(0.98 0 0);
+
+  /* Secondary menggunakan biru gelap (seperti tombol "Charts") */
+  --secondary: oklch(85.661% 0.144 198.645);
+  --secondary-foreground: oklch(0.95 0.02 250);
+
+  /* Muted untuk elemen pasif atau teks sekunder */
+  --muted: oklch(85.661% 0.144 198.645);
+  --muted-foreground: oklch(0.70 0.04 260);
+
+  /* Accent menggunakan Cyan/Aqua terang (seperti pada "Tab 2") */
+  --accent: oklch(0.75 0.15 220);
+  --accent-foreground: oklch(0.18 0.03 265);
+  /* Teks dibuat gelap agar kontras di atas warna cyan */
+
+  /* Destructive (Merah/Orange dari alert error) */
+  --destructive: oklch(0.55 0.20 25);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  /* Border dan Input menggunakan garis biru samar */
+  --border: oklch(0.35 0.06 265);
+  --input: oklch(0.35 0.06 265);
+  /* Ring focus menggunakan warna Accent (Cyan) biar estetik */
+  --ring: oklch(0.75 0.15 220);
+
+  /* Chart Colors (Mengambil dari warna Biru, Cyan, Hijau, Orange, Ungu di UI) */
+  --chart-1: oklch(85.661% 0.144 198.645);
+  /* Primary Blue */
+  --chart-2: oklch(0.75 0.15 220);
+  /* Accent Cyan */
+  --chart-3: oklch(0.60 0.15 150);
+  /* Success Green */
+  --chart-4: oklch(0.70 0.18 50);
+  /* Warning Orange */
+  --chart-5: oklch(0.60 0.20 300);
+  /* Purple */
+
+  /* Sidebar disamakan dengan tone Card agar menyatu */
+  --sidebar: oklch(0.24 0.05 265);
+  --sidebar-foreground: oklch(0.95 0.02 250);
+  --sidebar-primary: oklch(27% 0.146 265.522);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.30 0.08 265);
+  --sidebar-accent-foreground: oklch(0.95 0.02 250);
+  --sidebar-border: oklch(0.35 0.06 265);
+  --sidebar-ring: oklch(0.75 0.15 220);
+
+  --radius: 0.75rem;
 }
 
 

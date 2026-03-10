@@ -147,7 +147,7 @@ export default function NotulensiDetailPage({ params }) {
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-8 w-8 animate-spin text-[#e31e25]" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p className="text-muted-foreground">Memuat data rapat...</p>
             </div>
           </CardContent>
@@ -191,7 +191,7 @@ export default function NotulensiDetailPage({ params }) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
               Notulensi Rapat
             </h1>
             <p className="text-muted-foreground">
@@ -227,8 +227,8 @@ export default function NotulensiDetailPage({ params }) {
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e31e25]/10">
-                <Calendar className="h-5 w-5 text-[#e31e25]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Tanggal</p>
@@ -244,8 +244,8 @@ export default function NotulensiDetailPage({ params }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e31e25]/10">
-                <Clock className="h-5 w-5 text-[#e31e25]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Clock className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Waktu</p>
@@ -254,8 +254,8 @@ export default function NotulensiDetailPage({ params }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e31e25]/10">
-                <MapPin className="h-5 w-5 text-[#e31e25]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <MapPin className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Tempat</p>
@@ -264,8 +264,8 @@ export default function NotulensiDetailPage({ params }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e31e25]/10">
-                <User className="h-5 w-5 text-[#e31e25]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pemimpin Rapat</p>
@@ -278,7 +278,7 @@ export default function NotulensiDetailPage({ params }) {
 
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Users className="h-5 w-5 text-[#e31e25]" />
+              <Users className="h-5 w-5 text-primary" />
               <h3 className="font-semibold">
                 Peserta Rapat ({notulensi.peserta.length})
               </h3>
@@ -296,7 +296,7 @@ export default function NotulensiDetailPage({ params }) {
           <Separator />
 
           <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-[#e31e25]" />
+            <FileText className="h-5 w-5 text-primary" />
             <span className="text-sm text-muted-foreground">Notulen:</span>
             <span className="font-medium">{notulensi.notulen}</span>
           </div>
@@ -312,7 +312,7 @@ export default function NotulensiDetailPage({ params }) {
           <ol className="space-y-2">
             {notulensi.agendaRapat.map((agenda, index) => (
               <li key={index} className="flex gap-3">
-                <span className="font-semibold text-[#e31e25]">
+                <span className="font-semibold text-primary">
                   {index + 1}.
                 </span>
                 <span>{agenda}</span>
@@ -335,7 +335,7 @@ export default function NotulensiDetailPage({ params }) {
             <div key={index}>
               <div className="mb-4">
                 <div className="flex items-start gap-3 mb-3">
-                  <Badge className="bg-[#e31e25] hover:bg-[#c41a20]">
+                  <Badge className="bg-primary hover:bg-[#c41a20]">
                     Agenda {index + 1}
                   </Badge>
                   <h3 className="font-semibold text-lg">{item.agenda}</h3>
@@ -407,12 +407,12 @@ export default function NotulensiDetailPage({ params }) {
                               <Badge
                                 variant={
                                   tl.status === "Closed" || tl.status === "Open"
-                                    ? "bg-red-500 hover:bg-red-600"
+                                    ? "bg-red-500 hover:bg-red-600 text-white"
                                     : "secondary"
                                 }
                                 className={
                                   tl.status === "Closed" || tl.status === "Open"
-                                    ? "bg-green-600 hover:bg-green-700"
+                                    ? "bg-green-600 hover:bg-green-700 text-white"
                                     : ""
                                 }
                               >

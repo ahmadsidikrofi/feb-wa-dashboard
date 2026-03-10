@@ -860,7 +860,7 @@ export default function EvidenceAuditPage() {
         <div className="space-y-6" >
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+                    <h1 className="text-3xl font-bold tracking-tight text-primary">
                         RTM
                     </h1>
                     <p className="text-muted-foreground">
@@ -869,7 +869,7 @@ export default function EvidenceAuditPage() {
                 </div>
             </div>
 
-            <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur">
+            <Card className="border-none shadow-sm bg-base-200 dark:bg-accent-900/50 backdrop-blur">
                 <CardHeader>
                     <CardTitle>Data RTM 2025</CardTitle>
                     <CardDescription>
@@ -883,7 +883,7 @@ export default function EvidenceAuditPage() {
                         <Input
                             type="text"
                             placeholder="Cari bulan, topik, atau pembahasan..."
-                            className="pl-8 bg-white/80 dark:bg-slate-800/80"
+                            className="pl-8 bg-accent-100 dark:bg-accent-100"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -899,16 +899,16 @@ export default function EvidenceAuditPage() {
                                     <div key={bulan} className="space-y-4">
                                         <div className="flex items-center gap-2 pb-2 border-b border-rose-100 dark:border-rose-900/30">
                                             <Calendar className="h-5 w-5 text-[#e31e25]" />
-                                            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">{bulan}</h2>
+                                            <h2 className="text-xl font-bold text-base-200 dark:text-accent-100">{bulan}</h2>
                                         </div>
-                                        <div className="border rounded-xl overflow-hidden bg-white/30 dark:bg-slate-950/30">
+                                        <div className="border rounded-xl overflow-hidden bg-base-200/30 dark:bg-accent-950/30">
                                             <Table>
-                                                <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
+                                                <TableHeader className="bg-accent-50/50 dark:bg-accent-100">
                                                     <TableRow>
                                                         <TableHead className="w-[60px] text-center font-bold">No</TableHead>
-                                                        <TableHead className="w-[150px] font-bold text-slate-900 dark:text-slate-100">Tanggal</TableHead>
-                                                        <TableHead className="w-[250px] font-bold text-slate-900 dark:text-slate-100">Topik Utama</TableHead>
-                                                        <TableHead className="font-bold text-slate-900 dark:text-slate-100">Detail Pembahasan</TableHead>
+                                                        <TableHead className="w-[150px] font-bold text-accent-900 dark:text-accent-100">Tanggal</TableHead>
+                                                        <TableHead className="w-[250px] font-bold text-accent-900 dark:text-accent-100">Topik Utama</TableHead>
+                                                        <TableHead className="font-bold text-accent-900 dark:text-accent-100">Detail Pembahasan</TableHead>
                                                         <TableHead className="w-[120px] text-center font-bold">Evidence</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
@@ -927,7 +927,7 @@ export default function EvidenceAuditPage() {
                                                             <TableCell className="p-4">
                                                                 <ul className="list-disc list-outside ml-4 space-y-1">
                                                                     {item.pembahasan.map((poin, idx) => (
-                                                                        <li key={idx} className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                                                                        <li key={idx} className="text-sm leading-relaxed text-accent-600 dark:text-accent-400">
                                                                             {poin}
                                                                         </li>
                                                                     ))}
@@ -952,7 +952,7 @@ export default function EvidenceAuditPage() {
                                 )
                             })
                         ) : (
-                            <div className="border rounded-xl text-center py-20 bg-slate-50/50 dark:bg-slate-800/20">
+                            <div className="border rounded-xl text-center py-20 bg-accent-50/50 dark:bg-accent-100">
                                 <div className="text-muted-foreground flex flex-col items-center gap-2">
                                     <Search className="h-10 w-10 opacity-20" />
                                     <p>Tidak menemukan data untuk "{searchQuery}"</p>

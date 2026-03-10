@@ -130,7 +130,7 @@ const AccountPage = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 relative">
-            <div className="pointer-events-none absolute -top-30 h-[200px] w-[100%] rounded-full bg-[#cb0000]/20 blur-[120px] dark:bg-primary/30 animate-pulse duration-500" />
+            <div className="pointer-events-none absolute -top-30 h-[200px] w-[100%] rounded-full bg-primary/20 blur-[120px] dark:bg-primary/30 animate-pulse duration-500" />
             <main className="max-w-3xl mx-auto py-12 px-6 lg:px-8 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
                 {/* Header Section */}
                 <header className="text-center space-y-2">
@@ -277,11 +277,11 @@ const AccountPage = () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium synthwave:text-white dark:text-white">Google</p>
+                                            <p className="text-sm font-medium caramellatte:text-white dark:text-white">Google</p>
                                             {linkedEmail ? (
-                                                <p className="text-xs text-gray-500 synthwave:text-white/50 dark:text-white/50 mt-0.5">{linkedEmail}</p>
+                                                <p className="text-xs text-gray-500 caramellatte:text-white/50 dark:text-white/50 mt-0.5">{linkedEmail}</p>
                                             ) : (
-                                                <p className="text-xs text-gray-500 synthwave:text-white/50 dark:text-white/50 mt-0.5">Login dengan Google</p>
+                                                <p className="text-xs text-gray-500 caramellatte:text-white/50 dark:text-white/50 mt-0.5">Login dengan Google</p>
                                             )}
                                         </div>
                                     </div>

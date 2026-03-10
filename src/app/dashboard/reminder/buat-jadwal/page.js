@@ -229,7 +229,7 @@ const ReminderPage = () => {
                         <AlarmClock className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-red-500">Reminder Ibu Dekan</h1>
+                        <h1 className="text-3xl font-bold tracking-tight text-primary">Reminder Ibu Dekan</h1>
                         <p className="text-muted-foreground">
                             Pengingat kegiatan penting agar tidak terlewat
                         </p>

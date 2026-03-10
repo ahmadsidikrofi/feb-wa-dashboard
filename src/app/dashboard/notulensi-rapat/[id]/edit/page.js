@@ -200,7 +200,7 @@ export default function EditNotulensiPage({ params }) {
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-8 w-8 animate-spin text-[#e31e25]" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p className="text-muted-foreground">Memuat data rapat...</p>
             </div>
           </CardContent>
@@ -363,7 +363,7 @@ export default function EditNotulensiPage({ params }) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
               Buat/Edit Notulensi Rapat
             </h1>
             <p className="text-muted-foreground">
@@ -548,10 +548,11 @@ export default function EditNotulensiPage({ params }) {
                     <Button
                       type="button"
                       variant="outline"
-                      size="icon"
+                      size="sm"
                       onClick={() => handleRemovePeserta(index)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="size-4" />
+                      <span>Hapus</span>
                     </Button>
                   )}
                 </div>
@@ -586,7 +587,7 @@ export default function EditNotulensiPage({ params }) {
               {pembahasanList.map((item, index) => (
                 <div key={index} className="border rounded-lg p-4 space-y-4">
                   <div className="flex items-center justify-between">
-                    <Badge className="bg-[#e31e25] hover:bg-[#c41a20]">
+                    <Badge className="bg-primary hover:bg-primary/70">
                       Agenda {index + 1}
                     </Badge>
                     {pembahasanList.length > 1 && (
@@ -662,7 +663,7 @@ export default function EditNotulensiPage({ params }) {
                           size="sm"
                           onClick={() => handleAddActionItem(index)}
                         >
-                          <Plus className="h-3 w-3 mr-1" />
+                          <Plus className="size-4 mr-1" />
                           Tambah Item
                         </Button>
                       </div>
@@ -670,16 +671,6 @@ export default function EditNotulensiPage({ params }) {
                       <div className="space-y-4">
                         {item.actionItems && item.actionItems.map((actionItem, actionIdx) => (
                           <div key={actionIdx} className="bg-muted/50 p-3 rounded-lg relative group">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="absolute right-2 top-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleRemoveActionItem(index, actionIdx)}
-                            >
-                              <Trash2 className="h-3 w-3 text-muted-foreground hover:text-red-500" />
-                            </Button>
-
                             <div className="grid gap-3">
                               <div className="grid gap-2">
                                 <Label className="text-xs font-medium">Tugas</Label>
@@ -787,6 +778,17 @@ export default function EditNotulensiPage({ params }) {
                                 >
                                   Closed
                                 </Button>
+
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="absolute right-4 h-8 w-20 p-0"
+                                  onClick={() => handleRemoveActionItem(index, actionIdx)}
+                                >
+                                  <Trash2 className="size-4" />
+                                  <span>Hapus</span>
+                                </Button>
                               </div>
                             </div>
                           </div>
@@ -817,7 +819,7 @@ export default function EditNotulensiPage({ params }) {
           </Button>
           <Button
             type="submit"
-            className="bg-[#e31e25] hover:bg-[#c41a20]"
+            className="bg-primary hover:bg-[#c41a20]"
             disabled={isFetching}
           >
             {isFetching ? (

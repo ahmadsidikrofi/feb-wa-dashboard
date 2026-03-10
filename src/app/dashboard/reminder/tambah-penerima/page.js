@@ -123,7 +123,7 @@ function TambahPenerimaPage() {
               <div className="p-3 rounded-xl bg-primary/10 dark:bg-primary/20">
                 <Users className="w-6 h-6 text-primary" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-red-600">Kumpulan Penerima Reminder</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-primary">Kumpulan Penerima Reminder</h1>
             </div>
             <p className="text-muted-foreground">
               Daftar penerima reminder yang telah ditambahkan
@@ -134,7 +134,7 @@ function TambahPenerimaPage() {
           <div className='relative flex gap-2'>
             {/* <Input className="w-full" placeholder="Cari kontak penerima" /> */}
             <DialogTrigger asChild>
-              <Button className=" sm:w-auto"><PlusCircleIcon /> Tambah kontak</Button>
+              <Button className="sm:w-auto"><PlusCircleIcon /> Tambah kontak</Button>
             </DialogTrigger>
           </div>
 

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/pagination";
 
 import DeleteActivity from "./delete-activity";
-import { CalendarDays, CalendarPlus, LayoutGrid, Search, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, Trash2, Columns, AlertTriangle } from "lucide-react";
+import { CalendarPlus, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import { Button } from "../ui/button";

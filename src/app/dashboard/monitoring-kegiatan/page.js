@@ -103,7 +103,7 @@ export default function MonitoringKegiatanPage() {
   const [filterStatus, setFilterStatus] = useState("all")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [viewMode, setViewMode] = useState("table")
+  const [viewMode, setViewMode] = useState("calendar")
   const [editingId, setEditingId] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pagination, setPagination] = useState({
@@ -443,7 +443,7 @@ ${activity.keterangan}`
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
             Daftar Agenda
           </h1>
           <p className="text-muted-foreground">

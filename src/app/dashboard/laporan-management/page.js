@@ -74,7 +74,7 @@ export default function LaporanManagementPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#e31e25]">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
             Laporan Management
           </h1>
           <p className="text-muted-foreground">

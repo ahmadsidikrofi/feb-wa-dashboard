@@ -12,6 +12,7 @@ import { Input } from '../ui/input'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
+import { PlusIcon } from '../ui/plus-icon'
 
 export const contractManagementSchema = z.object({
     ContractManagementCategory: z.enum([
@@ -92,7 +93,7 @@ const AddContract = ({ getContractData }) => {
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
-                    <Button>+ Tambah KM</Button>
+                    <Button><PlusIcon /> Tambah KM</Button>
                 </DialogTrigger>
 
                 <DialogContent className="max-w-3xl">

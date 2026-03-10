@@ -116,8 +116,8 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-[#e31e25] hover:bg-[#c41a20]" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
+                <Button className="bg-primary hover:bg-primary/90" size="sm">
+                    <Plus className="size-4 mr-2" />
                     Tambah Rapat
                 </Button>
             </DialogTrigger>

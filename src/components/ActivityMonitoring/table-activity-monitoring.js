@@ -132,17 +132,17 @@ const TableActivityMonitoring = ({
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-base">Filter & Tampilan</CardTitle>
                         <TabsList>
+                            <TabsTrigger value="calendar" className="gap-2">
+                                <CalendarDays className="size-4" />
+                                Calendar
+                            </TabsTrigger>
                             <TabsTrigger value="table" className="gap-2">
-                                <LayoutGrid className="h-4 w-4" />
+                                <LayoutGrid className="size-4" />
                                 Tabel
                             </TabsTrigger>
                             <TabsTrigger value="board" className="gap-2">
-                                <Columns className="h-4 w-4" />
+                                <Columns className="size-4" />
                                 Board
-                            </TabsTrigger>
-                            <TabsTrigger value="calendar" className="gap-2">
-                                <CalendarDays className="h-4 w-4" />
-                                Calendar
                             </TabsTrigger>
                         </TabsList>
                     </div>
@@ -189,6 +189,11 @@ const TableActivityMonitoring = ({
                 </CardContent>
             </Card>
 
+            {/* Calendar View */}
+            <TabsContent value="calendar" className="mt-0">
+                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} />
+            </TabsContent>
+
             {/* Table View */}
             <TabsContent value="table" className="mt-0">
                 <TabsTableView isLoading={isLoading} pagination={pagination} currentPage={currentPage} onPageChange={onPageChange} filteredActivities={filteredActivities} onEdit={onEdit} onSuccess={onSuccess} exportToGoogleCalendar={exportToGoogleCalendar} getStatusBadge={getStatusBadge} />
@@ -197,11 +202,6 @@ const TableActivityMonitoring = ({
             {/* Card View */}
             <TabsContent value="board" className="mt-0">
                 <TabsBoardView filteredActivities={filteredActivities} exportToGoogleCalendar={exportToGoogleCalendar} getStatusBadge={getStatusBadge} />
-            </TabsContent>
-
-            {/* Calendar View */}
-            <TabsContent value="calendar" className="mt-0">
-                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} />
             </TabsContent>
         </Tabs>
     )
