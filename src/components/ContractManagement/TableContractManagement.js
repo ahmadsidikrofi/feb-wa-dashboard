@@ -325,22 +325,22 @@ const TableContractManagement = () => {
                     <TableCell style={{ minWidth: '100px' }}>
                       {row.target || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
+                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
                       {row.realization || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
+                    <TableCell style={{ minWidth: '100px' }} className={`font-bold ${row.achievement < 80 ? 'text-red-500' : row.achievement > 80 && row.achievement <= 100 ? 'text-yellow-500' : row.achievement > 100 ? 'text-green-500' : 'text-blue-500'}`}>
                       {row.achievement || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
+                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
                       {row.max || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
+                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
                       {row.min || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
+                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
                       {row.persReal || "-"}
                     </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
+                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
                       {row.value || "-"}
                     </TableCell>
                     <TableCell
