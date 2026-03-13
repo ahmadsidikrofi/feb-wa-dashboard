@@ -109,8 +109,8 @@ const AvatarSection = ({ user, setUser, updateProfile }) => {
             >
                 <Avatar className={`h-28 w-28 border-2 border-border transition-all duration-300 ${isUploadingAvatar ? "opacity-50 scale-95" : "group-hover:scale-105"}`}>
                     <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
-                    <AvatarFallback className="bg-primary/50 text-white text-6xl font-bold italic">
-                        {user?.name?.charAt(0) || "U"}
+                    <AvatarFallback className="bg-primary/50 text-white text-6xl font-bold italic flex">
+                        {user?.name?.substring(0, 2)?.toUpperCase() || "AO"}
                     </AvatarFallback>
                 </Avatar>
 

@@ -582,7 +582,7 @@ export default function AjukanKerjasamaPage() {
         </CardContent>
       </Card>
 
-      <SubmissionHistory />
+      {/* <SubmissionHistory /> */}
     </div >
   )
 }
