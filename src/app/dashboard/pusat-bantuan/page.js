@@ -15,20 +15,15 @@ const guides = [
             "/Fitur Agenda - 2.jpeg"
         ],
         colSpan: "col-span-1 md:col-span-2",
+        isComingSoon: false,
     },
     {
         id: 2,
         title: "Manajemen Tiket",
         description: "Menangani proses masuk, pelacakan, dan penyelesaian tiket layanan untuk civitas.",
         images: ["https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop"],
-        colSpan: "col-span-1 md:col-span-1",
-    },
-    {
-        id: 3,
-        title: "Partnership Monitoring",
-        description: "Menangani proses penanganan dalam membuat MoA/MoU/IA.",
-        images: ["https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=800&auto=format&fit=crop"],
-        colSpan: "col-span-1 md:col-span-1",
+        colSpan: "col-span-1 md:col-span-1 md:row-span-2",
+        isComingSoon: true,
     },
     {
         id: 4,
@@ -36,13 +31,15 @@ const guides = [
         description: "Pengaturan pengingat dan notifikasi yang otomatis dikirim langsung ke WhatsApp Anda.",
         images: ["https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop"],
         colSpan: "col-span-1 md:col-span-2",
+        isComingSoon: true,
     },
     {
         id: 5,
         title: "Notulensi Rapat",
         description: "Mencatat, menyusun, serta mengunduh form notulensi hasil rapat mingguan jurusan.",
-        images: ["https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=800&auto=format&fit=crop"],
+        images: ["https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800&auto=format&fit=crop"],
         colSpan: "col-span-1 md:col-span-3",
+        isComingSoon: true,
     },
 ]
 
@@ -91,6 +88,13 @@ const TiltCard = ({ item, onClick }) => {
                 transformStyle: "preserve-3d",
             }}
         >
+            {item.isComingSoon && (
+                <div className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6 text-center">
+                    <div className="bg-white/10 text-white px-6 py-2 rounded-full text-sm font-bold tracking-widest uppercase border border-white/20 shadow-2xl backdrop-blur-md">
+                        Coming Soon
+                    </div>
+                </div>
+            )}
             <div
                 className="absolute inset-0 z-0 opacity-40 mix-blend-overlay transition-opacity duration-500 group-hover:opacity-70 blur-sm pointer-events-none"
                 style={{
@@ -125,13 +129,15 @@ const TiltCard = ({ item, onClick }) => {
             </div>
 
             {/* Raycast style glowing button effect */}
-            <div
-                className={`absolute bottom-6 right-6 p-2 rounded-full bg-background/80 backdrop-blur-md shadow-sm border border-border/50 transition-all duration-300 transform 
-          ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
-                style={{ transform: "translateZ(40px)" }}
-            >
-                <ExternalLink className="w-4 h-4 text-primary" />
-            </div>
+            {!item.isComingSoon && (
+                <div
+                    className={`absolute bottom-6 right-6 p-2 rounded-full bg-background/80 backdrop-blur-md shadow-sm border border-border/50 transition-all duration-300 transform 
+            ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                    style={{ transform: "translateZ(40px)" }}
+                >
+                    <ExternalLink className="w-4 h-4 text-primary" />
+                </div>
+            )}
         </div>
     );
 };
@@ -212,7 +218,7 @@ const PusatBantuanPage = () => {
               transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] transform origin-center
               ${isModalClosing ? 'scale-95 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}
             `}
-                        onClick={(e) => e.stopPropagation()} // Mencegah klik dari menjalar ke background (overlay)
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-4 px-6 border-b border-border bg-card/50">
@@ -234,12 +240,20 @@ const PusatBantuanPage = () => {
                             <div className="relative w-full max-w-4xl min-h-[50vh] flex flex-col gap-8">
                                 {/* Gunakan tag img standar dengan ukuran responsif ketimbang Image NextJS fill untuk kebebasan rasio asli */}
                                 {selectedGuide.images.map((imgUrl, idx) => (
-                                    <img
-                                        key={idx}
-                                        src={imgUrl}
-                                        alt={`${selectedGuide.title} ${idx + 1}`}
-                                        className="w-full h-auto object-contain rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.1)] border border-border/80"
-                                    />
+                                    <div key={idx} className="relative w-full rounded-xl overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.1)] border border-border/80">
+                                        <img
+                                            src={imgUrl}
+                                            alt={`${selectedGuide.title} ${idx + 1}`}
+                                            className="w-full h-auto object-contain"
+                                        />
+                                        {selectedGuide.isComingSoon && (
+                                            <div className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6 text-center">
+                                                <div className="bg-white/10 text-white px-6 py-2 rounded-full text-sm font-bold tracking-widest uppercase border border-white/20 shadow-2xl backdrop-blur-md">
+                                                    Coming Soon
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         </div>

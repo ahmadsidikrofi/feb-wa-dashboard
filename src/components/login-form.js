@@ -83,7 +83,7 @@ export function LoginForm({
       })
       const { token, user } = res.data
       login(token, user)
-      toast.success(`Halo ${data.username}, selamat datang di MIRA FEB`, {
+      toast.success(`Halo ${user.name}, selamat datang di MIRA FEB`, {
         position: 'top-center',
         style: { background: "#059669", color: "#d1fae5" },
         className: "border border-emerald-500"

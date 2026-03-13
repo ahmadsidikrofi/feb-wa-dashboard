@@ -96,13 +96,13 @@ export const navigation = [
         name: "Akreditasi LAMEMBA",
         href: "/dashboard/akreditasi-lamemba",
         icon: GraduationCap,
-        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
     },
     {
         name: "Akreditasi AACSB",
         href: "/dashboard/akreditasi-aacsb",
         icon: Award,
-        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
     },
     {
         name: "Data Pegawai",
@@ -120,6 +120,6 @@ export const navigation = [
         name: "RTM",
         href: "/dashboard/rtm",
         icon: GitGraph,
-        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
     },
 ]
