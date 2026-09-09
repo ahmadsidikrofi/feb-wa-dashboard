@@ -18,11 +18,12 @@ import {
 } from "@/components/ui/pagination";
 
 import DeleteActivity from "./delete-activity";
-import { CalendarPlus, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, AlertTriangle, CalendarCheck } from "lucide-react";
+import { CalendarPlus, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, AlertTriangle, CalendarCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 const formatRangeInfo = (pagination, currentPage, filteredCount) => {
     const total = pagination?.totalItems ?? 0
@@ -44,6 +45,22 @@ const formatRangeInfo = (pagination, currentPage, filteredCount) => {
 }
 
 
+const MONTHS_ID = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+]
+
+const shiftMonth = (month, year, delta) => {
+    let m = parseInt(month)
+    let y = parseInt(year)
+    if (isNaN(m) || m < 1 || m > 12) { m = new Date().getMonth() + 1 }
+    if (isNaN(y)) { y = new Date().getFullYear() }
+    m += delta
+    if (m > 12) { m = 1; y++ }
+    if (m < 1) { m = 12; y-- }
+    return { month: String(m), year: String(y) }
+}
+
 const TabsTableView = ({
     isLoading,
     pagination,
@@ -54,23 +71,88 @@ const TabsTableView = ({
     onSuccess,
     exportToGoogleCalendar,
     getStatusBadge,
+    // Month navigation props
+    filterMonth,
+    filterYear,
+    setFilterMonth,
+    setFilterYear,
 }) => {
+    const cardRef = useRef(null)
+    const scrollCooldown = useRef(false)
+
+    // Aktif hanya jika filterMonth bukan "all"
+    const canScrollMonth = filterMonth !== 'all'
+
+    useEffect(() => {
+        const el = cardRef.current
+        if (!el || !canScrollMonth) return
+
+        const handleWheel = (e) => {
+            e.preventDefault()
+            if (scrollCooldown.current) return
+            scrollCooldown.current = true
+            setTimeout(() => { scrollCooldown.current = false }, 400)
+            const { month, year } = shiftMonth(filterMonth, filterYear, e.deltaY > 0 ? 1 : -1)
+            setFilterMonth(month)
+            setFilterYear(year)
+        }
+
+        el.addEventListener('wheel', handleWheel, { passive: false })
+        return () => el.removeEventListener('wheel', handleWheel)
+    }, [canScrollMonth, filterMonth, filterYear, setFilterMonth, setFilterYear])
+
+    const monthLabel = (() => {
+        if (filterMonth === 'all') return 'Semua Bulan'
+        const m = parseInt(filterMonth)
+        const y = parseInt(filterYear)
+        if (isNaN(m)) return 'Semua Bulan'
+        return `${MONTHS_ID[m - 1]}${!isNaN(y) && filterYear !== 'all' ? ' ' + y : ''}`
+    })()
     return (
-        <Card>
+        <Card ref={cardRef}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
                 <div>
                     <CardTitle>Daftar Kegiatan</CardTitle>
                     <CardDescription>
-                        Monitoring kegiatan unit dan program studi dengan deteksi
-                        konflik otomatis
+                        Monitoring kegiatan unit dan program studi dengan deteksi konflik otomatis
                     </CardDescription>
                 </div>
-                <Button asChild size="sm" className="gap-2">
-                    <Link href="/dashboard/manajemen-acara">
-                        <CalendarCheck className="h-4 w-4" />
-                        Manajemen Acara
-                    </Link>
-                </Button>
+                <div className="flex items-center gap-2">
+                    {/* Month navigator — hanya tampil jika filterMonth aktif */}
+                    {canScrollMonth && (
+                        <div className="flex items-center gap-1 border rounded-md px-1 py-0.5">
+                            <button
+                                onClick={() => {
+                                    const { month, year } = shiftMonth(filterMonth, filterYear, -1)
+                                    setFilterMonth(month)
+                                    setFilterYear(year)
+                                }}
+                                className="p-1 rounded hover:bg-accent transition"
+                                title="Bulan sebelumnya"
+                            >
+                                <ChevronLeft className="h-3.5 w-3.5" />
+                            </button>
+                            <span className="text-xs font-medium px-1 min-w-[100px] text-center">{monthLabel}</span>
+                            <button
+                                onClick={() => {
+                                    const { month, year } = shiftMonth(filterMonth, filterYear, 1)
+                                    setFilterMonth(month)
+                                    setFilterYear(year)
+                                }}
+                                className="p-1 rounded hover:bg-accent transition"
+                                title="Bulan berikutnya"
+                            >
+                                <ChevronRight className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    )}
+                    <Button asChild size="sm" className="gap-2">
+                        <Link href="/dashboard/manajemen-acara">
+                            <CalendarCheck className="h-4 w-4" />
+                            Manajemen Acara
+                        </Link>
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="overflow-x-auto">

@@ -1,15 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 import {
   Calendar,
@@ -17,6 +8,7 @@ import {
   CheckCircle2,
   Clock,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import TableActivityMonitoring from "@/components/ActivityMonitoring/table-activity-monitoring";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -24,6 +16,7 @@ import { formatCamelCaseLabel } from "@/lib/utils";
 import AddActivity from "@/components/ActivityMonitoring/add-activity";
 import EditActivity from "@/components/ActivityMonitoring/edit-activity";
 import api from "@/lib/axios";
+
 
 const units = [
   "Dekan",
@@ -462,19 +455,17 @@ ${activity.keterangan}`
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">
-            Daftar Agenda
-          </h1>
-          <p className="text-muted-foreground">
-            Pantau dan kelola agenda kegiatan unit dan program studi untuk
-            menghindari konflik jadwal
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <div className="space-y-3">
+      {/* Unified Toolbar + Views */}
+      <TableActivityMonitoring
+        pageTitle="Daftar Agenda"
+        stats={[
+          { icon: Calendar, value: totalActivities, label: 'Total' },
+          { icon: Clock, value: todayActivities, label: 'Hari Ini' },
+          { icon: CheckCircle2, value: upcomingActivities, label: 'Mendatang' },
+          ...(conflictActivities > 0 ? [{ icon: AlertTriangle, value: conflictActivities, label: 'Konflik', variant: 'danger' }] : []),
+        ]}
+        addButton={
           <AddActivity
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}
@@ -487,72 +478,8 @@ ${activity.keterangan}`
             officials={officials}
             onSuccess={() => fetchActivities(currentPage)}
           />
-        </div>
-      </div>
+        }
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Kegiatan
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalActivities}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Terjadwal dan aktif
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hari Ini</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{todayActivities}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Kegiatan berlangsung
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mendatang</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{upcomingActivities}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Kegiatan terjadwal
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Konflik Terdeteksi
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {conflictActivities}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Perlu perhatian
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* View Toggle and Filters */}
-      <TableActivityMonitoring
         viewMode={viewMode}
         setViewMode={setViewMode}
         searchQuery={searchQuery}

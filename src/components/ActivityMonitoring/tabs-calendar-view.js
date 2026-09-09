@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CalendarMobileView from "./calendar-mobile-view";
 import CalendarDesktopView from "./calendar-desktop-view";
@@ -12,6 +12,28 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
     const [isSelecting, setIsSelecting] = useState(false)
     const [selectionStart, setSelectionStart] = useState(null)
     const [selectionEnd, setSelectionEnd] = useState(null)
+    const cardRef = useRef(null)
+    const scrollCooldown = useRef(false)
+
+    // Gunakan native addEventListener dengan passive: false
+    // agar e.preventDefault() benar-benar memblokir scroll browser
+    useEffect(() => {
+        const el = cardRef.current
+        if (!el) return
+
+        const handleWheel = (e) => {
+            e.preventDefault()
+            if (scrollCooldown.current) return
+            scrollCooldown.current = true
+            setTimeout(() => { scrollCooldown.current = false }, 400)
+            setCurrentDate(prev =>
+                new Date(prev.getFullYear(), prev.getMonth() + (e.deltaY > 0 ? 1 : -1))
+            )
+        }
+
+        el.addEventListener('wheel', handleWheel, { passive: false })
+        return () => el.removeEventListener('wheel', handleWheel)
+    }, [])
 
     // ===== Helper =====
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
@@ -249,7 +271,10 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
     }, [filteredActivities, currentDate])
 
     return (
-        <Card className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm">
+        <Card
+            ref={cardRef}
+            className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm"
+        >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
                 <div>
                     <CardTitle>Kalender Interaktif</CardTitle>
