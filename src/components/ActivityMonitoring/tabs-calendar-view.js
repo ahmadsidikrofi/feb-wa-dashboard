@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CalendarMobileView from "./calendar-mobile-view";
 import CalendarDesktopView from "./calendar-desktop-view";
@@ -13,7 +13,23 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
     const [selectionStart, setSelectionStart] = useState(null)
     const [selectionEnd, setSelectionEnd] = useState(null)
     const cardRef = useRef(null)
+    const contentRef = useRef(null)
     const scrollCooldown = useRef(false)
+
+    // ===== Responsive height tracking =====
+    const [calendarBodyHeight, setCalendarBodyHeight] = useState(0)
+
+    const updateHeight = useCallback(() => {
+        if (!contentRef.current) return
+        setCalendarBodyHeight(contentRef.current.clientHeight)
+    }, [])
+
+    useEffect(() => {
+        updateHeight()
+        const ro = new ResizeObserver(updateHeight)
+        if (contentRef.current) ro.observe(contentRef.current)
+        return () => ro.disconnect()
+    }, [updateHeight])
 
     // Gunakan native addEventListener dengan passive: false
     // agar e.preventDefault() benar-benar memblokir scroll browser
@@ -164,10 +180,21 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
         year: "numeric",
     })
 
-    const EVENT_HEIGHT = 22      // px tinggi satu event bar
-    const EVENT_GAP = 2          // px gap antar event
-    const DATE_NUMBER_HEIGHT = 28 // px ruang untuk nomor tanggal
-    const MAX_VISIBLE_ROWS = 3   // berapa baris event yang ditampilkan sebelum "+N lainnya"
+    // ===== Dynamic sizing berdasarkan tinggi container =====
+    const NUM_WEEKS = weeks.length || 6
+    // Hitung tinggi per sel (per baris minggu) dari ruang yang tersedia
+    // Kurangi: header hari (32px) + gap
+    const WEEKDAY_HEADER_HEIGHT = 32
+    const availableForCells = calendarBodyHeight > 0 ? calendarBodyHeight - WEEKDAY_HEADER_HEIGHT : 0
+    const cellHeight = availableForCells > 0 ? Math.floor(availableForCells / NUM_WEEKS) : 150
+
+    // Dari cellHeight, hitung konstanta event dinamis
+    const DATE_NUMBER_HEIGHT = 28
+    const EVENT_GAP = 2
+    // Sisakan minimal 8px padding bawah per sel
+    const availableForEvents = Math.max(0, cellHeight - DATE_NUMBER_HEIGHT - 8)
+    const EVENT_HEIGHT = Math.max(18, Math.min(24, Math.floor((availableForEvents - EVENT_GAP) / 3) - EVENT_GAP))
+    const MAX_VISIBLE_ROWS = Math.max(1, Math.floor(availableForEvents / (EVENT_HEIGHT + EVENT_GAP)))
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -273,9 +300,10 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
     return (
         <Card
             ref={cardRef}
-            className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm"
+            className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm flex flex-col"
+            style={{ height: 'calc(100vh - 160px)', minHeight: 480 }}
         >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4 shrink-0">
                 <div>
                     <CardTitle>Kalender Interaktif</CardTitle>
                     <CardDescription>
@@ -290,8 +318,8 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
                 </Button>
             </CardHeader>
 
-            <CardContent>
-                <div className="md:block hidden">
+            <CardContent ref={contentRef} className="flex-1 min-h-0 overflow-hidden p-4">
+                <div className="md:flex md:flex-col h-full hidden">
                     <CalendarDesktopView
                         sensors={sensors}
                         handleDragEnd={handleDragEnd}
@@ -304,6 +332,7 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
                         DATE_NUMBER_HEIGHT={DATE_NUMBER_HEIGHT}
                         EVENT_HEIGHT={EVENT_HEIGHT}
                         EVENT_GAP={EVENT_GAP}
+                        cellHeight={cellHeight}
                         toDateKey={toDateKey}
                         isDateInSelection={isDateInSelection}
                         handleMouseDown={handleMouseDown}
@@ -313,7 +342,7 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
                     />
                 </div>
 
-                <div className="block md:hidden space-y-6">
+                <div className="block md:hidden space-y-6 h-full overflow-y-auto">
                     <CalendarMobileView mobileAgendaList={mobileAgendaList} />
                 </div>
             </CardContent>

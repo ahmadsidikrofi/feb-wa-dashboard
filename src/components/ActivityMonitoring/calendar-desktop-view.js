@@ -22,6 +22,7 @@ const CalendarDesktopView = ({
     DATE_NUMBER_HEIGHT,
     EVENT_HEIGHT,
     EVENT_GAP,
+    cellHeight,
     toDateKey,
     isDateInSelection,
     handleMouseDown,
@@ -34,6 +35,7 @@ const CalendarDesktopView = ({
             sensors={sensors}
             onDragEnd={handleDragEnd}
             collisionDetection={pointerWithin}
+            style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
             {/* Header Navigation */}
             <div className="flex items-center justify-between mb-4">
@@ -60,20 +62,21 @@ const CalendarDesktopView = ({
             </div>
 
             {/* Calendar Grid - per row/week */}
-            <div className="border-l border-t border-border/60">
+            <div className="flex flex-col flex-1 border-l border-t border-border/60">
                 {weeks.map((week, weekIndex) => {
                     const weekEvs = processedWeekEvents[weekIndex]
                     const maxRow = weekEvs.length > 0 ? Math.max(...weekEvs.map(e => e.row)) : -1
                     const visibleRows = Math.min(maxRow + 1, MAX_VISIBLE_ROWS)
 
-                    // Tinggi row = ruang tanggal + ruang events
-                    const rowHeight = DATE_NUMBER_HEIGHT + visibleRows * (EVENT_HEIGHT + EVENT_GAP) + 12
+                    // Tinggi row: gunakan cellHeight dinamis jika tersedia, fallback ke kalkulasi
+                    const calculatedHeight = DATE_NUMBER_HEIGHT + visibleRows * (EVENT_HEIGHT + EVENT_GAP) + 12
+                    const rowHeight = cellHeight > 0 ? cellHeight : Math.max(calculatedHeight, 100)
 
                     return (
                         <div
                             key={weekIndex}
-                            className="relative grid grid-cols-7"
-                            style={{ minHeight: Math.max(rowHeight, 150) }}
+                            className="relative grid grid-cols-7 flex-1"
+                            style={{ height: rowHeight, minHeight: rowHeight }}
                         >
                             {/* Sel-sel tanggal (background + nomor) */}
                             {week.map((day, dayIndex) => {

@@ -12,14 +12,13 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/axios";
 
@@ -115,12 +114,6 @@ const AddMeeting = ({ isDialogOpen, setIsDialogOpen, isLoading, setIsLoading, fo
 
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90" size="sm">
-                    <Plus className="size-4 mr-2" />
-                    Tambah Rapat
-                </Button>
-            </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Tambah Rapat Baru</DialogTitle>

@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/axios";
 import ExportPdfButton from "@/components/shared/ExportPdfButton";
+import ExportNotulensiExcelButton from "@/components/shared/ExportNotulensiExcelButton";
 import { decodeId, encodeId } from "@/lib/hash-ids";
 
 export default function NotulensiDetailPage({ params }) {
@@ -212,6 +213,7 @@ export default function NotulensiDetailPage({ params }) {
             data={notulensi}
             fileName={`Notulensi Rapat - ${notulensi.judulRapat}`}
           />
+          <ExportNotulensiExcelButton meetingId={id} />
         </div>
       </div>
 
